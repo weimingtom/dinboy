@@ -14,19 +14,19 @@
     </define>
     <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'2010-10-16'</value>
+      <value>'2010-10-17'</value>
     </define>
     <source-path append="true">
-      <path-element>E:\Class Study\Flash\新文件\Fl\Program\DinTest\src</path-element>
-      <path-element>E:\Class Study\Flash\Librarys</path-element>
-      <path-element>F:\SoftSetup\FlashDevelop\Library\AS3\classes</path-element>
+      <path-element>F:\DINBOY\GoogleCode_DinBoy\DinTest\src</path-element>
+      <path-element>F:\DINBOY\GoogleCode_DinBoy\Librarys</path-element>
+      <path-element>D:\Program Files\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
     <library-path append="true">
-      <path-element>E:\Class Study\Flash\新文件\Fl\Program\DinTest\lib\FlSWC.swc</path-element>
+      <path-element>F:\DINBOY\GoogleCode_DinBoy\DinTest\lib\FlSWC.swc</path-element>
     </library-path>
   </compiler>
   <file-specs>
-    <path-element>E:\Class Study\Flash\新文件\Fl\Program\DinTest\src\CenterPoint.as</path-element>
+    <path-element>F:\DINBOY\GoogleCode_DinBoy\DinTest\src\CenterPoint.as</path-element>
   </file-specs>
   <default-background-color>#FFFFFF</default-background-color>
   <default-frame-rate>30</default-frame-rate>
