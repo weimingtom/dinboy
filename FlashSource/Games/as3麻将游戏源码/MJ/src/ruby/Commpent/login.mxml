@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	 layout="absolute"
+	  title="台湾麻将"
+	  width="100%" height="100%"
+	  horizontalAlign="center" creationComplete="init()" showCloseButton="true" close="{Application.application.close()}">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.crypto.MD5;
+			import mx.core.Application;
+			import ruby.Model.ModelLocator;
+			import ruby.Event.EventCMD;
+			import ruby.Event.PlayEvent;
+			import mx.controls.Alert;
+		 
+		 [Bindable]
+		 private var TheModel:ModelLocator;
+		 
+		 private function init():void
+		 {
+		 	TheModel=ModelLocator.getInstance();
+     /*       TheModel.m_userName="x7testwl";
+		 	TheModel.m_userPwd=MD5.hash("a11111");
+		 	*/
+		/*
+		 	var obj:Object=new Object();
+		 	obj.name=userName.text.toString();
+		 	obj.pwd=userPwd.text.toString();
+
+		 	TheModel.m_userName="x7testwl";
+		 	TheModel.m_userPwd=MD5.hash("a11111");
+		 	TheModel.dispatchEvent(new PlayEvent(EventCMD.LOGIN,obj));
+		 	*/
+		 }
+		 private function login1():void
+		 {
+		 	var obj:Object = new Object();
+		 	obj.name = userName.text.toString();
+		 	obj.pwd = userPwd.text.toString();
+		 	if(userName.text.length>0)
+		 	{
+			 	TheModel.dispatchEvent(new PlayEvent(EventCMD.LOGIN,obj));
+			 	trace("发送登录信息");
+			 	btn_login.enabled=false;
+			 	Application.application.appUpdater = null;
+		 	}
+		 	else
+		 	{
+		 		Alert.show("请输入正确用户名密码");
+		 	}
+		 }
+		]]>
+	</mx:Script>
+	<mx:Form fontSize="14" verticalGap="20" verticalCenter="-35" x="63.5">
+		<mx:FormHeading label="登录" textAlign="center"/>
+		<mx:FormItem label="用户名">
+			<mx:TextInput id="userName"/>
+		</mx:FormItem>
+		<mx:FormItem label="密码">
+			<mx:TextInput id="userPwd" displayAsPassword="true"/>
+		</mx:FormItem>
+		<mx:Button id="btn_login" label="登录" click="login1()"/>
+	</mx:Form>
+</mx:TitleWindow>

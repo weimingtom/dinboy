@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   width="400"
+		   height="400"
+		   creationComplete="init()">
+
+	<mx:Script>
+		<![CDATA[
+			import mx.formatters.SwitchSymbolFormatter;
+			import mx.events.EffectEvent;
+			import mx.effects.Move;
+			import ruby.card.Card;
+			import ruby.Model.ModelLocator;
+
+			[Bindable]
+			private var TheModel:ModelLocator;
+			private var m_card1:Card;
+			private var m_card2:Card;
+			private var m_card3:Card;
+			private var m_card4:Card;
+			private var m_moveBegin1:Move;
+			private var m_moveBegin2:Move;
+			private var m_moveBegin3:Move;
+			private var m_moveBegin4:Move;
+			private var m_moveEnd:Move;
+
+			private function init():void
+			{
+				//	this.addEventListener(Event.ADDED_TO_STAGE,EffectPlay);
+				this.x=200;
+				this.y=90;
+				m_card1=new Card(0, 4);
+				m_card2=new Card(0, 4);
+				m_card3=new Card(0, 4);
+				m_card4=new Card(0, 4);
+
+				m_moveBegin1=new Move();
+				m_moveBegin2=new Move();
+				m_moveBegin3=new Move();
+				m_moveBegin4=new Move();
+
+				EffectPlay();
+			}
+
+			private function EffectPlay():void
+			{
+				TheModel=ModelLocator.getInstance();
+				m_card1.scaleX=1.5;
+				m_card1.scaleY=1.5;
+
+				m_card2.scaleX=1.5;
+				m_card2.scaleY=1.5;
+
+				m_card3.scaleX=1.5;
+				m_card3.scaleY=1.5;
+
+				m_card4.scaleX=1.5;
+				m_card4.scaleY=1.5;
+
+				m_card1.x=180;
+				m_card2.y=370;
+				m_card2.x=180;
+				m_card3.y=170;
+				m_card4.x=375;
+				m_card4.y=170;
+
+				addChild(m_card1);
+				addChild(m_card2);
+				addChild(m_card3);
+				addChild(m_card4);
+
+				m_moveBegin1.duration=2000;
+				m_moveBegin1.startDelay=200;
+				m_moveBegin1.xFrom=m_card1.x;
+				m_moveBegin1.yFrom=m_card1.y;
+				m_moveBegin1.xTo=180;
+				m_moveBegin1.yTo=170;
+
+				m_moveBegin1.target=m_card1;
+				m_moveBegin1.addEventListener(EffectEvent.EFFECT_END, reseverEffect1);
+
+				m_moveBegin2.duration=2000;
+				m_moveBegin2.startDelay=200;
+				m_moveBegin2.xFrom=m_card2.x;
+				m_moveBegin2.yFrom=m_card2.y;
+				m_moveBegin2.xTo=180;
+				m_moveBegin2.yTo=170;
+				m_moveBegin2.target=m_card2;
+				m_moveBegin2.addEventListener(EffectEvent.EFFECT_END, reseverEffect2);
+
+				m_moveBegin3.duration=2000;
+				m_moveBegin3.startDelay=200;
+				m_moveBegin3.xFrom=m_card3.x;
+				m_moveBegin3.yFrom=m_card3.y;
+				m_moveBegin3.xTo=180;
+				m_moveBegin3.yTo=170;
+				m_moveBegin3.target=m_card3;
+				m_moveBegin3.addEventListener(EffectEvent.EFFECT_END, reseverEffect3);
+
+				m_moveBegin4.duration=2000;
+				m_moveBegin4.startDelay=200;
+				m_moveBegin4.xFrom=m_card4.x;
+				m_moveBegin4.yFrom=m_card4.y;
+				m_moveBegin4.xTo=180;
+				m_moveBegin4.yTo=170;
+				m_moveBegin4.target=m_card4;
+				m_moveBegin4.addEventListener(EffectEvent.EFFECT_END, reseverEffect4);
+
+				m_moveBegin1.play();
+				m_moveBegin2.play();
+				m_moveBegin3.play();
+				m_moveBegin4.play();
+
+			}
+
+			private function reseverEffect1(evt:EffectEvent):void
+			{
+				m_moveBegin1.stop();
+				m_moveBegin1.target=null;
+				m_moveBegin1=new Move();
+				m_moveBegin1.target=m_card1;
+				m_moveBegin1.duration=2000;
+				m_moveBegin1.startDelay=200;
+				m_moveBegin1.xFrom=m_card1.x;
+				m_moveBegin1.yFrom=m_card1.y;
+				m_moveBegin1.xTo=180;
+				m_moveBegin1.yTo=0;
+				m_moveBegin1.play();
+				m_moveBegin1.addEventListener(EffectEvent.EFFECT_END, EffectEnd);
+
+			}
+
+			private function reseverEffect2(evt:EffectEvent):void
+			{
+				m_moveBegin2.stop();
+				m_moveBegin2.target=null;
+				m_moveBegin2=new Move();
+				m_moveBegin2.target=m_card2;
+				m_moveBegin2.duration=2000;
+				m_moveBegin2.startDelay=200;
+				m_moveBegin2.xFrom=m_card2.x;
+				m_moveBegin2.yFrom=m_card2.y;
+				m_moveBegin2.xTo=180;
+				m_moveBegin2.yTo=370;
+				m_moveBegin2.play();
+
+			}
+
+			private function reseverEffect3(evt:EffectEvent):void
+			{
+				m_moveBegin3.stop();
+				m_moveBegin3.target=null;
+				m_moveBegin3=new Move();
+				m_moveBegin3.target=m_card3;
+				m_moveBegin3.duration=2000;
+				m_moveBegin3.startDelay=200;
+				m_moveBegin3.xFrom=m_card3.x;
+				m_moveBegin3.yFrom=m_card3.y;
+				m_moveBegin3.xTo=0;
+				m_moveBegin3.yTo=170;
+				m_moveBegin3.play();
+
+			}
+
+			private function reseverEffect4(evt:EffectEvent):void
+			{
+				m_moveBegin4.stop();
+				m_moveBegin4.target=null;
+				m_moveBegin4=new Move();
+				m_moveBegin4.target=m_card4;
+				m_moveBegin4.duration=2000;
+				m_moveBegin4.startDelay=200;
+				m_moveBegin4.xFrom=m_card4.x;
+				m_moveBegin4.yFrom=m_card4.y;
+				m_moveBegin4.xTo=375;
+				m_moveBegin4.yTo=170;
+				m_moveBegin4.play();
+
+			}
+
+			private function EffectEnd(evt:EffectEvent):void
+			{
+				m_moveBegin1.removeEventListener(EffectEvent.EFFECT_END, EffectEnd);
+				m_moveBegin1.stop();
+				m_moveBegin2.stop();
+				m_moveBegin3.stop();
+				m_moveBegin4.stop();
+				m_moveBegin1.target=null;
+				m_moveBegin2.target=null;
+				m_moveBegin3.target=null;
+				m_moveBegin4.target=null;
+
+
+				var x1:int=m_card1.x;
+				var y1:int=m_card1.y;
+
+				var x2:int=m_card2.x;
+				var y2:int=m_card2.y;
+
+				var x3:int=m_card3.x;
+				var y3:int=m_card3.y;
+
+				var x4:int=m_card4.x;
+				var y4:int=m_card4.y;
+
+				removeChild(m_card1);
+				removeChild(m_card2);
+				removeChild(m_card3);
+				removeChild(m_card4);
+				switch (TheModel.m_ID)
+				{
+					case 1:
+						m_card2=new Card(0, 3, 41); ////自己		// 东，南，西，北。->41-44
+						m_card4=new Card(0, 3, 42);
+						m_card1=new Card(0, 3, 43);
+						m_card3=new Card(0, 3, 44);
+
+
+						break;
+					case 2:
+						m_card2=new Card(0, 3, 42); ////自己
+						m_card4=new Card(0, 3, 43);
+						m_card1=new Card(0, 3, 44);
+						m_card3=new Card(0, 3, 41);
+						break;
+					case 3:
+						m_card2=new Card(0, 3, 43); ////自己
+						m_card4=new Card(0, 3, 44);
+						m_card1=new Card(0, 3, 41);
+						m_card3=new Card(0, 3, 42);
+						break;
+					case 4:
+						m_card2=new Card(0, 3, 44); ////自己
+						m_card4=new Card(0, 3, 41);
+						m_card1=new Card(0, 3, 42);
+						m_card3=new Card(0, 3, 43);
+						break;
+					default:
+						break;
+				}
+
+				m_card1.scaleX=1.5;
+				m_card1.scaleY=1.5;
+				m_card2.scaleX=1.5;
+				m_card2.scaleY=1.5;
+				m_card3.scaleX=1.5;
+				m_card3.scaleY=1.5;
+				m_card4.scaleX=1.5;
+				m_card4.scaleY=1.5;
+
+				m_card1.x=x1;
+				m_card1.y=y1;
+				m_card2.x=x2;
+				m_card2.y=y2;
+				m_card3.x=x3;
+				m_card3.y=y3;
+				m_card4.x=x4;
+				m_card4.y=y4;
+
+				addChild(m_card1);	// 显示四家抓的牌
+				addChild(m_card2);
+				addChild(m_card3);
+				addChild(m_card4);
+
+				var time:Timer=new Timer(2000, 1);
+				time.addEventListener(TimerEvent.TIMER_COMPLETE, distroy);
+				time.start();
+			}
+
+			private function distroy(evt:TimerEvent):void
+			{
+				var time:Timer=evt.target as Timer;
+				time.removeEventListener(TimerEvent.TIMER_COMPLETE, distroy);
+				this.dispatchEvent(new Event(Event.COMPLETE));
+			}
+		]]>
+	</mx:Script>
+</mx:Canvas>

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml"
+						layout="absolute"
+						showTitleBar="false"
+						showStatusBar="false"
+						xmlns:comment="ruby.Commpent.*"
+						verticalAlign="middle"
+						horizontalAlign="center"
+						initialize="init()"
+						creationComplete="initComp()">
+
+	<mx:ViewStack id="vs"
+				  borderThickness="0"
+				  creationPolicy="all"
+				  width="100%"
+				  height="100%">
+		<comment:login id="v1"/>
+		<comment:lobby id="v2"/>
+		<comment:GameTabel id="v3"/>
+	</mx:ViewStack>
+
+	<mx:Style>
+		 List {
+		   backgroundAlpha: 1;
+		   backgroundColor: #999999;
+		   alternatingItemColors: #ffffff, #ffffff;
+		   useRollOver: true;
+		   borderColor: #b7babc;
+		   selectionColor: #7fcdfe;
+		   color: #9900ff;
+		   textIndent: 2;
+		   letterSpacing: 0;
+		   selectionDuration: 250;
+		   fontWeight: bold;
+		   cornerRadius: 20;
+		   fontSize: 12;
+		}
+		.alertTitle{
+            color:#ffffff;
+            fontWeight:bold;
+        }
+        Alert{
+            backgroundColor:#E3E3E3;
+            /* backgroundAlpha: 0.8; */
+            color: #323232;
+            borderColor: #000000;
+            borderAlpha: 0.7;
+            headerHeight:20;
+            themeColor: #848484;
+            titleStyleName:alertTitle;
+        }
+	   </mx:Style>
+	<mx:Script>
+		<![CDATA[
+			import air.update.events.StatusUpdateEvent;
+			import air.update.events.StatusFileUpdateErrorEvent;
+			import com.adobe.crypto.MD5;
+			import ruby.Model.ModelLocator;
+			import mx.core.Application;
+			import ruby.Event.*;
+			import ruby.ClientSFSapi.conn;
+			import mx.controls.Alert;
+			import ruby.update.*;
+			import air.update.events.UpdateEvent;
+			import air.update.ApplicationUpdaterUI;
+
+			[Bindable]
+			private var TheModel:ModelLocator;
+
+			private var m_loadcard:Loader=new Loader();
+			private var receiverLC:LocalConnection;
+			private var lc:LocalConnection;
+			public static var volume:Number;
+
+			private var txtToader:URLLoader=new URLLoader();
+			public var appUpdater:ApplicationUpdaterUI;
+
+			private function init():void
+			{
+				appUpdater=new ApplicationUpdaterUI();
+				checkForUpdate();
+			}
+
+			private function checkForUpdate():void
+			{
+				// The code below is a hack to work around a bug in the framework so that CMD-Q still works on MacOS
+				// This is a temporary fix until the framework is updated
+				// See http://www.adobe.com/cfusion/webforums/forum/messageview.cfm?forumid=72&catid=670&threadid=1373568
+				NativeApplication.nativeApplication.addEventListener(Event.EXITING, function(e:Event):void
+					{
+						var opened:Array=NativeApplication.nativeApplication.openedWindows;
+						for (var i:int=0; i < opened.length; i++)
+						{
+							opened[i].close();
+						}
+					});
+				//    this.nativeWindow.minimize();
+				//    setApplicationVersion(); // Find the current version so we can show it below
+				// Configuration stuff - see update framework docs for more details
+				appUpdater.updateURL="http://192.168.58.235:8080/update.xml"; // Server-side XML file describing update
+				appUpdater.isCheckForUpdateVisible=false; // We won't ask permission to check for an update
+				appUpdater.addEventListener(UpdateEvent.INITIALIZED, onUpdate); // Once initialized, run onUpdate
+				//      appUpdater.addEventListener(ErrorEvent.ERROR, onError); // If something goes wrong, run onError
+				//      appUpdater.addEventListener(StatusFileUpdateErrorEvent.FILE_UPDATE_ERROR,FILE_UPDATE_ERRORHandler);
+				appUpdater.addEventListener(StatusUpdateEvent.UPDATE_STATUS, UPDATE_STATUS1);
+				appUpdater.initialize(); // Initialize the update framework
+			}
+
+			private function onError(event:ErrorEvent):void
+			{
+				Alert.show(event.toString());
+			}
+
+			private function FILE_UPDATE_ERRORHandler(evt:StatusFileUpdateErrorEvent):void
+			{
+				trace(evt.text);
+			}
+
+			private function UPDATE_STATUS1(evt:StatusUpdateEvent):void
+			{
+				trace("evt.details=" + evt.details);
+			}
+
+			private function onUpdate(event:UpdateEvent):void
+			{
+				appUpdater.checkNow(); // Go check for an update now
+			}
+
+			// Find the current version for our Label below
+			private function setApplicationVersion():void
+			{
+				var appXML:XML=NativeApplication.nativeApplication.applicationDescriptor;
+				var ns:Namespace=appXML.namespace();
+			//         ver.text = "Current version is " + appXML.ns::version;
+			}
+
+			private function initComp():void
+			{
+
+				TheModel=ModelLocator.getInstance();
+				m_loadcard.load(new URLRequest("mjAS3card.swf"), new LoaderContext(false, ApplicationDomain.currentDomain));
+				m_loadcard.contentLoaderInfo.addEventListener(Event.COMPLETE, LoadcardHandler);
+				var m_conn:conn=new conn();
+			}
+
+			private function LoadcardHandler(event:Event):void
+			{
+
+			}
+
+			public function showLobby():void
+			{
+				lc=new LocalConnection();
+				lc.addEventListener(StatusEvent.STATUS, myStatus);
+				lc.send("_ruby", "active");
+			}
+
+			private function myStatus(evt:StatusEvent):void
+			{
+			//Logger.debug("send"+evt.level)
+			}
+
+			private function myAsyncError(evt:AsyncErrorEvent):void
+			{
+				//Logger.debug("AsyncErrorEvent"+evt)
+				Alert.show("myAsyncError");
+			}
+
+			private function onLoad():void
+			{
+				if (!TheModel.m_userName || !TheModel.m_userPwd)
+				{
+					var request:URLRequest=new URLRequest(File.userDirectory.nativePath + "\\login.ini");
+					txtToader.dataFormat=URLLoaderDataFormat.TEXT;
+					txtToader.addEventListener(Event.COMPLETE, completeHandler);
+//					txtToader.addEventListener(IOErrorEvent.IO_ERROR, startLobby);
+					txtToader.load(request);
+				}
+				else
+				{
+					//	startPlay();
+				}
+			}
+
+			private function completeHandler(evt:Event):void
+			{
+				trace("|||||||||||||||||||||||||||")
+				txtToader.removeEventListener(Event.COMPLETE, completeHandler);
+				//	txtToader.removeEventListener(IOErrorEvent.IO_ERROR, startLobby);
+				var loadGame:URLLoader=URLLoader(evt.target);
+				var userArr:Array=loadGame.data.split("\n");
+				TheModel.m_userName=userArr[0];
+				TheModel.m_userPwd=userArr[1];
+				//	lang = userArr[2];
+				/*	var volTemp:int = int(userArr[3]);//音量
+				   userIP = userArr[4]//IP
+				   myVIP = userArr[5]//IP
+				 */
+				TheModel.SFS_URL=userArr[7]
+			//	gameID = userArr[9];
+
+			/*
+			   var arr:Array = userArr[8].split(".");
+			   if(arr[1] == "ruby1688")
+			   {
+			   Param.newURL = "1"
+			   }else{
+			   Param.newURL = "2"
+			   }
+
+			   Param.ROOT_URL = userArr[8]
+			   if(myVIP =="true")
+			   isvip = 1;
+			   ////////////
+			   myVol.volume = volTemp * 0.1;;
+			   blackVol.volume = volTemp * 0.09;
+			   startPlay();
+			 */
+			}
+
+
+			public function lcHandler(msg:String):void
+			{
+				if (msg == "close")
+				{
+					this.nativeWindow.close();
+				}
+			} /*	private function checkUpdate(selfVersion:String):void
+			   {
+
+
+			   var update:AIRUpdater = new AIRUpdater();
+
+			   var updataURL:String = Param.ROOT_URL + Param.UPDATE_XML;
+
+			   update.version = selfVersion;
+			   update.updateMyApp(updataURL);
+			   addChild(update);
+
+			   }
+			 */
+		]]>
+	</mx:Script>
+</mx:WindowedApplication>
