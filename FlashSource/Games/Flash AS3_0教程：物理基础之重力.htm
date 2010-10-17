@@ -1,0 +1,380 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<!-- saved from url=(0060)http://www.webyi.com/wschool/media/flash/20090728/15914.html -->
+<!--
+┌──────────WEBYI-─┐
+│  网翼网 WEBYI.COM版权所有  │
+│       站长学院.COM         │
+│  打造绿色的网页技术教程站  │
+└────────────.COM┘
+--><HTML xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn"><HEAD><TITLE>Flash AS3.0教程：物理基础之重力-FLASH教程-媒体动画-网络学院-网翼教程网</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=gb2312">
+<META content=all name=robots>
+<META content="webyi | www.webyi.com" name=author>
+<META content="Copyright (c) 2006-2008 webyi.com" name=Copyright>
+<META 
+content="Flash AS3.0教程：物理基础之重力,自由落体运动是只受到重力作用的运动，物体开始时是静止的，速度为0,然后受到重力的作用，速度不断加快，而实现竖直向下的加速运动。&#13;&#10;效果演示：&#13;&#10;&#13;&#10;实现自由落体运动，需定义速度和加速度： &#10;//变量gra表示重力产" 
+name=description>
+<META content="Flash AS3.0教程：物理基础之重力,基础 物理 教程 速度 vy // var 反弹 物体 运动 mc.y " 
+name=keywords><LINK media=screen href="Flash AS3_0教程：物理基础之重力_files/main.css" 
+type=text/css rel=stylesheet><LINK media=screen 
+href="Flash AS3_0教程：物理基础之重力_files/css.css" type=text/css rel=stylesheet><LINK 
+media=screen href="Flash AS3_0教程：物理基础之重力_files/home.css" type=text/css 
+rel=stylesheet>
+<SCRIPT src="Flash AS3_0教程：物理基础之重力_files/external.js" 
+type=text/javascript></SCRIPT>
+
+<SCRIPT src="Flash AS3_0教程：物理基础之重力_files/js.js" type=text/javascript></SCRIPT>
+
+<SCRIPT language=javascript 
+src="Flash AS3_0教程：物理基础之重力_files/runcode.js"></SCRIPT>
+
+<SCRIPT language=javascript>
+    function changeColor(color)
+    {document.all.entrybody.style.backgroundColor = color;}
+</SCRIPT>
+
+<META content="MSHTML 6.00.3790.4504" name=GENERATOR></HEAD>
+<BODY>
+<DIV id=alpha></DIV>
+<DIV id=header><A id=top></A>
+<DIV id=topnav>
+<DIV id=toptext>网翼IT技术教程网站：WWW.WEBYI.COM</DIV>
+<UL id=topnavlist>
+  <LI><A title=Webyi href="http://tutorial.webyi.com/" rel=external 
+  Tutorial><FONT color=red><B>Tutorials</B></FONT></A> </LI>
+  <LI><A title=网翼旧版 href="http://www.webyi.com/index.asp" rel=external><FONT 
+  color=red><B>网翼旧版</B></FONT></A> </LI>
+  <LI><A id=wjwl name=wjwl><FONT color=blue>繁體中文</FONT></A>
+  <SCRIPT language=Javascript 
+  src="Flash AS3_0教程：物理基础之重力_files/gb2big5.Js"></SCRIPT>
+   </LI>
+  <LI><A title=最新更新150条新闻检索 href="http://www.webyi.com/new.html" 
+  rel=external><FONT color=red><B>最新更新</B></FONT></A> </LI>
+  <LI><A title=查询通 href="http://www.webyi.com/alexa/index.htm" 
+  rel=external>查询通</A> </LI>
+  <LI><A title=站长完全手册 href="http://class.webyi.com/" rel=external>完全手册</A> </LI>
+  <LI><A title=站长工具 href="http://www.webyi.com/tool/index.asp" 
+  rel=external>站长工具</A> </LI>
+  <LI><A title=壁纸库 href="http://www.webyi.com/desk/" rel=external><FONT 
+  color=#008000>壁纸库</FONT></A></LI></UL></DIV>
+<DIV id=topbox>
+<H1><A title=网翼IT技术教程网站首页 
+href="http://www.webyi.com/">网翼IT技术教程网站：WWW.WEBYI.COM</A></H1>
+<DIV id=topmiddle>
+<SCRIPT src="Flash AS3_0教程：物理基础之重力_files/top468x60index.js" 
+type=text/javascript></SCRIPT>
+</DIV>
+<UL id=topright>
+  <SCRIPT src="Flash AS3_0教程：物理基础之重力_files/top308x60.js" 
+  type=text/javascript></SCRIPT>
+</UL>
+<DIV class=clear></DIV></DIV>
+<UL id=chinahtmlnav>
+  <LI><A title=网翼IT技术教程网站首页 href="http://www.webyi.com/"><SPAN>首页</SPAN></A> 
+  <LI><A title=站长资讯 href="http://www.webyi.com/news/" 
+  rel=external><SPAN>站长资讯</SPAN></A>
+  <LI><A title=网络学院 href="http://www.webyi.com/wschool/" 
+  rel=external><SPAN>网络学院</SPAN></A>
+  <LI><A title=网站运营 href="http://www.webyi.com/profit/" 
+  rel=external><SPAN>网站运营</SPAN></A>
+  <LI><A title=操作系统 href="http://www.webyi.com/os/" 
+  rel=external><SPAN>操作系统</SPAN></A>
+  <LI><A title=免费资源 href="http://www.webyi.com/wfree/" 
+  rel=external><SPAN>免费资源</SPAN></A>
+  <LI><A title=教育考试 href="http://www.webyi.com/eduexam/" 
+  rel=external><SPAN>教育考试</SPAN></A>
+  <LI><A title=工具软件 href="http://www.webyi.com/toolsoft/" 
+  rel=external><SPAN>工具软件</SPAN></A>
+  <LI><A title=办公软件 href="http://www.webyi.com/office/" 
+  rel=external><SPAN>办公软件</SPAN></A>
+  <LI><A title=视频教程 href="http://www.webyi.com/videoedu/" 
+  rel=external><SPAN>视频教程</SPAN></A>
+  <LI><A title=资源下载 href="http://www.webyi.com/down/" 
+  rel=external><SPAN>资源下载</SPAN></A> 
+  <LI><A title=专题教程 href="http://www.webyi.com/special/" 
+  rel=external><SPAN>专题</SPAN></A></LI></UL>
+<UL id=subinfo>
+  <LI class=a><A title=百度收录查询 href="http://www.webyi.com/tool/baidu/index.asp" 
+  rel=external>百度收录查询</A> <A title=谷歌收录查询 
+  href="http://www.webyi.com/tool/google/index.asp" rel=external><FONT 
+  color=red>谷歌收录查询</FONT></A> <A title=排名pr收录查询 
+  href="http://www.webyi.com/tool/pr/index.asp" rel=external>排名pr收录查询</A> </LI>
+  <LI class=b>
+  <SCRIPT src="Flash AS3_0教程：物理基础之重力_files/toplink_b.js" 
+  type=text/javascript></SCRIPT>
+  </LI>
+  <LI class=c>
+  <FORM name=formsearch action=/plus/search.php><INPUT type=hidden value=0 
+  name=kwtype><INPUT size=25 value=WebYi name=keyword><INPUT type=submit value="搜 索" name=sa></FORM></LI>
+  <LI class=d><A href="http://www.webyi.com/plus/rssmap.html" 
+  rel=external>信息订阅</A> </LI></UL>
+<DIV class=clear></DIV></DIV>
+<DIV id=containertow>
+<DIV id=content>
+<DIV id=articlenav>你的位置：<A href="http://www.webyi.com/">网翼教程网</A>&gt;<A 
+href="http://www.webyi.com/wschool/">网络学院</A>&gt;<A 
+href="http://www.webyi.com/wschool/media/">媒体动画</A>&gt;<A 
+href="http://www.webyi.com/wschool/media/flash/">FLASH教程</A>&gt;</DIV>
+<DIV id=article>
+<DIV id=entry>
+<DIV id=entrytitle>
+<H1>Flash AS3.0教程：物理基础之重力</H1>
+<DIV id=entrymeta><STRONG>时间</STRONG>:2009-07-28 
+14:55:15&nbsp;&nbsp;<STRONG>来源</STRONG>:中国教程网论坛&nbsp;&nbsp;<STRONG>作者</STRONG>:cao4811&nbsp;&nbsp;【背景色 
+<IMG style="CURSOR: hand" onclick="changeColor('#EFF6CC')" height=10 alt=杏仁黄 
+src="Flash AS3_0教程：物理基础之重力_files/color1.gif" width=10 border=0> <IMG 
+style="CURSOR: hand" onclick="changeColor('#FDEDB9')" height=10 alt=秋叶褐 
+src="Flash AS3_0教程：物理基础之重力_files/color2.gif" width=10 border=0> <IMG 
+style="CURSOR: hand" onclick="changeColor('#F3D5CA')" height=10 alt=胭脂红 
+src="Flash AS3_0教程：物理基础之重力_files/color3.gif" width=10 border=0> <IMG 
+style="CURSOR: hand" onclick="changeColor('#E0FBB6')" height=10 alt=芥末绿 
+src="Flash AS3_0教程：物理基础之重力_files/color4.gif" width=10 border=0> <IMG 
+style="CURSOR: hand" onclick="changeColor('#CBF1F4')" height=10 alt=天蓝 
+src="Flash AS3_0教程：物理基础之重力_files/color5.gif" width=10 border=0> <IMG 
+style="CURSOR: hand" onclick="changeColor('#DDDAEB')" height=10 alt=雪青 
+src="Flash AS3_0教程：物理基础之重力_files/color6.gif" width=10 border=0> <IMG 
+style="CURSOR: hand" onclick="changeColor('#DADBDF')" height=10 alt=灰 
+src="Flash AS3_0教程：物理基础之重力_files/color7.gif" width=10 border=0> <IMG 
+style="CURSOR: hand" onclick="changeColor('#F6F6F4')" height=10 alt=银河白 
+src="Flash AS3_0教程：物理基础之重力_files/color8.gif" width=10 border=0> 】</DIV></DIV>
+<DIV class=clear></DIV>
+<DIV id=entrybody>
+<DIV id=entryadbox></DIV>
+<P>自由落体运动是只受到重力作用的运动，物体开始时是静止的，速度为0,然后受到重力的作用，速度不断加快，而实现竖直向下的加速运动。</P>
+<P>效果演示：</P>
+<P align=center><EMBED src=/upimg/media/1_090728094653.swf width=550 height=400 
+type=application/x-shockwave-flash menu="true" loop="true" play="true" 
+scale=""></EMBED></P>
+<P>实现自由落体运动，需定义速度和加速度： <BR>//变量gra表示重力产生的加速度 <BR>var gra:Number = 5; 
+<BR>//变量vy是初始速度 <BR>var vy:Number = 0; <BR>//然后使用重力改变速度的公式 <BR>vy += gra; 
+<BR>//通过速度改变物体的位置 <BR>mc.y += vy; </P>
+<P>完整的代码： <BR>var gra:Number = 5; <BR>var vy:Number = 0; 
+<BR>mc.addEventListener(Event.ENTER_FRAME,test); <BR>function test(e:Event):void 
+<BR>{ <BR>vy += gra; <BR>mc.y += vy; <BR>} </P>
+<P>测试上面的代码，看到物体刚开始静止，然后速度不断加快，实现了自由落体运动。但这个运动并不真实，当物体掉到地面时，给它一个反弹力，看起来就会真实一些。</P>
+<P>如果物体的纵坐标大于等于stage.stagHeight - 
+mc.height/2时，就相当于碰到了地面，地面会给物体反弹力。由于反弹力是竖直向上的，可用负值来表示。</P>
+<P>加入反弹力的代码： <BR>var gra:Number = 5; <BR>var vy:Number = 0; </P>
+<P>//反弹力是反弹加速度 <BR>var bounce:Number = -0.7; 
+<BR>mc.addEventListener(Event.ENTER_FRAME,test); <BR>function test(e:Event):void 
+<BR>{ <BR>vy += gra; <BR>mc.y += vy; </P>
+<P>//如果mc的底部超出舞台的下边界 <BR>if (mc.y &gt;= stage.stageHeight - mc.height / 2) <BR>{ 
+</P>
+<P>//使mc位于地面上 <BR>mc.y = stage.stageHeight - mc.height / 2) </P>
+<P>//速度加上反弹加速度 <BR>vy *= bounce; <BR>} <BR>}</P><BR><A 
+href="http://www.webyi.com/"><IMG height=11 
+src="Flash AS3_0教程：物理基础之重力_files/arc_icon.gif" width=12 border=0></A>
+<SCRIPT language=javascript 
+src="Flash AS3_0教程：物理基础之重力_files/count.php"></SCRIPT>
+ </DIV>
+<DIV class=clear></DIV><!-- 分页 -->
+<DIV id=entrynum align=center></DIV>
+<DIV><STRONG>Tag：</STRONG><B><A 
+href="http://www.webyi.com/tag.php?/FLASH教程/">FLASH教程</A></B> &nbsp; <B><A 
+href="http://www.webyi.com/tag.php?/AS教程/">AS教程</A></B> &nbsp; </DIV>
+<DIV>
+<SCRIPT src="Flash AS3_0教程：物理基础之重力_files/contents468x15.js" 
+type=text/javascript></SCRIPT>
+</DIV>
+<DIV class=clear></DIV>
+<DIV id=toollinks><A href="http://www.webyi.com/plus/feedback.php?arcID=15914" 
+rel=nofollow>网友评论</A> <A href="http://www.webyi.com/plus/stow.php?arcID=15914" 
+rel=nofollow>加入收藏</A> <A onclick=window.print(); 
+href="http://www.webyi.com/wschool/media/flash/20090728/15914.html#" 
+rel=nofollow>打印本文</A> <A 
+href="http://www.webyi.com/plus/recommend.php?arcID=15914" rel=nofollow>我要推荐</A> 
+<A href="javascript:window.close()">关闭此页</A></DIV>
+<DIV class=clear></DIV></DIV>
+<DIV id=otherentry>
+<DIV id=prv>上一篇：<A 
+href="http://www.webyi.com/wschool/media/flash/20090728/15910.html">Flash 
+CS3仿真艺术设计系列之模糊滤镜的应用实例</A> &nbsp; 下一篇：<A 
+href="http://www.webyi.com/wschool/media/flash/20090729/15942.html">Flash 
+AS3.0教程：创建自定义类</A> </DIV>
+<DIV id=next></DIV></DIV></DIV>
+<DIV id=relatedarticle>
+<H2>相关文章</H2>
+<UL>
+  <LI><SPAN>07-30</SPAN><A title=解决IE中FLASH链接区域鼠标闪动的问题 
+  href="http://www.webyi.com/wschool/media/flash/20090730/15973.html">解决IE中FLASH链接区域鼠标闪动的问题</A></LI>
+  <LI><SPAN>07-30</SPAN><A title=Actionscript3单例模式对象的释放控制 
+  href="http://www.webyi.com/wschool/media/flash/20090730/15972.html">Actionscript3单例模式对象的释放控制</A></LI>
+  <LI><SPAN>07-29</SPAN><A title="Flash AS3.0教程：创建自定义类" 
+  href="http://www.webyi.com/wschool/media/flash/20090729/15942.html">Flash 
+  AS3.0教程：创建自定义类</A></LI>
+  <LI><SPAN>07-28</SPAN><A title="Flash AS3.0教程：物理基础之重力" 
+  href="http://www.webyi.com/wschool/media/flash/20090728/15914.html">Flash 
+  AS3.0教程：物理基础之重力</A></LI>
+  <LI><SPAN>07-28</SPAN><A title="Flash CS3仿真艺术设计系列之模糊滤镜的" 
+  href="http://www.webyi.com/wschool/media/flash/20090728/15910.html">Flash 
+  CS3仿真艺术设计系列之模糊滤镜的</A></LI>
+  <LI><SPAN>07-28</SPAN><A title="Flash CS3仿真艺术设计系列之组合效果应" 
+  href="http://www.webyi.com/wschool/media/flash/20090728/15909.html">Flash 
+  CS3仿真艺术设计系列之组合效果应</A></LI>
+  <LI><SPAN>07-27</SPAN><A title="Flash AS教程：propertydata问题解决" 
+  href="http://www.webyi.com/wschool/media/flash/20090727/15891.html">Flash 
+  AS教程：propertydata问题解决</A></LI>
+  <LI><SPAN>07-23</SPAN><A title=Flash马走动画实例：逐帧动画的误区 
+  href="http://www.webyi.com/wschool/media/flash/20090723/15822.html">Flash马走动画实例：逐帧动画的误区</A></LI>
+  <LI><SPAN>07-20</SPAN><A title="Flash CS3仿真艺术设计系列之模糊运动制" 
+  href="http://www.webyi.com/wschool/media/flash/20090720/15739.html">Flash 
+  CS3仿真艺术设计系列之模糊运动制</A></LI>
+  <LI><SPAN>07-20</SPAN><A title="Flash CS3仿真艺术设计系列之模糊滤镜的" 
+  href="http://www.webyi.com/wschool/media/flash/20090720/15736.html">Flash 
+  CS3仿真艺术设计系列之模糊滤镜的</A></LI>
+  <LI><SPAN>07-19</SPAN><A title="Flash AS3代码运行时错误中文说明" 
+  href="http://www.webyi.com/wschool/media/flash/20090719/15717.html">Flash 
+  AS3代码运行时错误中文说明</A></LI>
+  <LI><SPAN>07-19</SPAN><A title="Flash AS代码约定和书写代码时的习惯" 
+  href="http://www.webyi.com/wschool/media/flash/20090719/15716.html">Flash 
+  AS代码约定和书写代码时的习惯</A></LI></UL>
+<DIV class=clear></DIV></DIV>
+<DIV id=comments>
+<H2>文章评论</H2>
+<SCRIPT language=javascript 
+src="Flash AS3_0教程：物理基础之重力_files/feedback_js.php"></SCRIPT>
+
+<P><SPAN>共有 <STRONG>0</STRONG>位网翼网友发表了评论 <A title=评论列表 
+href="http://www.webyi.com/plus/feedback.php?arcID=15914">查看完整内容</A></SPAN><BUTTON 
+class=btn1 
+onclick="var frm = document.getElementById('addform');frm.style.display=((frm.style.display=='block')?('none'):('block'));" 
+name=postcomment type=submit>我要说两句</BUTTON> </P>
+<DIV id=addform style="DISPLAY: none">
+<DIV id=postcomment>
+<FORM id=saypl action=/plus/feedback.php?action=send method=post>
+<P><INPUT id=author title=只能包含汉字、字母、数字和下划线! tabIndex=1 maxLength=20 size=22 
+value=WebYi网友 name=username> <LABEL for=author>用户名(必填)</LABEL> <A 
+href="http://www.webyi.com/member/index_do.php?fmdo=user&amp;dopost=regnew" 
+target=_blank><U>新注册</U></A></P>
+<P><INPUT id=checkcode title=请填写右边的密码 tabIndex=3 size=10 name=pwd>密码(必填)<INPUT 
+type=checkbox value=1 name=notuser>匿名评论 </P>
+<P><INPUT type=hidden value=15914 name=arcID> <TEXTAREA id=saytext title=不能为空! tabIndex=4 name=msg></TEXTAREA></P>
+<P><INPUT id=submit tabIndex=5 type=submit value=发表评论 name=submit></P></FORM>
+<DIV class=clear></DIV></DIV></DIV>
+<DIV class=clear></DIV>
+<SCRIPT src="Flash AS3_0教程：物理基础之重力_files/more.htm" 
+type=text/javascript></SCRIPT>
+</DIV></DIV>
+<DIV id=rail>
+<DIV id=search>
+<FORM id=cse-search-box action=http://www.google.com/cse>
+<FIELDSET><INPUT type=hidden value=014181096605883600395:shv-hrid9nu name=cx> 
+<INPUT type=hidden value=UTF-8 name=ie> <INPUT size=25 name=q> <INPUT type=submit value=搜索 name=sa> <INPUT onclick="location='http://www.webyi.com/plus/heightsearch.php';" type=button value=高级搜索> 
+</FIELDSET> </FORM>
+<SCRIPT src="Flash AS3_0教程：物理基础之重力_files/brand" type=text/javascript></SCRIPT>
+</DIV>
+<DIV id=search><IFRAME id=baiduframe marginWidth=0 frameSpacing=0 marginHeight=0 
+src="Flash AS3_0教程：物理基础之重力_files/bdun.bsc" frameBorder=0 width=280 scrolling=no 
+height=30>
+</IFRAME></DIV>
+<DIV class=rightlist>
+<H4>推荐信息</H4>
+<UL>
+  <LI><A title=Flash制作毛笔题诗贺中秋动画 
+  href="http://www.webyi.com/wschool/media/flash/20080912/8325.html">Flash制作毛笔题诗贺中秋动画</A></LI>
+  <LI><A title=全Flash动画网站实现的基础教学 
+  href="http://www.webyi.com/wschool/media/flash/20080311/2617.html">全Flash动画网站实现的基础教学</A></LI>
+  <LI><A title=108种Flash常见问题解答 
+  href="http://www.webyi.com/wschool/media/flash/20080311/2616.html">108种Flash常见问题解答</A></LI>
+  <LI><A title=制作flash青蛙跳荷叶游戏 
+  href="http://www.webyi.com/wschool/media/flash/20071207/833.html">制作flash青蛙跳荷叶游戏</A></LI>
+  <LI><A title="<b>通过实例学习Flash AS3.0</b>" 
+  href="http://www.webyi.com/wschool/media/flash/20071126/731.html"><B>通过实例学习Flash 
+  AS3.0</B></A></LI>
+  <LI><A title=Flash制作单选题 
+  href="http://www.webyi.com/wschool/media/flash/20071124/682.html">Flash制作单选题</A></LI>
+  <LI><A title="<font color='#FF0000'>从基础开始深入学习Flash AS3（译文）</font>" 
+  href="http://www.webyi.com/wschool/media/flash/20071117/575.html"><FONT 
+  color=#ff0000>从基础开始深入学习Flash AS3（译文）</FONT></A></LI></UL></DIV>
+<DIV class=rightad>
+<SCRIPT src="Flash AS3_0教程：物理基础之重力_files/articler300x250.js" 
+type=text/javascript></SCRIPT>
+</DIV>
+<DIV class=rightlist>
+<H4>24小时热门信息</H4>
+<UL>
+  <LI><A title="Flash AS3.0教程：物理基础之重力" 
+  href="http://www.webyi.com/wschool/media/flash/20090728/15914.html">Flash 
+  AS3.0教程：物理基础之重力</A></LI>
+  <LI><A title="Flash AS教程：propertydata问题解决" 
+  href="http://www.webyi.com/wschool/media/flash/20090727/15891.html">Flash 
+  AS教程：propertydata问题解决</A></LI>
+  <LI><A title="Flash CS3仿真艺术设计系列之组合效果应用实例" 
+  href="http://www.webyi.com/wschool/media/flash/20090728/15909.html">Flash 
+  CS3仿真艺术设计系列之组合效果应用实例</A></LI>
+  <LI><A title="Flash CS3仿真艺术设计系列之模糊滤镜的应用实" 
+  href="http://www.webyi.com/wschool/media/flash/20090728/15910.html">Flash 
+  CS3仿真艺术设计系列之模糊滤镜的应用实</A></LI>
+  <LI><A title="Flash AS3.0教程：创建自定义类" 
+  href="http://www.webyi.com/wschool/media/flash/20090729/15942.html">Flash 
+  AS3.0教程：创建自定义类</A></LI>
+  <LI><A title=Actionscript3单例模式对象的释放控制 
+  href="http://www.webyi.com/wschool/media/flash/20090730/15972.html">Actionscript3单例模式对象的释放控制</A></LI>
+  <LI><A title=解决IE中FLASH链接区域鼠标闪动的问题 
+  href="http://www.webyi.com/wschool/media/flash/20090730/15973.html">解决IE中FLASH链接区域鼠标闪动的问题</A></LI></UL></DIV>
+<DIV class=rightlist>
+<H4>最新信息</H4>
+<UL>
+  <LI><A title=解决IE中FLASH链接区域鼠标闪动的问题 
+  href="http://www.webyi.com/wschool/media/flash/20090730/15973.html">解决IE中FLASH链接区域鼠标闪动的问题</A></LI>
+  <LI><A title=Actionscript3单例模式对象的释放控制 
+  href="http://www.webyi.com/wschool/media/flash/20090730/15972.html">Actionscript3单例模式对象的释放控制</A></LI>
+  <LI><A title="Flash AS3.0教程：创建自定义类" 
+  href="http://www.webyi.com/wschool/media/flash/20090729/15942.html">Flash 
+  AS3.0教程：创建自定义类</A></LI>
+  <LI><A title="Flash AS3.0教程：物理基础之重力" 
+  href="http://www.webyi.com/wschool/media/flash/20090728/15914.html">Flash 
+  AS3.0教程：物理基础之重力</A></LI>
+  <LI><A title="Flash CS3仿真艺术设计系列之模糊滤镜的应用实" 
+  href="http://www.webyi.com/wschool/media/flash/20090728/15910.html">Flash 
+  CS3仿真艺术设计系列之模糊滤镜的应用实</A></LI>
+  <LI><A title="Flash CS3仿真艺术设计系列之组合效果应用实例" 
+  href="http://www.webyi.com/wschool/media/flash/20090728/15909.html">Flash 
+  CS3仿真艺术设计系列之组合效果应用实例</A></LI>
+  <LI><A title="Flash AS教程：propertydata问题解决" 
+  href="http://www.webyi.com/wschool/media/flash/20090727/15891.html">Flash 
+  AS教程：propertydata问题解决</A></LI>
+  <LI><A title=Flash马走动画实例：逐帧动画的误区 
+  href="http://www.webyi.com/wschool/media/flash/20090723/15822.html">Flash马走动画实例：逐帧动画的误区</A></LI>
+  <LI><A title="Flash CS3仿真艺术设计系列之模糊运动制作飞行" 
+  href="http://www.webyi.com/wschool/media/flash/20090720/15739.html">Flash 
+  CS3仿真艺术设计系列之模糊运动制作飞行</A></LI>
+  <LI><A title="Flash CS3仿真艺术设计系列之模糊滤镜的应用" 
+  href="http://www.webyi.com/wschool/media/flash/20090720/15736.html">Flash 
+  CS3仿真艺术设计系列之模糊滤镜的应用</A></LI></UL></DIV>
+<DIV class=clear></DIV></DIV></DIV>
+<DIV></DIV>
+<DIV id=footer>
+<DIV id=footerinfo>
+<DIV id=footercontent><A href="http://www.webyi.com/plus/aboutus.html">关于站点</A> 
+- <A href="http://www.webyi.com/plus/advertisement.html">广告服务</A> - <A 
+href="http://www.webyi.com/plus/contact.html">联系我们</A> - <A 
+href="http://www.webyi.com/plus/copyright.html">版权隐私</A> - <A 
+href="http://www.webyi.com/plus/promise.html">免责声明</A> - <A 
+href="http://www.webyi.com/plus/flink.php">友情链接</A> - <A 
+href="http://www.webyi.com/plus/sitemap.html">网站地图</A> - <A 
+href="http://www.webyi.com/plus/guestbook/">意见反馈</A> - <A 
+onclick="javascript:window.external.AddFavorite('http://www.webyi.com/','网翼IT技术教程网站：WWW.WEBYI.COM');" 
+href="http://www.webyi.com/wschool/media/flash/20090728/15914.html#">加入收藏</A> - 
+<A 
+href="http://www.webyi.com/wschool/media/flash/20090728/15914.html#top">返回顶部</A></DIV>
+<DIV id=footercopyrights>WebYi.Com 
+网翼IT技术教程网站.力倡站长文化，崇尚互联共享。欢迎转载,但严禁釆集行为！<BR><SPAN>Copyright &copy; 2006-2009 
+www.webyi.com . All rights reserved . Power by DedeCms <A 
+href="http://www.miibeian.gov.cn/" target=_blank>粤ICP备07514335号</A></SPAN>
+<SCRIPT language=javascript src="Flash AS3_0教程：物理基础之重力_files/474440.js" 
+type=text/javascript></SCRIPT>
+ <NOSCRIPT><A href="http://www.51.la/?474440" target=_blank><IMG 
+style="BORDER-TOP-STYLE: none; BORDER-RIGHT-STYLE: none; BORDER-LEFT-STYLE: none; BORDER-BOTTOM-STYLE: none" 
+alt=我要啦免费统计 src="Flash AS3_0教程：物理基础之重力_files/go.asp"></A></NOSCRIPT>
+<SCRIPT type=text/javascript>
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</SCRIPT>
+
+<SCRIPT type=text/javascript>
+try {
+var pageTracker = _gat._getTracker("UA-6387348-1");
+pageTracker._trackPageview();
+} catch(err) {}</SCRIPT>
+ <BR></DIV></DIV></DIV></BODY></HTML>
