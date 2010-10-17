@@ -1,0 +1,3684 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   width="800"
+		   height="600"
+		   creationComplete="init()"
+		   verticalScrollPolicy="off"
+		   horizontalScrollPolicy="off">
+
+	<mx:Script>
+		<![CDATA[
+			import mx.events.FlexNativeWindowBoundsEvent;
+		
+			import ruby.Chart.charArea;
+			import ruby.MJeffect.WindEffect;
+			import ruby.MJeffect.catchPosition;
+			import ruby.music.MJsound;
+			import mx.effects.Glow;
+			import mx.effects.Blur;
+			import mx.containers.Tile;
+			import ruby.MJeffect.playEffect;
+			import ruby.controlCommpent.UsercontrolBar;
+			import mx.containers.ControlBar;
+			import ruby.winTable.winTabelView;
+			import mx.managers.PopUpManager;
+			import ruby.clock.clock;
+			import mx.messaging.AbstractConsumer;
+			import mx.events.EffectEvent;
+			import mx.controls.Button;
+			import mx.effects.Move;
+			import mx.formatters.SwitchSymbolFormatter;
+			import mx.events.IndexChangedEvent;
+			import mx.collections.ArrayCollection;
+			import ruby.stone.Stone1;
+			import ruby.stone.Stone;
+			import mx.core.UIComponent;
+			import mx.events.ResizeEvent;
+			import mx.core.Application;
+			import ruby.Commpent.CommpentClass.mainMC;
+			import ruby.Event.EventCMD;
+			import ruby.Event.PlayEvent;
+			import ruby.Model.ModelLocator;
+			import ruby.card.Card;
+			//		import ruby.winTable.WinTable;
+
+			[Bindable]
+			private var TheModel:ModelLocator;
+
+			private var m_winTabel:winTabelView; // 赢计表
+			public var m_sound:SoundChannel;
+
+			public var m_mainMC:mainMC; // 游戏主界面
+			private var m_timer:Timer;
+			private var m_button:Array = new Array();
+			private var m_flootPai:ArrayCollection = new ArrayCollection();
+
+			private var m_userPai:Array = new Array(); /////自家手牌
+			private var m_user1Pai:Array = new Array(); /////下家手牌
+			private var m_user2Pai:Array = new Array(); //// 对家手牌
+			private var m_user3Pai:Array = new Array(); /////上家手牌
+			
+			private var m_userHua:Array = new Array(); // 自家花牌
+			private var m_user1Hua:Array = new Array();
+			private var m_user2Hua:Array = new Array();
+			private var m_user3Hua:Array = new Array();
+
+			private var m_userFloor:Array = new Array(); // 打出的底牌
+			private var m_user1Floor:Array = new Array();
+			private var m_user2Floor:Array = new Array();
+			private var m_user3Floor:Array = new Array();
+
+			private var m_userEatFloor:Array = new Array(); // 吃的海底牌
+			private var m_user1EatFloor:Array = new Array();
+			private var m_user2EatFloor:Array = new Array();
+			private var m_user3EatFloor:Array = new Array();
+
+			private var buhuaArr:Array; /////补花临时数组
+			private var m_evtData:Object; // 记录上一个事件所处理的牌->全局玩家牌
+			private var m_chi:Array;
+			public var m_clock:clock = new clock();
+			public var m_controlBar:UsercontrolBar;
+			private var m_catEft:catchPosition;
+			private var m_chatArea:charArea = new charArea();
+
+
+			private var m_IsEye:Boolean = false;
+
+			private var m_gangDATA:Object; //////杠信息
+			private var m_OutPai:Card; /////打出牌漏镜效果
+			private var m_EyeMoPai:Card; //////眼牌摸牌漏镜效果
+			private var m_PlayEffect:playEffect;
+
+			private var m_tempCard:Card;
+			private var m_tempPosition:int = -1; // 0:自己 1:下家 2:对家 3:上家
+			private var _volume:Number = 1; // 音量
+			
+			private function init():void
+			{
+				TheModel=ModelLocator.getInstance();
+				m_winTabel = new winTabelView();	// 赢计表
+				m_mainMC = new mainMC(); // 游戏主界面
+				addChild(m_mainMC);
+
+				m_controlBar = new UsercontrolBar(); // 控制栏-> 吃，碰，杠，取消
+				addChild(m_controlBar);
+
+				m_controlBar.effect = false;
+				
+				Application.application.addEventListener(ResizeEvent.RESIZE, resizeHandler);
+				resizeHandler(null);
+
+				/**吃碰摃监听**/
+				TheModel.addEventListener(EventCMD.myEat, chiPaiHandler); // 吃
+				TheModel.addEventListener(EventCMD.myPen, penPaiHandler); // 碰
+				TheModel.addEventListener(EventCMD.myGang, gangPaiHandler); // 杠
+				TheModel.addEventListener(EventCMD.myCancel, cancleHandler); // 取消
+				TheModel.addEventListener(EventCMD.myHandler, myHandler); // 超时操作
+				
+				/**事件监听**/
+				// 配牌完毕，在此接收此事件(mainMC)
+				TheModel.addEventListener(EventCMD.InitStage, InitStage); ///初始化场景，所有玩家牌 ,抓位
+				
+				TheModel.addEventListener(EventCMD.otherMoPai, otherMoPai);
+				TheModel.addEventListener(EventCMD.otherCHI, otherCHI);
+				TheModel.addEventListener(EventCMD.otherOutPai, otherOutPai);
+				TheModel.addEventListener(EventCMD.otherPEN, otherPEN);
+				TheModel.addEventListener(EventCMD.otherBuHua, otherBuHua);
+				TheModel.addEventListener(EventCMD.otherGANG, otherGANG);
+
+				TheModel.addEventListener(EventCMD.WinTabel, WinTabelHandler);	// 同时处理->胡，自摸，流局。
+				TheModel.addEventListener(EventCMD.nest, nestGameHandler);
+				TheModel.addEventListener(EventCMD.MyEye, MyEyeHandler);
+			}
+
+			public function set volume(num:Number):void
+			{
+				_volume=num;
+				// 	Application.application.volume=_volume;
+				if (m_sound)
+				{
+					var transform:SoundTransform = new SoundTransform(_volume, 0);
+					m_sound.soundTransform=transform;
+				}
+
+			}
+
+			public function get volume():Number
+			{
+				return _volume;
+			}
+
+			private function soundComplete(evt:Event):void
+			{
+				m_sound=MJsound.play("soundBack");
+				m_sound.addEventListener(Event.SOUND_COMPLETE, soundComplete);
+			}
+
+			private function resizeHandler(event:ResizeEvent):void
+			{
+				this.scaleX=Application.application.width / 800;
+				this.scaleY=Application.application.height / 600;
+//				validateNow();	// song modify 验证并更新此对象的属性和布局
+			}
+
+			private function MyEyeHandler(evt:PlayEvent):void /////////眼牌显示
+			{
+				trace("眼牌++++++++++++++++++++++++++眼牌");
+				trace(evt.target.toString());
+				trace(evt.currentTarget);
+				trace(evt.eventPhase.toString());
+				var i:int;
+				var j:int;
+				var card:Card;
+
+				var user1:Array=evt.m_data.user1[0]; ////下家手牌
+				var user1G:Array=evt.m_data.user1[1]; ///下家暗杠牌
+				var user2:Array=evt.m_data.user2[0]; ///对家手牌
+				var user2G:Array=evt.m_data.user2[1]; //对家暗杠牌
+				var user3:Array=evt.m_data.user3[0]; ///上家手牌
+				var user3G:Array=evt.m_data.user3[1]; //上家暗杠牌
+				m_IsEye=true;
+				if (m_userPai.length % 3 != 1)
+				{
+					eyeOutPai();
+				}
+
+				for (i=0; i < m_userPai.length; i++)
+				{
+					removeChild(m_userPai[i]);
+					card = new Card(0, 1, m_userPai[i].m_dot);
+					card.x=m_userPai[i].x;
+					card.y=m_userPai[i].y;
+					addChild(card);
+					m_userPai[i]=card;
+
+				}
+
+				for (i=0; i < user1.length; i++)
+				{
+					removeChild(m_user1Pai[i]);
+					card = new Card(1, 1, user1[i]);
+					card.x=m_user1Pai[i].x - 10;
+					card.y=m_user1Pai[i].y;
+					addChild(card);
+					m_user1Pai[i]=card;
+				}
+				for (i=0; i < user2.length; i++)
+				{
+					removeChild(m_user2Pai[i]);
+					card = new Card(2, 1, user2[i]);
+					card.x=m_user2Pai[i].x;
+					card.y=m_user2Pai[i].y;
+					addChild(card);
+					m_user2Pai[i]=card;
+				}
+
+				for (i=user3.length - 1; i > -1; i--)
+				{
+					removeChild(m_user3Pai[i]);
+					card = new Card(3, 1, user3[i]);
+					card.x=m_user3Pai[i].x;
+					card.y=m_user3Pai[i].y;
+					addChild(card);
+					m_user3Pai[i]=card;
+				}
+				eyepositionShow1();
+				eyepositionShow2();
+				eyepositionShow3();
+			}
+
+			private function eyeOutPai(evt:TimerEvent=null):void
+			{
+				var i:int;
+				var j:int;
+				var a:int;
+				var b:int;
+
+				var glow:GlowFilter = new GlowFilter();
+				glow.blurX=32;
+				glow.blurY=32;
+				glow.color=0xff0000;
+				glow.quality=BitmapFilterQuality.LOW;
+				glow.strength=3;
+
+				if (m_OutPai)
+				{
+					m_OutPai.filters=[];
+				}
+
+				var card:Card=m_userPai[m_userPai.length - 1];
+				MJsound.play(card.m_dot.toString());
+				var x:int = card.x;
+				var y:int = card.y;
+				removeChild(card);
+				m_userPai.splice(m_userPai.indexOf(card), 1);
+				positionShow();
+				paiCanMove(false);
+				var card1:Card = new Card(0, 3, card.m_dot);
+				card1.y=y - 20;
+				card1.x=x;
+				addChild(card1);
+				m_OutPai=card1;
+
+				m_userFloor.push(card1);
+				var move:Move = new Move(card1);
+				move.xFrom = card1.x;
+				move.yFrom = card1.y;
+				var point:Point = floorPaiPosition(0);
+				move.xTo = point.x;
+				move.yTo = point.y;
+				move.startDelay=10;
+				move.duration=200;
+				move.play();
+				var obj:Object = new Object();
+				obj.bid=TheModel.m_ID;
+				obj.pai=card.m_dot;
+				userPaiSort();
+				for (i=0; i < m_userPai.length - 1; i++)
+				{
+					a=getChildIndex(m_userPai[i]);
+					for (j=i + 1; j < m_userPai.length; j++)
+					{
+						b=getChildIndex(m_userPai[j]);
+						if (a > b)
+						{
+							this.setChildIndex(m_userPai[i], b);
+							this.setChildIndex(m_userPai[j], a);
+						}
+					}
+				}
+				TheModel.dispatchEvent(new PlayEvent(EventCMD.OutPai, obj));
+				m_OutPai.filters=[glow];
+			}
+
+			private function nestGameHandler(evt:PlayEvent):void
+			{
+				var i:int;
+				var j:int;
+				var len:int;
+
+				TheModel.m_isDelay = false;
+				removeChild(m_winTabel); //////消除赢计表
+				len = m_button.length;
+
+				m_IsEye = false;
+
+				for (i=0; i < len; i++)
+				{
+					m_button.pop();
+				}
+
+				len=m_flootPai.length;
+				trace("len=" + len);
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_flootPai.removeItemAt(0)as DisplayObject);
+				}
+				len=m_userPai.length;
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_userPai.pop());
+				}
+				len=m_user1Pai.length;
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_user1Pai.pop());
+				}
+				len=m_user2Pai.length;
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_user2Pai.pop());
+				}
+				len=m_user3Pai.length;
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_user3Pai.pop());
+				}
+				len=m_userEatFloor.length;	// 清理自家显示的海底牌
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_userEatFloor.pop());
+				}
+				len=m_user1EatFloor.length;
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_user1EatFloor.pop());
+				}
+				len=m_user2EatFloor.length;
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_user2EatFloor.pop());
+				}
+				len=m_user3EatFloor.length;
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_user3EatFloor.pop());
+				}
+				len=m_userHua.length;
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_userHua.pop());
+				}
+				len=m_user1Hua.length;
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_user1Hua.pop());
+				}
+				len=m_user2Hua.length;
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_user2Hua.pop());
+				}
+				len=m_user3Hua.length;
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_user3Hua.pop());
+				}
+				len=m_userFloor.length;
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_userFloor.pop());
+				}
+				len=m_user1Floor.length;
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_user1Floor.pop());
+				}
+				len=m_user2Floor.length
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_user2Floor.pop());
+				}
+				len=m_user3Floor.length;
+				for (i=0; i < len; i++)
+				{
+					removeChild(m_user3Floor.pop());
+				}
+
+				TheModel.dispatchEvent(new PlayEvent(EventCMD.questPai, null)); //////重新配牌
+			}
+
+			private function InitStage(evt:PlayEvent):void ///////初始化场景
+			{
+				var i:int;
+				var j:int;
+				if (m_sound)
+					m_sound.stop();
+				m_sound=MJsound.play("soundBack");
+				m_sound.addEventListener(Event.SOUND_COMPLETE, soundComplete);
+
+				if (TheModel.m_begin) //////是否第一次开局   抓位
+					catchEffect();
+				else
+					WindShow();
+			}
+
+			private function catchEffect():void
+			{
+				m_PlayEffect = new playEffect(-1, "抓位");// 抓位效果
+				addChild(m_PlayEffect);
+				MJsound.play("zhuawei");
+				m_catEft = new catchPosition();// 抓位
+				m_catEft.addEventListener(Event.COMPLETE, cutEffect);
+				addChild(m_catEft);
+			}
+			
+			private function cutEffect(evt:Event):void
+			{
+				m_catEft.removeEventListener(Event.COMPLETE, cutEffect);
+				removeChild(m_catEft);
+				m_catEft=null;
+				WindShow();
+			}
+
+			private function WindShow():void	// ?风?局显示
+			{
+				var name:String="r" + TheModel.m_qs.toString() + TheModel.m_js.toString();
+				var wind:WindEffect = new WindEffect(name);
+				wind.addEventListener(Event.COMPLETE, WindShowEnd);
+				addChild(wind);
+
+			}
+
+			private function WindShowEnd(evt:Event):void
+			{
+
+				removeChild(evt.target as DisplayObject);
+				m_catEft=null;
+				floorCardInit();
+			}
+			
+			private function floorCardInit():void // 牌初始化	,添加144张海底牌	添加顺序-> 海底牌顺时针，摸牌->摸牌时顺时针
+			{
+				var i:int;
+				var j:int;
+				var index1:int;
+				var index2:int;
+
+				for (i=0; i < 36; i++)	// 索引从 0 开始	顺时旋转添加 对家海底牌
+				{
+					var pai:Card = new Card(2, 4);
+					pai.visible = false;	//隐藏所有牌
+					m_button[i] = pai;
+					m_button[i].y = 100;
+					if (i % 2 == 0)
+					{
+						m_button[i].x = 180 + pai.m_MCwidth / 2 * i;	//	发牌，同时添加上下两张牌。而非下一排添加完后再添加上一排。
+						m_button[i].y += 6;
+					}
+					else
+					{
+						m_button[i].x = 180 + pai.m_MCwidth / 2 * (i - 1);
+					}
+					addChild(m_button[i]);
+				}
+
+				for (i=36; i < 72; i++)		// 顺时旋转添加
+				{
+					pai = new Card(1, 4);
+					pai.visible = false;	//隐藏所有牌
+					m_button[i] = pai;
+					m_button[i].x = 640;
+
+					if (i % 2 == 0)
+					{
+						m_button[i].y = 110 + 9.5 * (i - 37);
+					}
+					else
+					{
+						m_button[i].y = 110 + 9.5 * (i - 38);
+						m_button[i].y -= 6;
+					}
+					addChild(m_button[i]);
+				}
+
+				for (i=72; i < 108; i++)	// 自己海底牌		顺时旋转添加
+				{
+					pai = new Card(0, 4);
+					pai.visible = false;	//隐藏所有牌
+					m_button[i] = pai;
+					m_button[i].y = 400;
+					if (i % 2 == 0)
+					{
+						m_button[i].x = 520 + 75 - (i - 72) * pai.m_MCwidth / 2;
+					}
+					else
+					{
+						m_button[i].x = 520 + 75 - (i - 73) * pai.m_MCwidth / 2;
+						m_button[i].y += 6;		// 奇数牌上调六个像素
+					}
+				}
+				for (i = 107; i >= 72; i--)	// 反向添加
+				{
+					addChild(m_button[i]);
+				}
+				for (i=72; i < 108; i++) ////上下牌交换
+				{
+					if (i % 2 == 0)
+					{
+						var c:Card = m_button[i] as Card;
+						m_button[i] = m_button[i + 1];
+						m_button[i + 1] = c;
+					}
+				}
+
+				for (i = 108; i < 144; i++)	// 上家海底牌
+				{
+					pai = new Card(3, 4);
+					pai.visible = false;
+					m_button[i] = pai;
+					m_button[i].x = 120;
+					if (i % 2 == 0)
+					{
+						m_button[i].y = 410 - (i - 109) * 9.5;
+					}
+					else
+					{
+						m_button[i].y = 410 - (i - 110) * 9.5;
+						m_button[i].y -= 6;		// 奇数牌上调六个像素
+					}
+					addChild(m_button[i]);
+					
+					if (i % 2 == 0 && i > 108)
+					{
+						index1=(i - 108) / 2;	// 牌的一半
+						for (j=0; j < index1; j++)
+						{
+							var a:int = this.getChildIndex(m_button[i - 2 * j]);
+							var b:int = this.getChildIndex(m_button[i - 2 * j - 2]);
+							this.setChildIndex(m_button[i - 2 * j], b);
+							this.setChildIndex(m_button[i - 2 * j - 2], a);
+							//	this.swapChildren(m_button[i-2*j],m_button[i-2*j-2]);
+						}
+					}
+					if (i % 2 != 0 && i > 109)
+					{
+						index1=(i - 108) / 2;
+						for (j=0; j < index1; j++)
+						{
+							var a:int = this.getChildIndex(m_button[i - 2 * j]);
+							var b:int = this.getChildIndex(m_button[i - 2 * j - 2]);
+							this.setChildIndex(m_button[i - 2 * j], b);
+							this.setChildIndex(m_button[i - 2 * j - 2], a);
+							//		this.swapChildren(m_button[i-2*j],m_button[i-2*j-2]);
+						}
+					}
+				}
+				var timer:Timer = new Timer(50, 36);	// 50毫秒执行一次，执行36次
+				timer.addEventListener(TimerEvent.TIMER, fapaiShow);	// 海底牌发牌效果
+				timer.addEventListener(TimerEvent.TIMER_COMPLETE, fapaiShowend);
+				timer.start();
+			}
+
+			private function otherOutPai(evt:PlayEvent):void //打牌
+			{
+				if (m_EyeMoPai)
+				{
+					var arr:Array=m_EyeMoPai.filters;
+					arr=null;
+					m_EyeMoPai.filters=[];
+					m_EyeMoPai=null;
+				}
+				var i:int;
+				var j:int;
+				var index:int;
+				var len:int;
+				var card:Card;
+				var data:Object = evt.m_data;
+				var move:Move = new Move();
+				var XFrom:int;
+				var YFrom:int;
+				move.startDelay = 20;
+				move.duration = 300;
+
+				var glow:GlowFilter = new GlowFilter();
+				glow.blurX = 32;
+				glow.blurY = 32;
+				glow.color = 0xff0000;
+				glow.quality = BitmapFilterQuality.LOW;
+				glow.strength = 3;
+				glow.alpha = 0.6; // self add
+				if (m_OutPai)
+				{
+					m_OutPai.filters=[];
+				}
+
+				if (m_IsEye)	// 若眼牌，加载躺下的牌匾
+				{
+					switch (evt.m_data.cid)
+					{
+						case 0:
+							break;
+						case 1:
+							for (i=0; i < m_user1Pai.length; i++)
+							{
+								if (m_user1Pai[i].m_dot == data.pai)
+								{
+									XFrom=m_user1Pai[i].x;
+									YFrom=m_user1Pai[i].y;
+									removeChild(m_user1Pai[i]);
+									m_user1Pai.splice(i, 1);
+									break;
+								}
+							}
+							card = new Card(1, 1, data.pai);
+							var length:int = m_user1Floor.length;
+							move.xFrom=XFrom - 20;
+							move.yFrom=YFrom;
+							move.xTo=600 - int(length / 9) * 36;
+							move.yTo=340 - length % 9 * 22 * 0.9;
+							m_user1Floor.push(card);
+							move.target=card;
+							card.x=move.xFrom;
+							card.y=move.yFrom;
+							addChild(card);
+							m_OutPai=card;
+
+							move.addEventListener(EffectEvent.EFFECT_END, effectEnd);
+							move.play();
+
+							eyepositionShow1();
+							for (i=0; i < m_user1Floor.length - 1; i++)
+							{
+								var a:int = getChildIndex(m_user1Floor[i]);
+								for (j=1 + i; j < m_user1Floor.length; j++)
+								{
+									var b:int = getChildIndex(m_user1Floor[j]);
+									if (b > a)
+									{
+										setChildIndex(m_user1Floor[i], b);
+										setChildIndex(m_user1Floor[j], a);
+									}
+								}
+							}
+							break;
+						case 2:
+							for (i=0; i < m_user2Pai.length; i++)
+							{
+								if (m_user2Pai[i].m_dot == data.pai)
+								{
+									XFrom=m_user2Pai[i].x;
+									YFrom=m_user2Pai[i].y;
+									removeChild(m_user2Pai[i]);
+									m_user2Pai.splice(i, 1);
+									break;
+								}
+							}
+							card = new Card(2, 1, data.pai);
+							length=m_user2Floor.length;
+							move.xFrom=XFrom;
+							move.yFrom=YFrom + 20;
+							move.xTo=480 - length % 9 * 28 * 0.9;
+							move.yTo=150 + int(length / 9) * 33;
+							m_user2Floor.push(card);
+							move.target=card;
+							card.x=move.xFrom;
+							card.y=move.yFrom;
+							addChild(card);
+							m_OutPai=card;
+
+							move.addEventListener(EffectEvent.EFFECT_END, effectEnd);
+							move.play();
+							eyepositionShow2();
+
+							if (m_user2Floor.length < 10)
+							{
+								for (i=0; i < m_user2Floor.length - 1; i++)
+								{
+									a=getChildIndex(m_user2Floor[i]);
+									for (j=i + 1; j < m_user2Floor.length; j++)
+									{
+										b=getChildIndex(m_user2Floor[j]);
+										if (a < b)
+										{
+											setChildIndex(m_user2Floor[i], b);
+											setChildIndex(m_user2Floor[j], a);
+										}
+									}
+								}
+							}
+							else
+							{
+								for (i=0; i < 8; i++)
+								{
+									a=getChildIndex(m_user2Floor[i]);
+									for (j=i + 1; j < 9; j++)
+									{
+										b=getChildIndex(m_user2Floor[j]);
+										if (a < b)
+										{
+											setChildIndex(m_user2Floor[i], b);
+											setChildIndex(m_user2Floor[j], a);
+										}
+									}
+								}
+
+								for (i=9; i < m_user2Floor.length - 1; i++)
+								{
+									a=getChildIndex(m_user2Floor[i]);
+									for (j=i + 1; j < m_user2Floor.length; j++)
+									{
+										b=getChildIndex(m_user2Floor[j]);
+										if (a < b)
+										{
+											setChildIndex(m_user2Floor[i], b);
+											setChildIndex(m_user2Floor[j], a);
+										}
+
+									}
+								}
+							}
+
+							break;
+						case 3:
+							for (i=0; i < m_user3Pai.length; i++)
+							{
+								if (m_user3Pai[i].m_dot == data.pai)
+								{
+									XFrom=m_user3Pai[i].x;
+									YFrom=m_user3Pai[i].y;
+									removeChild(m_user3Pai[i]);
+									m_user3Pai.splice(i, 1);
+									break;
+								}
+							}
+							card = new Card(3, 1, data.pai);
+							length=m_user3Floor.length;
+							move.xFrom=XFrom + 20;
+							move.yFrom=YFrom;
+							move.xTo=170 + int(length / 9) * 40;
+							move.yTo=170 + length % 9 * 22 * 0.9;
+							m_user3Floor.push(card);
+							move.target=card;
+							addChild(card);
+							m_OutPai=card;
+							card.x=move.xFrom;
+							card.y=move.yFrom;
+
+							move.addEventListener(EffectEvent.EFFECT_END, effectEnd);
+							move.play();
+							eyepositionShow3();
+							break;
+						default:
+							break;
+					}
+					var filters:Array = new Array();
+					filters.push(glow);
+					m_OutPai.filters=filters;
+					var dot:int = data.pai;
+					MJsound.play(dot.toString());
+					return ;
+				}
+
+				switch (evt.m_data.cid)
+				{
+					case 0:
+						break;
+					case 1:
+						index=(Math.random() * 1000) % m_user1Pai.length;	// 从牌队列中随机产生一张要打出的牌的位置
+						card = new Card(1, 1, data.pai);
+						var length:int = m_user1Floor.length;
+						move.xFrom=m_user1Pai[index].x - 20;
+						move.yFrom=m_user1Pai[index].y;
+						move.xTo=600 - int(length / 9) * 36;
+						move.yTo=340 - length % 9 * 22 * 0.9;
+						m_user1Floor.push(card);
+						move.target=card;
+						card.x=move.xFrom;
+						card.y=move.yFrom;
+						addChild(card);
+						m_OutPai=card;
+						removeChild(m_user1Pai.pop());	// 移除一张手牌（下家） 该项牌是一牌背
+						move.addEventListener(EffectEvent.EFFECT_END, effectEnd);
+						move.play();
+						for (i=0; i < m_user1Floor.length - 1; i++)	// 调整索引，以防覆盖其它牌
+						{
+							var a:int = getChildIndex(m_user1Floor[i]);
+							for (j=1 + i; j < m_user1Floor.length; j++)
+							{
+								var b:int = getChildIndex(m_user1Floor[j]);
+								if (b > a)
+								{
+									setChildIndex(m_user1Floor[i], b);
+									setChildIndex(m_user1Floor[j], a);
+								}
+							}
+						}
+						/*len=m_user1Floor.length;
+						   if(len>8)
+						   {
+						   a=getChildIndex(m_user1Floor[len-1]);
+						   b=getChildIndex(m_user1Floor[len-8]);
+						   setChildIndex(m_user1Floor[len-1],b);
+						   setChildIndex(m_user1Floor[len-8],a);
+						   }
+						 */
+
+						break;
+					case 2:
+						index=(Math.random() * 1000) % m_user2Pai.length;
+						card = new Card(2, 1, data.pai);
+						length=m_user2Floor.length;
+						move.xFrom=m_user2Pai[index].x;
+						move.yFrom=m_user2Pai[index].y + 20;
+						move.xTo=480 - length % 9 * 28 * 0.9;
+						move.yTo=150 + int(length / 9) * 33;
+						m_user2Floor.push(card);
+						move.target=card;
+						card.x=move.xFrom;
+						card.y=move.yFrom;
+						addChild(card);
+						m_OutPai=card;
+						removeChild(m_user2Pai.pop());
+						move.addEventListener(EffectEvent.EFFECT_END, effectEnd);
+						move.play();
+						if (m_user2Floor.length < 10)
+						{
+							for (i=0; i < m_user2Floor.length - 1; i++)
+							{
+								a=getChildIndex(m_user2Floor[i]);
+								for (j=i + 1; j < m_user2Floor.length; j++)
+								{
+									b=getChildIndex(m_user2Floor[j]);
+									if (a < b)
+									{
+										setChildIndex(m_user2Floor[i], b);
+										setChildIndex(m_user2Floor[j], a);
+									}
+								}
+							}
+						}
+						else
+						{
+							for (i=0; i < 8; i++)
+							{
+								a=getChildIndex(m_user2Floor[i]);
+								for (j=i + 1; j < 9; j++)
+								{
+									b=getChildIndex(m_user2Floor[j]);
+									if (a < b)
+									{
+										setChildIndex(m_user2Floor[i], b);
+										setChildIndex(m_user2Floor[j], a);
+									}
+								}
+							}
+
+							for (i=9; i < m_user2Floor.length - 1; i++)
+							{
+								a=getChildIndex(m_user2Floor[i]);
+								for (j=i + 1; j < m_user2Floor.length; j++)
+								{
+									b=getChildIndex(m_user2Floor[j]);
+									if (a < b)
+									{
+										setChildIndex(m_user2Floor[i], b);
+										setChildIndex(m_user2Floor[j], a);
+									}
+
+								}
+							}
+						}
+						break;
+					case 3:
+						index=(Math.random() * 1000) % m_user3Pai.length;
+						card = new Card(3, 1, data.pai);
+						length=m_user3Floor.length;
+						move.xFrom=m_user3Pai[index].x + 20;
+						move.yFrom=m_user3Pai[index].y;
+						move.xTo=170 + int(length / 9) * 40;
+						move.yTo=170 + length % 9 * 22 * 0.9;
+						m_user3Floor.push(card);
+						move.target=card;
+						addChild(card);
+						m_OutPai=card;
+						card.x=move.xFrom;
+						card.y=move.yFrom;
+
+						removeChild(m_user3Pai.pop());
+						move.addEventListener(EffectEvent.EFFECT_END, effectEnd);
+						move.play();
+						/*		if(int(length/9)>0)
+						   {
+						   // swapChildren(m_user3Floor[length],m_user3Floor[int(length%9)]);
+						   a=getChildIndex(m_user3Floor[length]);
+						   b=getChildIndex(m_user3Floor[int(length%9)]);
+						   setChildIndex(m_user3Floor[length],b);
+						   setChildIndex(m_user3Floor[int(length%9)],a);
+						   }
+						 */
+						break;
+					default:
+						break;
+				}
+				var filters:Array = new Array();
+				filters.push(glow);
+				m_OutPai.filters=filters;
+				var dot:int = data.pai;
+				MJsound.play(dot.toString());
+			}
+
+			private function effectEnd(evt:EffectEvent):void
+			{
+				var move:Move=evt.target as Move;
+				move.stop();
+				move.target=null;
+				move=null; 
+			}
+
+			private function otherBuHua(evt:PlayEvent):void
+			{
+				var i:int;
+				var j:int;
+				var a:int;
+				var j:int;
+				var pai:int = evt.m_data.pai;
+				MJsound.play("buhua");
+				switch (evt.m_data.cid)
+				{
+					case 0: ////自家补花
+						m_PlayEffect = new playEffect(0, "补花");
+						addChild(m_PlayEffect);
+						var c:Card = new Card(0, 1, pai);
+						c.y = 440;
+						c.x = 100 + m_userHua.length * 42 * 0.9;
+						m_userHua.push(c);
+						addChild(c);
+//						TheModel.dispatchEvent(new PlayEvent(EventCMD.repairFlower, new Object()));
+						break;
+					case 1: /////下家补花
+						m_PlayEffect = new playEffect(1, "补花");
+						addChild(m_PlayEffect);
+						var card:Card = new Card(1, 1, pai);
+						card.x=710;
+						card.y=420 - 22 * 0.9 * m_user1Hua.length;
+						addChild(card);
+						m_user1Hua.push(card);
+
+						for (i=0; i < m_user1Hua.length - 1; i++)
+						{
+							var a:int = getChildIndex(m_user1Hua[i]);
+							for (var j:int = i + 1; j < m_user1Hua.length; j++)
+							{
+								var b:int = getChildIndex(m_user1Hua[j]);
+								if (b > a)
+								{
+									//swapChildren(m_user1Hua[i],m_user1Hua[j]);
+									setChildIndex(m_user1Hua[i], b);
+									setChildIndex(m_user1Hua[j], a);
+								}
+							}
+						}
+						break;
+					case 2: ///////对家补花
+						m_PlayEffect = new playEffect(2, "补花");
+						addChild(m_PlayEffect);
+						card = new Card(2, 1, pai);
+						card.x=620 - 24 * 0.9 * m_user2Hua.length;
+						card.y=70;
+						addChild(card);
+						m_user2Hua.push(card);
+
+						for (i=0; i < m_user2Hua.length - 1; i++)
+						{
+							a=getChildIndex(m_user2Hua[i]);
+							for (j=i + 1; j < m_user2Hua.length; j++)
+							{
+								b=getChildIndex(m_user2Hua[j]);
+								if (b > a)
+								{
+									setChildIndex(m_user2Hua[i], b);
+									setChildIndex(m_user2Hua[j], a);
+								}
+							}
+						}
+						break;
+					case 3: ////上家补花
+						m_PlayEffect = new playEffect(3, "补花");
+						addChild(m_PlayEffect);
+						card = new Card(3, 1, pai);
+						card.y=85 + 22 * 0.9 * m_user3Hua.length;
+						card.x=70;
+						addChild(card);
+						m_user3Hua.push(card);
+						break;
+					default:
+						break;
+				}
+			}
+
+			private function otherCHI(evt:PlayEvent):void
+			{
+				var i:int;
+				var j:int;
+				if (evt.m_data.cid == 0) ////自家吃牌
+				{
+					m_evtData=evt.m_data;
+					return ;
+				}
+				MJsound.play("eat");
+				if (evt.m_data.cid == 1) ///下家吃牌
+				{
+					m_PlayEffect = new playEffect(1, "吃");
+					addChild(m_PlayEffect);
+					if (m_IsEye) //////眼牌
+					{
+						var chipai:Array=evt.m_data.pai as Array;
+						trace(chipai);
+						for (i=0; i < m_user1Pai.length; i++)
+						{
+							if (m_user1Pai[i].m_dot == chipai[0])
+							{
+								removeChild(m_user1Pai[i]);
+								m_user1Pai.splice(i, 1);
+								break;
+							}
+						}
+						for (i=0; i < m_user1Pai.length; i++)
+						{
+							if (m_user1Pai[i].m_dot == chipai[2])
+							{
+								removeChild(m_user1Pai[i]);
+								m_user1Pai.splice(i, 1);
+								break;
+							}
+						}
+						eyepositionShow1();
+					}
+					else
+					{
+						for (i=0; i < 2; i++)
+						{
+							removeChild(m_user1Pai.pop());
+						}
+					}
+					var chipai:Array=evt.m_data.pai as Array;
+					trace(chipai);
+					var length:int = m_user1EatFloor.length;
+					for (i=0; i < chipai.length; i++)
+					{
+						var card:Card = new Card(1, 1, chipai[i]);
+						card.x=750;
+						card.y=470 - m_user1EatFloor.length * 22 * 0.9;
+						card.y+=10 * length / 4;
+						m_user1EatFloor.push(card);
+					}
+
+					var ui:UIComponent = new UIComponent();
+					ui.y=750 - m_user1EatFloor.length * 22;
+					ui.x=470;
+					m_user1EatFloor.push(ui);
+
+					for (i=length; i < m_user1EatFloor.length; i++)
+					{
+						addChild(m_user1EatFloor[i]);
+					}
+					for (i=0; i < m_user1EatFloor.length - 1; i++)
+					{
+						var a:int = this.getChildIndex(m_user1EatFloor[i]);
+						for (j=i + 1; j < m_user1EatFloor.length; j++)
+						{
+							var b:int = this.getChildIndex(m_user1EatFloor[j]);
+							if (b > a)
+							{
+								this.setChildIndex(m_user1EatFloor[i], b);
+								this.setChildIndex(m_user1EatFloor[j], a);
+							}
+						}
+					}
+				}
+
+				if (evt.m_data.cid == 2) /////对家
+				{
+					m_PlayEffect = new playEffect(2, "吃");
+					addChild(m_PlayEffect);
+					if (m_IsEye) //////眼牌
+					{
+						var chipai:Array=evt.m_data.pai as Array;
+						trace(chipai);
+						for (i=0; i < m_user2Pai.length; i++)
+						{
+							if (m_user2Pai[i].m_dot == chipai[0])
+							{
+								removeChild(m_user2Pai[i]);
+								m_user2Pai.splice(i, 1);
+								break;
+							}
+						}
+						for (i=0; i < m_user2Pai.length; i++)
+						{
+							if (m_user2Pai[i].m_dot == chipai[2])
+							{
+								removeChild(m_user2Pai[i]);
+								m_user2Pai.splice(i, 1);
+								break;
+							}
+						}
+						eyepositionShow2();
+					}
+					else
+					{
+						for (i=0; i < 2; i++)
+						{
+							removeChild(m_user2Pai.pop());
+						}
+					}
+					chipai=evt.m_data.pai as Array;
+					trace("chipai=" + chipai);
+					var length:int = m_user2EatFloor.length;
+					for (i=0; i < chipai.length; i++)
+					{
+						card = new Card(2, 1, chipai[i]);
+						card.y=30;
+						card.x=700 - m_user2EatFloor.length * 24;
+						card.x+=16 * length / 4;
+						m_user2EatFloor.push(card);
+					}
+					var ui:UIComponent = new UIComponent();
+					ui.y=30;
+					ui.x=700 - m_user2EatFloor.length * 24;
+					m_user2EatFloor.push(ui);
+					for (i=length; i < m_user2EatFloor.length; i++)
+					{
+						addChild(m_user2EatFloor[i]);
+					}
+					for (i=0; i < m_user2EatFloor.length - 1; i++)
+					{
+						var a:int = getChildIndex(m_user2EatFloor[i]);
+						for (j=i + 1; j < m_user2EatFloor.length; j++)
+						{
+							var b:int = getChildIndex(m_user2EatFloor[j]);
+							if (a < b)
+							{
+								setChildIndex(m_user2EatFloor[i], b);
+								setChildIndex(m_user2EatFloor[j], a);
+							}
+						}
+					}
+				}
+				if (evt.m_data.cid == 3)
+				{
+					m_PlayEffect = new playEffect(3, "吃");
+					addChild(m_PlayEffect);
+					if (m_IsEye) //////眼牌
+					{
+						var chipai:Array=evt.m_data.pai as Array;
+						trace(chipai);
+						for (i=0; i < m_user3Pai.length; i++)
+						{
+							if (m_user3Pai[i].m_dot == chipai[0])
+							{
+								removeChild(m_user3Pai[i]);
+								m_user3Pai.splice(i, 1);
+								break;
+							}
+						}
+						for (i=0; i < m_user3Pai.length; i++)
+						{
+							if (m_user3Pai[i].m_dot == chipai[2])
+							{
+								removeChild(m_user3Pai[i]);
+								m_user3Pai.splice(i, 1);
+								break;
+							}
+						}
+						eyepositionShow3();
+					}
+					else
+					{
+						for (i=0; i < 2; i++)
+						{
+							removeChild(m_user3Pai.pop());
+						}
+					}
+					var chipai:Array=evt.m_data.pai as Array;
+					var length:int = m_user3EatFloor.length;
+					for (i=0; i < chipai.length; i++)
+					{
+						card = new Card(3, 1, chipai[i]);
+						card.x=10;
+						card.y=40 + 22 * m_user3EatFloor.length * 0.9;
+						card.y-=10 * length / 4;
+						m_user3EatFloor.push(card);
+					}
+					var ui:UIComponent = new UIComponent();
+					ui.y=10 + 22 * m_user3EatFloor.length;
+					ui.x=40;
+					m_user3EatFloor.push(ui);
+					for (i=length; i < m_user3EatFloor.length; i++)
+					{
+						addChild(m_user3EatFloor[i]);
+					}
+				}
+
+				switch (evt.m_data.bid)
+				{
+					case 0:
+						removeChild(m_userFloor.pop());
+						break;
+					case 1:
+						removeChild(m_user1Floor.pop());
+						break;
+					case 2:
+						removeChild(m_user2Floor.pop());
+						break;
+					case 3:
+						removeChild(m_user3Floor.pop());
+						break;
+					default:
+						break;
+				}
+			}
+
+			private function otherPEN(evt:PlayEvent):void
+			{
+				var i:int;
+				var j:int;
+				m_evtData=evt.m_data;
+				if (evt.m_data.cid == 0) ///自家碰牌
+				{
+					trace("被操作的玩家:" + evt.m_data.bid);
+					return ;
+				}
+				MJsound.play("pen");
+				if (evt.m_data.cid == 1)
+				{
+					m_PlayEffect = new playEffect(1, "碰");
+					addChild(m_PlayEffect);
+					trace("下家碰");
+					if (m_IsEye)
+					{
+						for (j=0, i=0; i < m_user1Pai.length; i++)
+						{
+							if (m_user1Pai[i].m_dot == evt.m_data.pai)
+							{
+								removeChild(m_user1Pai[i]);
+								m_user1Pai.splice(i, 1);
+								i--;
+								j++;
+							}
+							if (j > 1)
+								break;
+						}
+						eyepositionShow1();
+					}
+					else
+					{
+						for (i=0; i < 2; i++)
+						{
+							removeChild(m_user1Pai.pop());
+						}
+						positionShow1();
+					}
+					var len:int = m_user1EatFloor.length;
+					for (i=0; i < 3; i++)
+					{
+						var card:Card = new Card(1, 1, evt.m_data.pai);
+						card.x=750;
+						card.y=470 - m_user1EatFloor.length * 22 * 0.9;
+						card.y+=10 * len / 4;
+						m_user1EatFloor.push(card);
+					}
+					var ui:UIComponent = new UIComponent();
+					ui.y=470 - m_user1EatFloor.length * 22;
+					ui.x=770;
+					m_user1EatFloor.push(ui);
+					for (i=len; i < m_user1EatFloor.length; i++)
+					{
+						addChild(m_user1EatFloor[i]);
+					}
+					for (i=0; i < m_user1EatFloor.length - 1; i++)
+					{
+						var a:int = this.getChildIndex(m_user1EatFloor[i]);
+						for (j=i + 1; j < m_user1EatFloor.length; j++)
+						{
+							var b:int = this.getChildIndex(m_user1EatFloor[j]);
+							if (b > a)
+							{
+								setChildIndex(m_user1EatFloor[i], b);
+								setChildIndex(m_user1EatFloor[j], a);
+							}
+						}
+					}
+				}
+				if (evt.m_data.cid == 2)
+				{
+					m_PlayEffect = new playEffect(2, "碰");
+					addChild(m_PlayEffect);
+					trace("对家碰");
+					if (m_IsEye)
+					{
+						for (j=0, i=0; i < m_user2Pai.length; i++)
+						{
+							if (m_user2Pai[i].m_dot == evt.m_data.pai)
+							{
+								removeChild(m_user2Pai[i]);
+								m_user2Pai.splice(i, 1);
+								i--;
+								j++;
+							}
+							if (j > 1)
+								break;
+						}
+						eyepositionShow2();
+					}
+					else
+					{
+						for (i=0; i < 2; i++)
+						{
+							removeChild(m_user2Pai.pop());
+						}
+					}
+					var length:int = m_user2EatFloor.length;
+					for (i=0; i < 3; i++)
+					{
+						card = new Card(2, 1, evt.m_data.pai);
+						card.y=30;
+						card.x=700 - m_user2EatFloor.length * 24;
+						card.x+=16 * length / 4;
+						m_user2EatFloor.push(card);
+					}
+					ui = new UIComponent();
+					ui.x=700 - m_user2EatFloor.length * 24;
+					ui.y=30;
+					m_user2EatFloor.push(ui);
+					for (i=length; i < m_user2EatFloor.length; i++)
+					{
+						addChild(m_user2EatFloor[i]);
+					}
+
+					for (i=0; i < m_user2EatFloor.length - 1; i++)
+					{
+						var a:int = getChildIndex(m_user2EatFloor[i]);
+						for (j=i + 1; j < m_user2EatFloor.length; j++)
+						{
+							var b:int = getChildIndex(m_user2EatFloor[j]);
+							if (a < b)
+							{
+								setChildIndex(m_user2EatFloor[i], b);
+								setChildIndex(m_user2EatFloor[j], a);
+							}
+						}
+					}
+				}
+				if (evt.m_data.cid == 3)
+				{
+					m_PlayEffect = new playEffect(3, "碰");
+					addChild(m_PlayEffect);
+					if (m_IsEye)
+					{
+						for (j=0, i=0; i < m_user3Pai.length; i++)
+						{
+							if (m_user3Pai[i].m_dot == evt.m_data.pai)
+							{
+								removeChild(m_user3Pai[i]);
+								m_user3Pai.splice(i, 1);
+								i--;
+								j++;
+							}
+							if (j > 1)
+								break;
+						}
+						eyepositionShow3();
+					}
+					else
+					{
+						for (i=0; i < 2; i++)
+						{
+							removeChild(m_user3Pai.pop());
+						}
+						positionShow3();
+					}
+					length=m_user3EatFloor.length;
+					for (i=0; i < 3; i++)
+					{
+						card = new Card(3, 1, evt.m_data.pai);
+						card.x=10;
+						card.y=40 + 22 * m_user3EatFloor.length * 0.9;
+						card.y-=10 * length / 4;
+						m_user3EatFloor.push(card);
+					}
+					ui = new UIComponent();
+					ui.y=10 + 20 * m_user3EatFloor.length;
+					ui.x=40;
+					m_user3EatFloor.push(ui);
+					for (i=length; i < m_user3EatFloor.length; i++)
+					{
+						addChild(m_user3EatFloor[i]);
+					}
+				}
+				switch (evt.m_data.bid)
+				{
+					case 0:
+						removeChild(m_userFloor.pop());
+						break;
+					case 1:
+						removeChild(m_user1Floor.pop());
+						break;
+					case 2:
+						removeChild(m_user2Floor.pop());
+						break;
+					case 3:
+						removeChild(m_user3Floor.pop());
+						break;
+					default:
+						break;
+				}
+			}
+
+			private function otherGANG(evt:PlayEvent):void
+			{
+				var i:int;
+				var j:int;
+				m_evtData=evt.m_data;
+				switch (evt.m_data.cid)
+				{
+					case 0: ///自家摃
+						m_gangDATA=evt.m_data;
+						return ;
+						break;
+					case 1: //////下家
+						m_PlayEffect = new playEffect(1, "杠");
+						addChild(m_PlayEffect);
+						if (evt.m_data.type == 6) /////加杠
+						{
+							if (m_IsEye)
+							{
+								for (i=0; i < m_user1Pai.length; i++)
+								{
+									if (m_user1Pai[i].m_dot == evt.m_data.pai)
+									{
+										removeChild(m_user1Pai[i]);
+										m_user1Pai.splice(i, 1);
+										break;
+									}
+								}
+								eyepositionShow1();
+							}
+							else
+							{
+								removeChild(m_user1Pai.pop());
+								positionShow1();
+							}
+							for (i=0; i < m_user1EatFloor.length; i++)
+							{
+								if (m_user1EatFloor[i]is Card && m_user1EatFloor[i].m_dot == evt.m_data.pai)
+								{
+									trace("加扛放牌");
+									var card:Card = new Card(1, 1, evt.m_data.pai);
+									card.x=m_user1EatFloor[i + 1].x;
+									card.y=m_user1EatFloor[i + 1].y - 3;
+									addChild(card);
+									m_user1EatFloor[i + 3]=card;
+									break;
+								}
+							}
+						}
+						if (evt.m_data.type == 7) ////明杠
+						{
+							trace("明扛");
+							if (m_IsEye)
+							{
+								for (j=0, i=0; i < m_user1Pai.length; i++)
+								{
+									if (m_user1Pai[i].m_dot == evt.m_data.pai)
+									{
+										removeChild(m_user1Pai[i]);
+										m_user1Pai.splice(i, 1);
+										i--;
+										j++;
+									}
+									if (j > 2)
+										break;
+								}
+								eyepositionShow1();
+							}
+							else
+							{
+								for (i=0; i < 3; i++)
+								{
+									removeChild(m_user1Pai.pop());
+								}
+								positionShow1();
+							}
+							var len:int = m_user1EatFloor.length;
+							for (i=0; i < 4; i++)
+							{
+								var card:Card = new Card(1, 1, evt.m_data.pai);
+								card.x=750;
+								card.y=470 - m_user1EatFloor.length * 22;
+								card.y+=10 * len / 4;
+								m_user1EatFloor.push(card);
+							}
+							m_user1EatFloor[m_user1EatFloor.length - 1].x=m_user1EatFloor[m_user1EatFloor.length - 3].x;
+							m_user1EatFloor[m_user1EatFloor.length - 1].y=m_user1EatFloor[m_user1EatFloor.length - 3].y - 6;
+							for (i=len; i < m_user1EatFloor.length; i++)
+							{
+								addChild(m_user1EatFloor[i]);
+							}
+							for (i=0; i < m_user1EatFloor.length - 1; i++)
+							{
+								var a:int = this.getChildIndex(m_user1EatFloor[i]);
+								for (j=i + 1; j < m_user1EatFloor.length; j++)
+								{
+									var b:int = this.getChildIndex(m_user1EatFloor[j]);
+									if (b > a)
+									{
+										setChildIndex(m_user1EatFloor[i], b);
+										setChildIndex(m_user1EatFloor[j], a);
+									}
+								}
+							}
+						}
+						if (evt.m_data.type == 8) ////暗杠
+						{
+							if (m_IsEye)
+							{
+								for (j=0, i=0; i < m_user1Pai.length; i++)
+								{
+									if (m_user1Pai[i].m_dot == evt.m_data.pai)
+									{
+										removeChild(m_user1Pai[i]);
+										m_user1Pai.splice(i, 1);
+										i--;
+										j++;
+									}
+									if (j > 3)
+										break;
+								}
+								eyepositionShow1();
+							}
+							else
+							{
+								for (i=0; i < 4; i++)
+								{
+									removeChild(m_user1Pai.pop());
+								}
+								positionShow1();
+							}
+							var len:int = m_user1Pai.length;
+							if (m_IsEye)
+							{
+								for (i=0; i < 3; i++)
+								{
+									var card:Card = new Card(1, 2);
+									card.x=770;
+									card.y=470 - m_user1EatFloor.length * 22;
+									card.y+=10 * len / 4;
+									m_user1EatFloor.push(card);
+								}
+								card = new Card(1, 1, evt.m_data.pai);
+								card.x=770;
+								card.y=470 - m_user1EatFloor.length * 22;
+								card.y+=10 * len / 4;
+								m_user1EatFloor.push(card);
+							}
+							else
+							{
+								for (i=0; i < 4; i++)
+								{
+									var card:Card = new Card(1, 2);
+									card.x=770;
+									card.y=470 - m_user1EatFloor.length * 22;
+									card.y+=10 * len / 4;
+									m_user1EatFloor.push(card);
+								}
+							}
+							m_user1EatFloor[m_user1EatFloor.length - 1].x=m_user1EatFloor[m_user1EatFloor.length - 3].x;
+							m_user1EatFloor[m_user1EatFloor.length - 1].y=m_user1EatFloor[m_user1EatFloor.length - 3].y - 3;
+							for (i=len; i < m_user1EatFloor.length; i++)
+							{
+								addChild(m_user1EatFloor[i]);
+							}
+							for (i=0; i < m_user1EatFloor.length - 1; i++)
+							{
+								var a:int = this.getChildIndex(m_user1EatFloor[i]);
+								for (j=i + 1; j < m_user1EatFloor.length; j++)
+								{
+									var b:int = this.getChildIndex(m_user1EatFloor[j]);
+									if (b > a)
+									{
+										setChildIndex(m_user1EatFloor[i], b);
+										setChildIndex(m_user1EatFloor[j], a);
+									}
+								}
+							}
+						}
+						break;
+					case 2: //////对家
+						m_PlayEffect = new playEffect(2, "杠");
+						addChild(m_PlayEffect);
+						if (evt.m_data.type == 6) /////加杠
+						{
+							if (m_IsEye)
+							{
+								for (i=0; i < m_user2Pai.length; i++)
+								{
+									if (m_user2Pai[i].m_dot == evt.m_data.pai)
+									{
+										removeChild(m_user2Pai[i]);
+										m_user2Pai.splice(i, 1);
+										break;
+									}
+								}
+								eyepositionShow2();
+							}
+							else
+							{
+								removeChild(m_user2Pai.pop());
+							}
+							for (i=0; i < m_user2EatFloor.length; i++)
+							{
+								if (m_user2EatFloor[i]is Card && m_user2EatFloor[i].m_dot == evt.m_data.pai)
+								{
+									trace("加扛放牌");
+									card = new Card(2, 1, evt.m_data.pai);
+									card.y=m_user2EatFloor[i + 1].x;
+									card.x=m_user2EatFloor[i + 1].y + 6;
+									addChild(card);
+									m_user2EatFloor[i + 3]=card;
+									break;
+								}
+							}
+						} /////加扛
+						if (evt.m_data.type == 7) ////明杠
+						{
+							if (m_IsEye)
+							{
+								for (i=0, j=0; i < m_user2Pai.length; i++)
+								{
+									if (m_user2Pai[i].m_dot == evt.m_data.pai)
+									{
+										removeChild(m_user2Pai[i]);
+										m_user2Pai.splice(i, 1);
+										i--;
+										j++;
+									}
+									if (j > 2)
+										break;
+								}
+								eyepositionShow2();
+							}
+							else
+							{
+								for (i=0; i < 3; i++)
+									removeChild(m_user2Pai.pop());
+								positionShow2();
+							}
+							var length:int = m_user2EatFloor.length;
+							for (i=0; i < 4; i++)
+							{
+								card = new Card(2, 1, evt.m_data.pai);
+								card.y=30;
+								card.x=700 - m_user2EatFloor.length * 24;
+								card.x+=16 * length / 4;
+								m_user2EatFloor.push(card);
+							}
+							m_user2EatFloor[m_user2EatFloor.length - 1].x=m_user2EatFloor[m_user2EatFloor.length - 3].x;
+							m_user2EatFloor[m_user2EatFloor.length - 1].y=m_user2EatFloor[m_user2EatFloor.length - 3].y + 5;
+							for (i=length; i < m_user2EatFloor.length; i++)
+							{
+								addChild(m_user2EatFloor[i]);
+							}
+						}
+						if (evt.m_data.type == 8) ////暗杠
+						{
+							if (m_IsEye)
+							{
+								for (i=0, j=0; i < m_user2Pai.length; i++)
+								{
+									if (m_user2Pai[i].m_dot == evt.m_data.pai)
+									{
+										removeChild(m_user2Pai[i]);
+										m_user2Pai.splice(i, 1);
+										i--;
+										j++;
+									}
+									if (j > 3)
+										break;
+								}
+								eyepositionShow2();
+							}
+							else
+							{
+								for (i=0; i < 4; i++)
+									removeChild(m_user2Pai.pop());
+								positionShow2();
+							}
+							var length:int = m_user2EatFloor.length;
+							if (m_IsEye)
+							{
+								for (i=0; i < 3; i++)
+								{
+									card = new Card(2, 2);
+									card.y=30;
+									card.x=700 - m_user2EatFloor.length * 24;
+									card.x+=16 * length / 4;
+									m_user2EatFloor.push(card);
+								}
+								card = new Card(2, 1);
+								card.y=30;
+								card.x=700 - m_user2EatFloor.length * 24;
+								card.x+=16 * length / 4;
+								m_user2EatFloor.push(card);
+							}
+							else
+							{
+								for (i=0; i < 4; i++)
+								{
+									card = new Card(2, 2);
+									card.y=30;
+									card.x=700 - m_user2EatFloor.length * 24;
+									card.x+=16 * length / 4;
+									m_user2EatFloor.push(card);
+								}
+							}
+							m_user2EatFloor[m_user2EatFloor.length - 1].x=m_user2EatFloor[m_user2EatFloor.length - 3].x;
+							m_user2EatFloor[m_user2EatFloor.length - 1].y=m_user2EatFloor[m_user2EatFloor.length - 3].y + 5;
+							for (i=length; i < m_user2EatFloor.length; i++)
+							{
+								addChild(m_user2EatFloor[i]);
+							}
+						}
+						break;
+					case 3: ////////上家
+						m_PlayEffect = new playEffect(3, "杠");
+						addChild(m_PlayEffect);
+						if (evt.m_data.type == 6) /////加杠
+						{
+							if (m_IsEye)
+							{
+								for (i=0; i < m_user3Pai.length; i++)
+								{
+									if (m_user3Pai[i].m_dot == evt.m_data.pai)
+									{
+										removeChild(m_user3Pai[i]);
+										m_user3Pai.splice(i, 1);
+										break;
+									}
+								}
+								eyepositionShow3();
+							}
+							else
+							{
+								removeChild(m_user3Pai.pop());
+								positionShow3();
+							}
+							for (i=0; i < m_user3EatFloor.length; i++)
+							{
+								if (m_user3EatFloor[i]is Card && m_user3EatFloor[i].m_dot == evt.m_data.pai)
+								{
+									trace("加扛放牌");
+									var card:Card = new Card(3, 1, evt.m_data.pai);
+									card.x=m_user3EatFloor[i + 1].x;
+									card.y=m_user3EatFloor[i + 1].y - 3;
+									addChild(card);
+									m_user3EatFloor[i + 3]=card;
+									break;
+								}
+							}
+						} /////加扛
+						if (evt.m_data.type == 7) ////明杠
+						{
+							if (m_IsEye)
+							{
+								for (j=0, i=0; i < m_user3Pai.length; i++)
+								{
+									if (m_user3Pai[i].m_dot == evt.m_data.pai)
+									{
+										removeChild(m_user3Pai[i]);
+										m_user3Pai.splice(i, 1);
+										i--;
+										j++;
+									}
+									if (j > 2)
+										break;
+								}
+								eyepositionShow3();
+							}
+							else
+							{
+								for (i=0; i < 3; i++)
+									removeChild(m_user3Pai.pop());
+								positionShow3();
+							}
+							length=m_user3EatFloor.length;
+							for (i=0; i < 4; i++)
+							{
+								card = new Card(3, 1, evt.m_data.pai);
+								card.x=10;
+								card.y=40 + 22 * m_user3EatFloor.length * 0.9;
+								card.y-=10 * length / 4;
+								m_user3EatFloor.push(card);
+							}
+							m_user3EatFloor[m_user3EatFloor.length - 1].x=m_user3EatFloor[m_user3EatFloor.length - 3].x;
+							m_user3EatFloor[m_user3EatFloor.length - 1].y=m_user3EatFloor[m_user3EatFloor.length - 3].y - 3;
+							for (i=length; i < m_user3EatFloor.length; i++)
+							{
+								addChild(m_user3EatFloor[i]);
+							}
+						}
+						if (evt.m_data.type == 8) ////暗杠
+						{
+							if (m_IsEye)
+							{
+								for (j=0, i=0; i < m_user3Pai.length; i++)
+								{
+									if (m_user3Pai[i].m_dot == evt.m_data.pai)
+									{
+										removeChild(m_user3Pai[i]);
+										m_user3Pai.splice(i, 1);
+										i--;
+										j++;
+									}
+									if (j > 3)
+										break;
+								}
+								eyepositionShow3();
+							}
+							else
+							{
+								for (i=0; i < 4; i++)
+									removeChild(m_user3Pai.pop());
+								positionShow3();
+							}
+							length=m_user3EatFloor.length;
+							if (m_IsEye)
+							{
+								for (i=0; i < 3; i++)
+								{
+									card = new Card(3, 2);
+									card.x=10;
+									card.y=40 + 22 * m_user3EatFloor.length * 0.9;
+									card.y-=10 * length / 4;
+									m_user3EatFloor.push(card);
+								}
+								card = new Card(3, 1, evt.m_data.pai);
+								card.x=10;
+								card.y=40 + 22 * m_user3EatFloor.length * 0.9;
+								card.y-=10 * length / 4;
+								m_user3EatFloor.push(card);
+							}
+							else
+							{
+								for (i=0; i < 4; i++)
+								{
+									card = new Card(3, 2);
+									card.x=10;
+									card.y=40 + 22 * m_user3EatFloor.length * 0.9;
+									card.y-=10 * length / 4;
+									m_user3EatFloor.push(card);
+								}
+							}
+							m_user3EatFloor[m_user3EatFloor.length - 1].x=m_user3EatFloor[m_user3EatFloor.length - 3].x;
+							m_user3EatFloor[m_user3EatFloor.length - 1].y=m_user3EatFloor[m_user3EatFloor.length - 3].y - 3;
+							for (i=length; i < m_user3EatFloor.length; i++)
+							{
+								addChild(m_user3EatFloor[i]);
+							}
+						}
+						break;
+					default:
+						break;
+				}
+				if (evt.m_data.type == 7)
+				{
+					switch (evt.m_data.bid)
+					{
+						case 0:
+							removeChild(m_userFloor.pop());
+							break;
+						case 1:
+							removeChild(m_user1Floor.pop());
+							break;
+						case 2:
+							removeChild(m_user2Floor.pop());
+							break;
+						case 3:
+							removeChild(m_user3Floor.pop());
+							break;
+						default:
+							break;
+					}
+				}
+				MJsound.play("gang");
+			}
+
+			private function chiPaiHandler(evt:PlayEvent):void //////吃
+			{
+				var chipaiArr:Array = new Array();
+				var i:int;
+				var j:int;
+				var XOX:Array = new Array();
+				var OXX:Array = new Array();
+				var XXO:Array = new Array();
+				var pai:int = m_evtData.pai;
+
+				for (i=0; i < m_userPai.length; i++)
+				{
+					var card:Card=m_userPai[i]as Card;
+					if (card.m_dot + 2 == pai && XXO.indexOf(card.m_dot) < 0)
+					{
+						XXO.push(card.m_dot);
+					}
+					if (card.m_dot + 1 == pai && XXO.indexOf(card.m_dot) < 0)
+					{
+						XXO.push(card.m_dot);
+					}
+					if (card.m_dot + 1 == pai && XOX.indexOf(card.m_dot) < 0)
+					{
+						XOX.push(card.m_dot);
+					}
+					if (card.m_dot - 1 == pai && XOX.indexOf(card.m_dot) < 0)
+					{
+						XOX.push(card.m_dot);
+					}
+					if (card.m_dot - 1 == pai && OXX.indexOf(card.m_dot) < 0)
+					{
+						OXX.push(card.m_dot);
+					}
+					if (card.m_dot - 2 == pai && OXX.indexOf(card.m_dot) < 0)
+					{
+						OXX.push(card.m_dot);
+					}
+				}
+				m_chi = new Array();
+				if (XXO.length > 1)
+					m_chi.push(XXO);
+				if (XOX.length > 1)
+					m_chi.push(XOX);
+				if (OXX.length > 1)
+					m_chi.push(OXX);
+
+				if (m_chi.length == 1) /////只有一个吃牌
+				{
+					if (XXO.length > 1)
+					{
+						chipaiArr.push(XXO[0]);
+						chipaiArr.push(pai);
+						chipaiArr.push(XXO[1]);
+					}
+					if (XOX.length > 1)
+					{
+						chipaiArr.push(XOX[0]);
+						chipaiArr.push(pai);
+						chipaiArr.push(XOX[1]);
+					}
+					if (OXX.length > 1)
+					{
+						chipaiArr.push(OXX[0]);
+						chipaiArr.push(pai);
+						chipaiArr.push(OXX[1]);
+					}
+					var position:int = 0;
+					for (i=0; i < m_userPai.length; i++)
+					{
+						var card:Card=m_userPai[i]as Card;
+						if (card.m_dot == chipaiArr[position])
+						{
+							removeChild(card);
+							m_userPai.splice(i, 1);
+							i--;
+							position+=2;
+						}
+						if (position > 2)
+							break;
+					}
+					positionShow();
+					trace(chipaiArr);
+					userfloorHandler(chipaiArr);
+					var obj:Object = new Object();
+					obj.bid=TheModel.m_ID;
+					obj.pai=chipaiArr;
+					TheModel.dispatchEvent(new PlayEvent(EventCMD.CHI, obj));
+					paiCanMove(true);
+
+					removeChild(m_user3Floor.pop());
+					MJsound.play("eat");
+					m_PlayEffect = new playEffect(0, "吃");
+					addChild(m_PlayEffect);
+					return ;
+				}
+
+				for (j=0; j < m_chi.length; j++)
+				{
+					for (i=0; i < m_userPai.length; i++)
+					{
+						var card1:Card=m_userPai[i]as Card;
+						if (card1.m_dot == m_chi[j][0])
+						{
+							card1.alpha=0.4;
+							card1.m_bmove=true;
+							card1.addEventListener(MouseEvent.MOUSE_OVER, selectChiPai);
+							card1.addEventListener(MouseEvent.MOUSE_OUT, selectChiPai);
+							card1.addEventListener(MouseEvent.CLICK, selectChiPai);
+							break;
+						}
+					}
+					for (i=0; i < m_userPai.length; i++)
+					{
+						card1=m_userPai[i]as Card;
+						if (card1.m_dot == m_chi[j][1])
+						{
+							card1.alpha=0.4;
+							card1.m_bmove=true;
+							card1.addEventListener(MouseEvent.MOUSE_OVER, selectChiPai);
+							card1.addEventListener(MouseEvent.MOUSE_OUT, selectChiPai);
+							card1.addEventListener(MouseEvent.CLICK, selectChiPai);
+							break;
+						}
+					}
+				}
+			}
+
+			private function selectChiPai(evt:MouseEvent):void
+			{
+				var card:Card=evt.currentTarget as Card;
+				var i:int;
+				var j:int;
+				for (i=0; i < m_chi.length; i++)
+				{
+					trace(m_chi[i]);
+				}
+				if (evt.type == MouseEvent.MOUSE_OVER)
+				{
+					if (m_chi.length == 3)
+					{
+						if (card.m_dot == m_chi[0][0])
+						{
+							for (i=0; i < m_userPai.length; i++)
+							{
+								if (m_userPai[i].m_dot == m_chi[0][1] && m_userPai[i].alpha < 1)
+								{
+									m_userPai[i].y-=15;
+								}
+							}
+						}
+
+						if (card.m_dot == m_chi[1][0])
+						{
+							for (i=0; i < m_userPai.length; i++)
+							{
+								if (m_userPai[i].m_dot == m_chi[1][1] && m_userPai[i].alpha < 1)
+								{
+									m_userPai[i].y-=15;
+								}
+							}
+						}
+
+						if (card.m_dot == m_chi[1][1])
+						{
+							for (i=0; i < m_userPai.length; i++)
+							{
+								if (m_userPai[i].m_dot == m_chi[1][0] && m_userPai[i].alpha < 1)
+								{
+									m_userPai[i].y-=15;
+								}
+							}
+						}
+
+						if (card.m_dot == m_chi[2][1])
+						{
+							for (i=0; i < m_userPai.length; i++)
+							{
+								if (m_userPai[i].m_dot == m_chi[2][0] && m_userPai[i].alpha < 1)
+								{
+									m_userPai[i].y-=15;
+								}
+							}
+						}
+					} ///// if(m_chi.length==3)
+					if (m_chi.length == 2) //////貌似有问题
+					{
+						trace("XX0X");
+						if (m_chi[0][0] + 1 == m_chi[0][1])
+						{
+							if (card.m_dot == m_chi[0][0])
+							{
+								for (i=0; i < m_userPai.length; i++)
+								{
+									if (m_userPai[i].m_dot == m_chi[0][1] && m_userPai[i].alpha < 1)
+									{
+										m_userPai[i].y-=15;
+									}
+								}
+							}
+							if (card.m_dot == m_chi[0][1])
+							{
+								for (i=0; i < m_userPai.length; i++)
+								{
+									if (m_userPai[i].m_dot == m_chi[0][0] && m_userPai[i].alpha < 1)
+									{
+										m_userPai[i].y-=15;
+									}
+								}
+							}
+							if (card.m_dot == m_chi[1][1])
+							{
+								for (i=0; i < m_userPai.length; i++)
+								{
+									if (m_userPai[i].m_dot == m_chi[1][0] && m_userPai[i].alpha < 1)
+									{
+										m_userPai[i].y-=15;
+									}
+								}
+							}
+						}
+						else
+						{
+							trace("XOX");
+							trace("0XX");
+							if (card.m_dot == m_chi[0][0])
+							{
+								for (i=0; i < m_userPai.length; i++)
+								{
+									if (m_userPai[i].m_dot == m_chi[0][1] && m_userPai[i].alpha < 1)
+									{
+										m_userPai[i].y-=15;
+									}
+								}
+							}
+							if (card.m_dot == m_chi[1][0])
+							{
+								for (i=0; i < m_userPai.length; i++)
+								{
+									if (m_userPai[i].m_dot == m_chi[1][1] && m_userPai[i].alpha < 1)
+									{
+										m_userPai[i].y-=15;
+									}
+								}
+							}
+							if (card.m_dot == m_chi[1][1])
+							{
+								for (i=0; i < m_userPai.length; i++)
+								{
+									if (m_userPai[i].m_dot == m_chi[1][0] && m_userPai[i].alpha < 1)
+									{
+										m_userPai[i].y-=15;
+									}
+								}
+							}
+						}
+					}
+				}
+				if (evt.type == MouseEvent.MOUSE_OUT)
+				{
+					for (i=0; i < m_userPai.length; i++)
+					{
+						if (m_userPai[i].m_crrueY != m_userPai[i].y)
+							m_userPai[i].y=m_userPai[i].m_crrueY;
+					}
+				}
+				var chiarr:Array = new Array();
+				if (evt.type == MouseEvent.CLICK)
+				{
+					m_PlayEffect = new playEffect(0, "吃");
+					addChild(m_PlayEffect);
+					MJsound.play("eat");
+					for (i=0; i < m_userPai.length; i++)
+					{
+						if (chiarr.length == 1)
+							chiarr.push(m_evtData.pai);
+						if (m_userPai[i].m_crrueY != m_userPai[i].y)
+						{
+							chiarr.push(m_userPai[i].m_dot);
+							removeChild(m_userPai[i]);
+							m_userPai.splice(i, 1)
+							i--;
+						}
+					}
+					positionShow();
+					userfloorHandler(chiarr);
+					var obj:Object = new Object();
+					obj.bid=TheModel.m_ID;
+					obj.pai=chiarr;
+					TheModel.dispatchEvent(new PlayEvent(EventCMD.CHI, obj))
+					removeChild(m_user3Floor.pop());
+					for (i=0; i < m_userPai.length; i++)
+					{
+						if (m_userPai[i].alpha < 1)
+						{
+							m_userPai[i].alpha=1;
+							m_userPai[i].removeEventListener(MouseEvent.MOUSE_OVER, selectChiPai);
+							m_userPai[i].removeEventListener(MouseEvent.MOUSE_OUT, selectChiPai);
+							m_userPai[i].removeEventListener(MouseEvent.CLICK, selectChiPai);
+						}
+					}
+					paiCanMove(true);
+				}
+			}
+
+			private function penPaiHandler(evt:PlayEvent):void
+			{
+				m_PlayEffect = new playEffect(0, "碰");
+				addChild(m_PlayEffect);
+				MJsound.play("pen");
+				var i:int;
+				var j:int;
+				///		m_mainMC.m_buttom.m_mcchi.visible=true;
+				//		m_mainMC.m_buttom.m_mcpen.visible=true;
+				//		m_mainMC.m_buttom.m_mcgang.visible=true;
+				//		m_mainMC.m_buttom.m_btn_cancel.mouseEnabled=false;
+
+				for (i=0, j=0; i < m_userPai.length; i++)
+				{
+					if (m_userPai[i].m_dot == m_evtData.pai)
+					{
+						removeChild(m_userPai[i]);
+						m_userPai.splice(i, 1);
+						i--;
+						j++;
+					}
+					if (j == 2) // 两张牌
+						break;
+				}
+				positionShow();
+
+				var arr:Array = new Array();
+				for (i=0; i < 3; i++)
+				{
+					arr.push(m_evtData.pai);
+				}
+				userfloorHandler(arr);
+				var obj:Object = new Object();
+				obj.bid=TheModel.m_ID;
+				obj.pai=arr;
+				TheModel.dispatchEvent(new PlayEvent(EventCMD.PEN, obj));
+				paiCanMove(true);
+
+				trace("m_evtData.bid=" + m_evtData.bid);
+				switch (m_evtData.bid)
+				{
+					case 0:
+						//		 		removeChild(m_userFloor.pop());
+						break;
+					case 1:
+						removeChild(m_user1Floor.pop());
+						break;
+					case 2:
+						removeChild(m_user2Floor.pop());
+						break;
+					case 3:
+						removeChild(m_user3Floor.pop());
+						break;
+					default:
+						break;
+				}
+			}
+
+			private function gangPaiHandler(evt:PlayEvent):void
+			{
+				m_PlayEffect = new playEffect(0, "杠");
+				addChild(m_PlayEffect);
+				MJsound.play("gang");
+				var i:int;
+				var j:int;
+
+				switch (m_gangDATA.type)
+				{
+					case 6: ////加摃
+						for (i=0; i < m_userPai.length; i++)
+						{
+							if (m_userPai[i].m_dot == m_gangDATA.pai)
+							{
+								removeChild(m_userPai[i]);
+								m_userPai.splice(i, 1);
+								break;
+							}
+						}
+						positionShow();
+
+						var arr:Array = new Array();
+						arr.push(m_gangDATA.pai);
+						userfloorHandler(arr);
+
+						var obj:Object = new Object();
+						obj.bid=TheModel.m_ID;
+						obj.pai=arr;
+						obj.type=6;
+						TheModel.dispatchEvent(new PlayEvent(EventCMD.GANG, obj));
+						break;
+					case 7: /////明杠
+						trace("明杠");
+						for (i=0; i < m_userPai.length; i++)
+						{
+							if (m_userPai[i].m_dot == m_gangDATA.pai)
+							{
+								removeChild(m_userPai[i]);
+								m_userPai.splice(i, 1);
+								i--;
+							}
+						}
+						positionShow();
+						var arr:Array = new Array();
+						for (i=0; i < 4; i++)
+						{
+							arr.push(m_gangDATA.pai);
+						}
+						userfloorHandler(arr);
+
+						var obj:Object = new Object();
+						obj.bid=TheModel.m_ID;
+						obj.pai=m_gangDATA.pai;
+						obj.type=7;
+						TheModel.dispatchEvent(new PlayEvent(EventCMD.GANG, obj));
+						break;
+					case 8: /////暗杠
+						for (i=0; i < m_userPai.length; i++)
+						{
+							if (m_userPai[i].m_dot == m_gangDATA.pai)
+							{
+								removeChild(m_userPai[i]);
+								m_userPai.splice(i, 1);
+								i--;
+							}
+						}
+						positionShow();
+						var arr:Array = new Array();
+						for (i=0; i < 5; i++)
+						{
+							arr.push(m_gangDATA.pai);
+						}
+						userfloorHandler(arr);
+						var obj:Object = new Object();
+						obj.bid=TheModel.m_ID;
+//						obj.pai=m_gangDATA.pai;
+						var temp:Array = m_gangDATA.pai // self modify
+						obj.pai = temp;		// self modify
+						obj.type=8;
+						TheModel.dispatchEvent(new PlayEvent(EventCMD.GANG, obj));
+						break;
+					default:
+						break;
+				}
+			}
+
+			private function cancleHandler(evt:PlayEvent):void /////取消处理
+			{
+				var obj:Object = new Object();
+				obj.bid=(m_evtData.bid + 4 + TheModel.m_ID) % 4;
+				TheModel.dispatchEvent(new PlayEvent(EventCMD.Cancel, obj));
+			}
+
+			private function PhotoHandler(evt:MouseEvent):void
+			{
+				var b:BitmapData = new BitmapData(Application.application.width, Application.application.height);
+			//	b.d
+			}
+
+			private function userfloorHandler(ary:Array):void /////自家吃碰摃牌处理
+			{
+				var i:int;
+				var j:int;
+				var len:int = m_userEatFloor.length;
+
+				if (ary.length == 3) ///吃或碰
+				{
+					for (i=0; i < ary.length; i++)
+					{
+						var card:Card = new Card(0, 1, ary[i]);
+						m_userEatFloor.push(card);
+					}
+					m_userEatFloor.push(new UIComponent());
+					for (i=len; i < m_userEatFloor.length; i++)
+					{
+						m_userEatFloor[i].x=5 + i * 42 * 0.9;
+						m_userEatFloor[i].y=500;
+						m_userEatFloor[i].x-=20 * int(len / 4);
+						addChild(m_userEatFloor[i]);
+						trace(m_userEatFloor[i]);
+					}
+				}
+				else if (ary.length == 4) ///明摃
+				{
+					for (i=0; i < ary.length; i++)
+					{
+						card = new Card(0, 1, ary[i]);
+						m_userEatFloor.push(card);
+					}
+					for (i=len; i < m_userEatFloor.length - 1; i++)
+					{
+						m_userEatFloor[i].x=5 + i * 42 * 0.9;
+						m_userEatFloor[i].y=500;
+						m_userEatFloor[i].x-=20 * int(len / 4);
+						addChild(m_userEatFloor[i]);
+					}
+					m_userEatFloor[m_userEatFloor.length - 1].x=m_userEatFloor[m_userEatFloor.length - 3].x;
+					m_userEatFloor[m_userEatFloor.length - 1].y=m_userEatFloor[m_userEatFloor.length - 3].y - 5;
+					addChild(m_userEatFloor[m_userEatFloor.length - 1]);
+				}
+				else if (ary.length == 5) ///暗摃
+				{
+					for (i=0; i < ary.length - 1; i++)
+					{
+						card = new Card(0, 2);
+						m_userEatFloor.push(card);
+					}
+					for (i=len; i < m_userEatFloor.length - 1; i++)
+					{
+						m_userEatFloor[i].x=5 + i * 42 * 0.9;
+						m_userEatFloor[i].y=500;
+						m_userEatFloor[i].x-=20 * int(len / 4);
+						addChild(m_userEatFloor[i]);
+					}
+					m_userEatFloor[m_userEatFloor.length - 1].x=m_userEatFloor[m_userEatFloor.length - 3].x;
+					m_userEatFloor[m_userEatFloor.length - 1].y=m_userEatFloor[m_userEatFloor.length - 3].y - 5;
+					addChild(m_userEatFloor[m_userEatFloor.length - 1]);
+				}
+				else /////加摃
+				{
+					for (i=0; i < m_userEatFloor.length; i++)
+					{
+						if (m_userEatFloor[i]is Card && m_userEatFloor[i].m_dot == ary[0])
+						{
+							var card:Card = new Card(0, 1, ary[0]);
+							card.x=m_userEatFloor[i + 1].x;
+							card.y=m_userEatFloor[i + 1].y - 5;
+							addChild(card);
+							m_userEatFloor[i + 3]=card;
+							break;
+						}
+					}
+				}
+			}
+
+			private function otherMoPai(evt:PlayEvent):void
+			{
+				var i:int;
+				var j:int;
+				var a:int;
+				var b:int;
+				var card:Card;
+				var fromPoint:Point = new Point();
+				var toPoint:Point = new Point();
+				var moveCard:Card;
+				var move:Move = new Move();
+				var index:int;
+				m_evtData=evt.m_data;
+				if (evt.m_data.type == 1)
+				{
+					card=removeChild(m_flootPai.removeItemAt(0)as Card)as Card;
+					fromPoint.x=card.x;
+					fromPoint.y=card.y;
+				}
+				else
+				{
+					card=removeChild(m_flootPai.removeItemAt(m_flootPai.length - 1)as Card)as Card;
+					fromPoint.x=card.x;
+					fromPoint.y=card.y;
+					var len:int = m_flootPai.length;
+					for (i=len - 1; i >= len - 17; i--)
+					{
+						card=m_flootPai.getItemAt(i)as Card;
+						card.alpha=0.2;
+					}
+				}
+				move.startDelay=10;
+				move.duration=300;
+				move.xFrom=fromPoint.x;
+				move.yFrom=fromPoint.y;
+
+				if (evt.m_data.cid == 0 || evt.m_data.cid == 2)
+				{
+					card = new Card(0, 4);
+				}
+				if (evt.m_data.cid == 1 || evt.m_data.cid == 3)
+				{
+					card = new Card(1, 4);
+				}
+				card.x=fromPoint.x;
+				card.y=fromPoint.y;
+				move.target=card;
+				if (evt.m_data.cid == 0)
+				{
+					index=Math.random() * 10000 % m_userPai.length;
+					toPoint.x=720;
+					toPoint.y=500;
+				}
+				if (evt.m_data.cid == 1)
+				{
+					index=Math.random() * 10000 % m_user1Pai.length;
+					toPoint.x=m_user1Pai[index].x;
+					toPoint.y=m_user1Pai[index].y;
+				}
+				if (evt.m_data.cid == 2)
+				{
+					index=Math.random() * 10000 % m_user2Pai.length;
+					toPoint.x=m_user2Pai[index].x;
+					toPoint.y=m_user2Pai[index].y;
+
+				}
+				if (evt.m_data.cid == 3)
+				{
+					index=Math.random() * 10000 % m_user3Pai.length;
+					toPoint.x=m_user3Pai[index].x;
+					toPoint.y=m_user3Pai[index].y;
+				}
+				move.xTo=toPoint.x;
+				move.yTo=toPoint.y;
+				addChild(card);
+				move.addEventListener(EffectEvent.EFFECT_END, moPaiEffectEnd);
+				move.play();
+			}
+
+			private function moPaiEffectEnd(evt:EffectEvent):void
+			{
+				var card:Card;
+				var i:int;
+				var j:int;
+				var a:int;
+				var b:int;
+				var m:Move=evt.target as Move;
+				removeChild(m.target as Card);
+				m.target=null;
+				m=null;
+				if (m_IsEye)
+				{
+					switch (m_evtData.cid)
+					{
+						case 0:
+							card = new Card(0, 1, m_evtData.pai);
+							m_userPai.push(card);
+							card.x=720;
+							card.y=500;
+							addChild(card);
+							m_EyeMoPai=card;
+							m_timer = new Timer(1500, 1);
+							m_timer.addEventListener(TimerEvent.TIMER_COMPLETE, eyeOutPai); /////1500MS后自动打牌
+							m_timer.start();
+							break;
+						case 1:
+							card = new Card(1, 1, m_evtData.pai);
+							m_EyeMoPai=card;
+							m_user1Pai.push(card);
+							positionShow1();
+							addChild(m_user1Pai[m_user1Pai.length - 1]);
+							eyepositionShow1();
+							break;
+						case 2:
+							card = new Card(2, 1, m_evtData.pai);
+							m_EyeMoPai=card;
+							m_user2Pai.push(card);
+							positionShow2();
+							addChild(m_user2Pai[m_user2Pai.length - 1]);
+							eyepositionShow2();
+							break;
+						case 3:
+							card = new Card(3, 1, m_evtData.pai);
+							m_EyeMoPai=card;
+							m_user3Pai.push(card);
+							positionShow3();
+							addChild(m_user3Pai[m_user3Pai.length - 1]);
+							for (i=0; i < m_user3Pai.length - 1; i++)
+							{
+								a=getChildIndex(m_user3Pai[i]);
+								for (j=i + 1; j < m_user3Pai.length; j++)
+								{
+									b=getChildIndex(m_user3Pai[j]);
+									if (b > a)
+									{
+										setChildIndex(m_user3Pai[i], b);
+										setChildIndex(m_user3Pai[j], a);
+									}
+								}
+							}
+							eyepositionShow3();
+							break;
+						default:
+							break;
+					}
+					var glow:GlowFilter = new GlowFilter();
+					glow.blurX=32;
+					glow.blurY=32;
+					glow.color=0xff00ff;
+					glow.inner=true;
+					glow.quality=BitmapFilterQuality.LOW;
+					glow.strength=2;
+
+					var filters:Array = new Array();
+					filters.push(glow);
+					m_EyeMoPai.filters=filters;
+					return ;
+				}
+				switch (m_evtData.cid)
+				{
+					case 0:
+						card = new Card(0, 0, m_evtData.pai);
+						m_userPai.push(card);
+						card.x=720;
+						card.y=500;
+						addChild(card);
+						paiCanMove(true);
+						break;
+					case 1:
+						card = new Card(1, 0);
+						m_user1Pai.push(card);
+						positionShow1();
+						addChild(m_user1Pai[m_user1Pai.length - 1]);
+						break;
+					case 2:
+						card = new Card(2, 0);
+						m_user2Pai.push(card);
+						positionShow2();
+						addChild(m_user2Pai[m_user2Pai.length - 1]);
+						break;
+					case 3:
+						card = new Card(3, 0);
+						m_user3Pai.push(card);
+						positionShow3();
+						addChild(m_user3Pai[m_user3Pai.length - 1]);
+						for (i=0; i < m_user3Pai.length - 1; i++)
+						{
+							a=getChildIndex(m_user3Pai[i]);
+							for (j=i + 1; j < m_user3Pai.length; j++)
+							{
+								b=getChildIndex(m_user3Pai[j]);
+								if (b > a)
+								{
+									setChildIndex(m_user3Pai[i], b);
+									setChildIndex(m_user3Pai[j], a);
+								}
+							}
+						}
+						break;
+					default:
+						break;
+				}
+				card = null;
+			}
+
+			
+
+			private function fapaiShow(event:TimerEvent):void	//海底牌动画效果
+			{
+				//	MJsound.play("点击008");
+				var index1:int;
+				var i:int;
+				var index2:int;
+				var t:Timer=event.target as Timer;
+				var index:int = t.currentCount;
+
+				m_button[36 - index].visible = true;	// 对家
+				m_button[72 - index].visible = true;	// 下家
+				m_button[108 - index].visible = true;	// 自家
+				m_button[144 - index].visible = true;	// 对家
+			}
+
+			private function fapaiShowend(event:TimerEvent):void
+			{
+				var time:Timer = event.target as Timer;
+				time.removeEventListener(TimerEvent.TIMER, fapaiShow);
+				time.removeEventListener(TimerEvent.TIMER_COMPLETE, fapaiShowend);
+				var i:int;
+				for (i = 1; i < 144; i += 2)
+				{
+					var c:Card = m_button[i];
+					m_button[i] = m_button[i - 1];
+					m_button[i - 1] = c;
+				}
+				PutDice();	//扔骰子
+			}
+
+			private function PutDice():void /////扔骰子
+			{
+				var dot:Stone = new Stone(TheModel.m_szs[0], TheModel.m_szs[1], TheModel.m_szs[2]);
+				addChild(dot);
+				dot.addEventListener(Event.COMPLETE, floorPaiInit);
+			}
+
+			private function floorPaiInit(evt:Event):void
+			{
+				var i:int;
+				var j:int;
+				var index:int;
+				
+				removeChild(evt.target as DisplayObject); ////消除骰子
+
+				for (i = 0; i < TheModel.m_Zbank.length; i++)
+				{
+					if (TheModel.m_Zbank[i])
+					{
+						index = i;
+						break;
+					}
+				}
+				var dot:int = TheModel.m_szs[0] + TheModel.m_szs[1] + TheModel.m_szs[2];
+
+				var fengwei:int = ((index - dot + 1) % 4 + 4) % 4;	// 计算要从那个玩家的海底牌中开始取牌。
+				
+				/**
+				 *  将144张牌重新赋值给另外一个数组集，并调整好要取的牌。
+				 *  从骰子点数指定的一墩(上下2张)开始取牌。
+				 * */
+
+				switch (fengwei)
+				{
+					case 0:
+						for (i = 72 + 2 * dot; i < 144; i++)
+						{
+							m_flootPai.addItem(m_button[i]);	
+						}
+						for (i = 0; i < 72 + 2 * dot; i++)
+						{
+							m_flootPai.addItem(m_button[i]);
+						}
+						break;
+					case 1:
+						for (i = 36 + 2 * dot; i < 144; i++)
+						{
+							m_flootPai.addItem(m_button[i]);
+						}
+						for (i = 0; i < 36 + 2 * dot; i++)
+						{
+							m_flootPai.addItem(m_button[i]);
+						}
+						break;
+					case 2: 	//上面一行牌
+						for (i = 2 * dot; i < 144; i++)
+						{
+							m_flootPai.addItem(m_button[i]);
+						}
+						for (i=0; i < 2 * dot; i++)
+						{
+							m_flootPai.addItem(m_button[i]);
+						}
+						break;
+					case 3:
+						for (i = 108 + 2 * dot; i < 144; i++)
+						{
+							m_flootPai.addItem(m_button[i]);
+						}
+						for (i = 0; i < 108 + 2 * dot; i++)
+						{
+							m_flootPai.addItem(m_button[i]);
+						}
+						break;
+					default:
+						break;
+				}
+
+				for (i=129; i < 144; i+=2)		// 后十六张要反面摸牌	调换上下两张牌位置
+				{
+					var c:Card = m_flootPai.getItemAt(i)as Card;
+					m_flootPai.setItemAt(m_flootPai.getItemAt(i - 1), i);
+					m_flootPai.setItemAt(c, i - 1);
+				}
+
+				m_timer = new Timer(1000, 1);
+				m_timer.reset();
+				m_timer.addEventListener(TimerEvent.TIMER_COMPLETE, fapaiBegin);
+				m_timer.start();
+			}
+
+			private function fapaiBegin(evt:TimerEvent):void /////一秒钟后发各家的牌
+			{
+				var i:int;
+				var j:int;
+				var a:int;
+				var b:int;
+				var Zindex:int;
+				for (i = 0; i < TheModel.m_Zbank.length; i++)
+				{
+					if (TheModel.m_Zbank[i])
+					{
+						Zindex = i;
+						break;
+					}
+				}
+				for (i = 0; i < 65; i++)	// 移除海底牌牌数 四个玩家取得前64+1张牌，包括庄家的1张
+				{
+					/**
+					 * removeItemAt-> 删除指定索引处的项目并返回该项目。
+					 * 原先位于此索引之后的所有项目的索引现在都向前移动一个位
+					 * 移除数组值并且还要移除对应的屏幕显示。
+					 * */
+					removeChild(m_flootPai.removeItemAt(0)as DisplayObject);
+				}
+
+				for (i = 0; i < TheModel.m_pai.length; i++) /////自家牌显示
+				{
+					var card:Card = new Card(0, 0, TheModel.m_pai[i]);
+					m_userPai.push(card);
+				}
+				
+				positionShow();	// 定位手牌位置
+
+				for (i = 0; i < m_userPai.length; i++)	// 添加显示手牌
+				{
+					addChild(m_userPai[i]);
+				}
+
+//				for (i = 0; i < m_userPai.length - 1; i++)
+//				{
+//					a = this.getChildIndex(m_userPai[i]);
+//					for (j = i + 1; j < m_userPai.length; j++)
+//					{
+//						b = this.getChildIndex(m_userPai[j]);
+//						if (a > b)
+//						{
+//							setChildIndex(m_userPai[j], a);
+//							setChildIndex(m_userPai[i], b);
+//						}
+//					}
+//				}
+
+				for (i = 0; i < 16; i++)	// 下家牌
+				{
+					card = new Card(1, 0);
+					m_user1Pai.push(card);
+				}
+
+				for (i = 0; i < 16; i++)	// 对家牌
+				{
+					card = new Card(2, 0);	
+					m_user2Pai.push(card);
+				}
+
+				for (i = 0; i < 16; i++)	// 上家牌
+				{
+					card = new Card(3, 0);
+					m_user3Pai.push(card);
+				}
+
+				switch (Zindex)	// 若是庄家则多加一张牌(17)
+				{
+					case 1:
+						m_user1Pai.push(new Card(1, 0));
+						break;
+					case 2:
+						m_user2Pai.push(new Card(2, 0));
+						break;
+					case 3:
+						m_user3Pai.push(new Card(3, 0));
+						break;
+					default:
+						break;
+				}
+
+				positionShow1();	// 下家手牌位置
+				positionShow2();
+				positionShow3();
+
+				for (i = 0; i < m_user1Pai.length; i++)		// 从上往下添加
+					addChild(m_user1Pai[i]);
+				for (i = 0; i < m_user2Pai.length; i++)		// 从左往右添加
+					addChild(m_user2Pai[i]);
+				for (i = m_user3Pai.length - 1; i > -1; i--)	// 从上往下添加(防止显示覆盖)
+					addChild(m_user3Pai[i]);
+
+				m_PlayEffect = new playEffect(-1, "补花");
+				m_PlayEffect.addEventListener(Event.COMPLETE, buhuaInit);
+				addChild(m_PlayEffect);
+				MJsound.play("buhua");
+			}
+
+			private function buhuaInit(evt:Event):void
+			{
+				m_PlayEffect.removeEventListener(Event.COMPLETE,buhuaInit);		// self modify
+				m_PlayEffect = null;
+				m_timer = new Timer(1000, 1);
+				m_timer.addEventListener(TimerEvent.TIMER_COMPLETE, buhuaBegin);
+				m_timer.start();
+			}
+
+			private function positionShow():void	// 确定自家手牌位置
+			{
+				var i:int;
+				var j:int;
+				var a:int;
+				var b:int;
+				for (i = m_userPai.length - 1; i > -1; i--)
+				{
+					m_userPai[i].y = 500;
+					m_userPai[i].x = 700 - 37.8 * (m_userPai.length - i);	// 顺时针设置自家手牌坐标位置
+				}
+			}
+
+			private function positionShow1():void
+			{
+				var i:int;
+				var length:int = m_user1Pai.length;
+				for (i = 0; i < length; i++)
+				{
+					m_user1Pai[i].x = 770;
+					m_user1Pai[i].y = 100 + i * 21;
+				}
+			}
+
+			private function positionShow2():void
+			{
+				var i:int;
+				var length:int = m_user2Pai.length;
+				for (i = 0; i < length; i++)
+				{
+					m_user2Pai[i].x = 200 + i * 25;
+					m_user2Pai[i].y = 30;
+				}
+			}
+
+			private function positionShow3():void
+			{
+				var i:int;
+				var length:int = m_user3Pai.length;
+				for (i = 0; i < length; i++)
+				{
+					m_user3Pai[i].x = 5;
+					m_user3Pai[i].y = 400 - i * 21;
+				}
+			}
+
+			private function eyepositionShow1():void
+			{
+				var i:int;
+				var j:int;
+				var a:int;
+				var b:int;
+				var length:int = m_user1Pai.length;
+				var _x:int;
+				var _y:int;
+				for (i=0; i < length; i++)
+				{
+					m_user1Pai[i].x=760;
+					m_user1Pai[i].y=100 + i * 21;
+				}
+
+				for (i=0; i < m_user1Pai.length - 1; i++)
+				{
+					var card1:Card=m_user1Pai[i]as Card;
+					for (j=i + 1; j < m_user1Pai.length; j++)
+					{
+						var card2:Card=m_user1Pai[j]as Card;
+						if (card1.m_dot < card2.m_dot)
+						{
+							var card:Card=m_user1Pai[i];
+							m_user1Pai[i]=m_user1Pai[j];
+							m_user1Pai[j]=card;
+						}
+					}
+				}
+				for (i=0; i < m_user1Pai.length; i++)
+				{
+					m_user1Pai[i].x=760;
+					m_user1Pai[i].y=100 + i * 21;
+				}
+				for (i=0; i < m_user1Pai.length - 1; i++)
+				{
+					var a:int = getChildIndex(m_user1Pai[i]);
+					for (j=1 + i; j < m_user1Pai.length; j++)
+					{
+						var b:int = getChildIndex(m_user1Pai[j]);
+						if (b < a)
+						{
+							setChildIndex(m_user1Pai[i], b);
+							setChildIndex(m_user1Pai[j], a);
+						}
+					}
+				}
+			}
+
+			private function eyepositionShow2():void
+			{
+				var i:int;
+				var j:int;
+				var a:int;
+				var b:int;
+				var cardA:Card;
+				var cardB:Card;
+				var length:int = m_user2Pai.length;
+				for (i=0; i < length; i++)
+				{
+					m_user2Pai[i].x=i * 25 + 200;
+					m_user2Pai[i].y=30;
+				}
+
+				for (i=0; i < length - 1; i++)
+				{
+					cardA=m_user2Pai[i]as Card;
+					for (j=i + 1; j < length; j++)
+					{
+						cardB=m_user2Pai[j]as Card;
+						if (cardA.m_dot < cardB.m_dot)
+						{
+							var card:Card=m_user2Pai[i];
+							m_user2Pai[i]=m_user2Pai[j];
+							m_user2Pai[j]=card;
+						}
+					}
+				}
+				for (i=0; i < length; i++)
+				{
+					m_user2Pai[i].x=i * 25 + 200;
+					m_user2Pai[i].y=30;
+				}
+				for (i=0; i < m_user2Pai.length - 1; i++)
+				{
+					a=getChildIndex(m_user2Pai[i]);
+					for (j=i + 1; j < m_user2Pai.length; j++)
+					{
+						b=getChildIndex(m_user2Pai[j]);
+						if (b < a)
+						{
+							setChildIndex(m_user2Pai[i], b);
+							setChildIndex(m_user2Pai[j], a);
+						}
+					}
+				}
+			}
+
+			private function eyepositionShow3():void
+			{
+				var i:int;
+				var j:int;
+				var a:int;
+				var b:int;
+				var cardA:Card;
+				var cardB:Card;
+				var length:int = m_user3Pai.length;
+				for (i=0; i < length; i++)
+				{
+					m_user3Pai[i].x=5;
+					m_user3Pai[i].y=400 - i * 21;
+				}
+
+				for (i=0; i < length - 1; i++)
+				{
+					cardA=m_user3Pai[i]as Card;
+					for (j=i + 1; j < length; j++)
+					{
+						cardB=m_user3Pai[j]as Card;
+						if (cardA.m_dot < cardB.m_dot)
+						{
+							var card:Card=m_user3Pai[i];
+							m_user3Pai[i]=m_user3Pai[j];
+							m_user3Pai[j]=card;
+						}
+					}
+				}
+
+				for (i=0; i < length; i++)
+				{
+					m_user3Pai[i].x=5;
+					m_user3Pai[i].y=400 - i * 21;
+				}
+
+				for (i=0; i < m_user3Pai.length - 1; i++)
+				{
+					a=getChildIndex(m_user3Pai[i]);
+					for (j=i + 1; j < m_user3Pai.length; j++)
+					{
+						b=getChildIndex(m_user3Pai[j]);
+						if (b > a)
+						{
+							setChildIndex(m_user3Pai[i], b);
+							setChildIndex(m_user3Pai[j], a);
+						}
+					}
+				}
+			}
+
+			private function buhuaBegin(evt:TimerEvent):void
+			{
+				m_timer.removeEventListener(TimerEvent.TIMER_COMPLETE, buhuaBegin);
+				//   m_PlayEffect=null;
+				var i:int;
+				var len:int = m_userPai.length;
+				for (i=0; i < len; i++)	// 清除自家所有手牌显示
+				{
+					removeChild(m_userPai[i]);
+				}
+
+				buhuaArr = new Array();
+				for (i=0; i < len; i++)
+				{
+					buhuaArr.push(new Card(0, 2));		// 显示为牌背
+					buhuaArr[i].x = m_userPai[i].x;
+					buhuaArr[i].y = m_userPai[i].y;
+				}
+				for (i = 0; i < len; i++)	// 显示为牌背
+				{
+					addChild(buhuaArr[i]);
+				}
+				m_timer = new Timer(1000, 1);
+				m_timer.addEventListener(TimerEvent.TIMER_COMPLETE, buhuaEnd);
+				m_timer.start();
+			}
+
+			private function buhuaEnd(evt:TimerEvent):void
+			{
+				var i:int;
+				m_timer.removeEventListener(TimerEvent.TIMER_COMPLETE, buhuaEnd);
+				for (i = 0; i < buhuaArr.length; i++)
+				{
+					removeChild(buhuaArr[i]);
+				}
+				
+				buhuaArr = null;
+
+				var len:int = TheModel.m_bu[0].length;
+				if (len > 0)
+				{
+					for (i = 0; i < len; i++)
+					{
+						var x:int = m_userPai[m_userPai.length - i - 1].x;
+						var y:int = m_userPai[m_userPai.length - i - 1].y;
+						m_userPai[m_userPai.length - i - 1] = new Card(0, 0, TheModel.m_bu[0][i]);	//	将最后面花牌信息用补后的牌赋盖掉(此时自家手牌无显示)
+						m_userPai[m_userPai.length - i - 1].x = x;	// 当前牌中，排序后，花牌在最右边
+						m_userPai[m_userPai.length - i - 1].y = y;
+					}
+				}
+
+				userPaiSort(); /////排序显示
+				
+				for (i = 0; i < m_userPai.length;i++)	// 重新显示补花后的手牌
+					addChild(m_userPai[i]);
+
+				for (i = 0; i < TheModel.m_bu[1].length; i++)		// 自家花牌区
+				{
+					var c:Card = new Card(0, 1, TheModel.m_bu[1][i]);
+					c.y = 440;
+					c.x = 100 + m_userHua.length * 42 * 0.9;
+					m_userHua.push(c);
+					addChild(c);
+				}
+
+				for (i = 0; i < TheModel.m_bu1.length; i++)
+				{
+					var card:Card = new Card(1, 1, TheModel.m_bu1[i]);
+					card.x=710;
+					card.y=420 - 22 * 0.9 * m_user1Hua.length;
+					addChild(card);
+					m_user1Hua.push(card);
+				}
+				for (i=0; i < m_user1Hua.length - 1; i++)
+				{
+					var a:int = getChildIndex(m_user1Hua[i]);
+					for (var j:int = i + 1; j < m_user1Hua.length; j++)
+					{
+						var b:int = getChildIndex(m_user1Hua[j]);
+						if (b > a)
+						{
+							this.setChildIndex(m_user1Hua[i], b);
+							this.setChildIndex(m_user1Hua[j], a);
+							//	swapChildren(m_user1Hua[i],m_user1Hua[j]);
+						}
+					}
+				}
+				for (i=0; i < TheModel.m_bu2.length; i++)
+				{
+					card = new Card(2, 1, TheModel.m_bu2[i]);
+					card.x=620 - 24 * 0.9 * m_user2Hua.length;
+					card.y=70;
+					addChild(card);
+					m_user2Hua.push(card);
+				}
+				for (i=0; i < m_user2Hua.length - 1; i++)
+				{
+					a=getChildIndex(m_user2Hua[i]);
+					for (j=i + 1; j < m_user2Hua.length; j++)
+					{
+						b=getChildIndex(m_user2Hua[j]);
+						if (b > a)
+						{
+							this.setChildIndex(m_user2Hua[i], b);
+							this.setChildIndex(m_user2Hua[j], a);
+						}
+					}
+				}
+				for (i=0; i < TheModel.m_bu3.length; i++)
+				{
+					card = new Card(3, 1, TheModel.m_bu3[i]);
+					card.y=85 + 21 * m_user3Hua.length;
+					card.x=70;
+					addChild(card);
+					m_user3Hua.push(card);
+				}
+
+				TheModel.dispatchEvent(new PlayEvent(EventCMD.Begin, new Object()));	// 开始游戏
+				var hulen:int = TheModel.m_bu[0].length + TheModel.m_bu1.length + TheModel.m_bu2.length + TheModel.m_bu3.length;
+				for (i=0; i < hulen; i++)
+				{
+					removeChild(m_flootPai.removeItemAt(m_flootPai.length - 1)as Card);
+				}
+				for (i=m_flootPai.length - 1; i > m_flootPai.length - 17; i--)
+				{
+					var card:Card=m_flootPai.getItemAt(i)as Card;
+					card.alpha=0.4;
+				}
+				if (m_userPai.length == 17)
+				{
+					paiCanMove(true);
+					TheModel.dispatchEvent(new PlayEvent(EventCMD.myOut, new Object()));
+				}
+
+				m_mainMC.m_btn_eye.gotoAndStop(2);
+				m_mainMC.m_btn_eye.mouseEnabled=true;
+
+
+			}
+
+			private function paiCanMove(b:Boolean):void
+			{
+				var i:int;
+				for (i=0; i < m_userPai.length; i++)
+				{
+					m_userPai[i].m_bmove=b;
+					if (b)
+						m_userPai[i].addEventListener(MouseEvent.CLICK, clickHandler);
+					else
+					{
+						if (m_userPai[i].y != 500)	// 眼牌后重定位牌位置
+							m_userPai[i].y = 500;
+						m_userPai[i].removeEventListener(MouseEvent.CLICK, clickHandler);
+					}
+				}
+
+			}
+
+			private function clickHandler(evt:MouseEvent):void ////打出牌
+			{
+				var i:int;
+				var j:int;
+				var a:int;
+				var b:int;
+
+				var glow:GlowFilter = new GlowFilter();
+				glow.blurX=32;
+				glow.blurY=32;
+				glow.color=0xff0000;
+				glow.quality=BitmapFilterQuality.LOW;
+				glow.strength=3;
+
+				if (m_OutPai)
+				{
+					m_OutPai.filters=[];
+				}
+
+				var card:Card=evt.currentTarget as Card;
+				MJsound.play(card.m_dot.toString());
+				var x:int = card.x;
+				var y:int = card.y;
+				removeChild(card);
+				m_userPai.splice(m_userPai.indexOf(card), 1);
+				positionShow();
+				paiCanMove(false);
+				var card1:Card = new Card(0, 3, card.m_dot);
+				card1.y=y - 20;
+				card1.x=x;
+				addChild(card1);
+				m_OutPai=card1;
+
+				m_userFloor.push(card1);
+				var move:Move = new Move(card1);
+				move.xFrom=card1.x;
+				move.yFrom=card1.y;
+				var point:Point = floorPaiPosition(0);
+				move.xTo=point.x;
+				move.yTo=point.y;
+				move.startDelay=10;
+				move.duration=200;
+
+				move.addEventListener(EffectEvent.EFFECT_END, effectEnd);
+				move.play();
+				var obj:Object = new Object();
+				obj.bid=TheModel.m_ID;
+				obj.pai=card.m_dot;
+				userPaiSort();
+				for (i=0; i < m_userPai.length - 1; i++)
+				{
+					a=getChildIndex(m_userPai[i]);
+					for (j=i + 1; j < m_userPai.length; j++)
+					{
+						b=getChildIndex(m_userPai[j]);
+						if (a > b)
+						{
+							this.setChildIndex(m_userPai[i], b);
+							this.setChildIndex(m_userPai[j], a);
+						}
+					}
+				}
+				TheModel.dispatchEvent(new PlayEvent(EventCMD.OutPai, obj));
+				m_OutPai.filters=[glow];
+			}
+
+			private function floorPaiPosition(position:int):Point
+			{
+				var i:int;
+				var j:int;
+				var a:int;
+				var b:int;
+				var point:Point = new Point();
+				if (position == 0)
+				{
+					var len:int = m_userFloor.length - 1;
+					point.x = len % 9 * 28 * 0.9 + 260;	// 9 每行牌数，28*0.9牌宽，260 起始位置
+					point.y = 350 - int(len / 9) * 36;	// to up position
+
+					if (len > 8)
+					{
+						a=getChildIndex(m_userFloor[len]);
+						b=getChildIndex(m_userFloor[0]);
+						setChildIndex(m_userFloor[len], b);
+						setChildIndex(m_userFloor[0], a);
+						for (i=0; i < 8; i++)
+						{
+							a=getChildIndex(m_userFloor[i])
+							for (j=i + 1; j < 9; j++)
+							{
+								b=getChildIndex(m_userFloor[j])
+								if (a > b)
+								{
+									setChildIndex(m_userFloor[i], b);
+									setChildIndex(m_userFloor[j], a);
+								}
+							}
+						}
+					}
+				}
+				return point;
+			}
+
+			private function userPaiSort():void
+			{
+				var i:int;
+				var j:int;
+				var card:Card;
+				var x:int;
+				
+				for (i = 0; i < m_userPai.length - 1; i++)
+				{
+					for (j = i; j < m_userPai.length; j++)
+					{
+						if (m_userPai[i].m_dot > m_userPai[j].m_dot)
+						{
+							card = m_userPai[i];	// 值交换
+							m_userPai[i] = m_userPai[j];
+							m_userPai[j] = card;
+							
+							x = m_userPai[i].x;		// 显示交换
+							m_userPai[i].x = m_userPai[j].x;
+							m_userPai[j].x = x;
+						}
+					}
+				}
+			}
+
+			private function WinTabelHandler(evt:PlayEvent):void ///胡牌
+			{
+				var i:int;
+				var j:int;
+				var card:Card;
+
+				m_timer.stop();
+
+				m_evtData=evt.m_data;
+				var winIndex:int = evt.m_data.winIndex;
+				var winID:int = (winIndex + 4 - TheModel.m_ID) % 4;
+				switch (evt.m_data.sc[0])
+				{
+					case 9:
+						m_PlayEffect = new playEffect(winID, "胡");
+						m_PlayEffect.addEventListener(Event.COMPLETE, ShowAllPai);
+						addChild(m_PlayEffect);
+						break;
+					case 10:
+						m_PlayEffect = new playEffect(winID, "自摸");
+						m_PlayEffect.addEventListener(Event.COMPLETE, ShowAllPai);
+						addChild(m_PlayEffect);
+						break;
+					case -3:
+						m_PlayEffect = new playEffect(-1, "流局");
+						m_PlayEffect.addEventListener(Event.COMPLETE, ShowAllPai);
+						addChild(m_PlayEffect);
+						break;
+					default:
+						break;
+				}
+
+
+			/*
+
+			   var pai:int = evt.m_data.pai;
+
+			   var winIndex:int = evt.m_data.winIndex;
+			   var allUserPai:Array=evt.m_data.allUserPai;
+			   for(i=0;i<allUserPai[0].length;i++)
+			   {
+			   removeChild(m_userPai[i]);
+			   card = new Card(0,1,allUserPai[0][i]);
+			   card.x=m_userPai[i].x;
+			   card.y=m_userPai[i].y;
+			   addChild(card);
+			   m_userPai[i]=card;
+			   }
+
+			   for(i=0;i<allUserPai[1].length;i++)
+			   {
+			   removeChild(m_user1Pai[i]);
+			   card = new Card(1,1,allUserPai[1][i]);
+			   card.x=m_user1Pai[i].x;
+			   card.y=m_user1Pai[i].y;
+			   addChild(card);
+			   m_user1Pai[i]=card;
+			   }
+
+			   for(i=0;i<allUserPai[2].length;i++)
+			   {
+			   removeChild(m_user2Pai[i]);
+			   card = new Card(2,1,allUserPai[2][i]);
+			   card.x=m_user2Pai[i].x;
+			   card.y=m_user2Pai[i].y;
+			   addChild(card);
+			   m_user2Pai[i]=card;
+			   }
+
+			   for(i=allUserPai[3].length-1;i>-1;i--)
+			   {
+			   removeChild(m_user3Pai[i]);
+			   card = new Card(3,1,allUserPai[3][i]);
+			   card.x=m_user3Pai[i].x;
+			   card.y=m_user3Pai[i].y;
+			   addChild(card);
+			   m_user3Pai[i]=card;
+			   }
+
+
+			   var winID:int = (winIndex+4-TheModel.m_ID)%4;
+
+			   var winCard:Card;
+			   switch(winID)
+			   {
+			   case 0:
+			   winCard = new Card(0,1,pai);
+			   addChild(winCard);
+			   m_userPai.push(winCard);
+			   break;
+			   case 1:
+			   winCard = new Card(1,1,pai);
+			   addChild(winCard);
+			   m_user1Pai.push(winCard);
+			   break;
+			   case 2:
+			   winCard = new Card(2,1,pai);
+			   addChild(winCard);
+			   m_user2Pai.push(winCard);
+			   break;
+			   case 3:
+			   winCard = new Card(3,1,pai);
+			   addChild(winCard);
+			   m_user3Pai.push(winCard);
+			   break;
+			   default:
+			   break;
+			   }
+			   addChild(m_winTabel);
+
+			 */
+
+
+			}
+
+			private function ShowAllPai(evt:Event):void
+			{
+				var i:int;
+				var j:int;
+				var card:Card;
+				var pai:int = m_evtData.pai;
+
+				var bid:int = (parseInt(m_evtData.bid) + 4 - TheModel.m_ID) % 4;
+
+				var winIndex:int = m_evtData.winIndex;
+				var allUserPai:Array = m_evtData.allUserPai;
+
+
+				for (i=0; i < allUserPai[0].length; i++)
+				{
+					removeChild(m_userPai[i]);
+					card = new Card(0, 1, allUserPai[0][i]);
+					card.x=m_userPai[i].x;
+					card.y=m_userPai[i].y;
+					addChild(card);
+					m_userPai[i]=card;
+				}
+
+				for (i=0; i < allUserPai[1].length; i++)
+				{
+					removeChild(m_user1Pai[i]);
+					card = new Card(1, 1, allUserPai[1][i]);
+					card.x=m_user1Pai[i].x - 10;
+					card.y=m_user1Pai[i].y;
+					addChild(card);
+					m_user1Pai[i]=card;
+				}
+
+				for (i=0; i < allUserPai[2].length; i++)
+				{
+					removeChild(m_user2Pai[i]);
+					card = new Card(2, 1, allUserPai[2][i]);
+					card.x=m_user2Pai[i].x;
+					card.y=m_user2Pai[i].y;
+					addChild(card);
+					m_user2Pai[i]=card;
+				}
+
+				for (i=allUserPai[3].length - 1; i > -1; i--)
+				{
+					removeChild(m_user3Pai[i]);
+					card = new Card(3, 1, allUserPai[3][i]);
+					card.x=m_user3Pai[i].x;
+					card.y=m_user3Pai[i].y;
+					addChild(card);
+					m_user3Pai[i]=card;
+				}
+
+				eyepositionShow1();
+				eyepositionShow2();
+				eyepositionShow3();
+				var winID:int = (winIndex + 4 - TheModel.m_ID) % 4;
+				switch (bid)
+				{
+					case 0:
+						removeChild(m_userFloor.pop());
+						break;
+					case 1:
+						removeChild(m_user1Floor.pop());
+						break;
+					case 2:
+						removeChild(m_user2Floor.pop());
+						break;
+					case 3:
+						removeChild(m_user3Floor.pop());
+						break;
+
+				}
+				if (m_evtData.sc[0] == 9)
+				{
+					var winCard:Card;
+					switch (winID)
+					{
+						case 0:
+							winCard = new Card(0, 1, pai);
+							winCard.x=720;
+							winCard.y=500;
+							addChild(winCard);
+							m_userPai.push(winCard);
+							break;
+						case 1:
+							winCard = new Card(1, 1, pai);
+							winCard.x=760;
+							winCard.y=60;
+							addChild(winCard);
+							m_user1Pai.push(winCard);
+							break;
+						case 2:
+							winCard = new Card(2, 1, pai);
+							winCard.x=165;
+							winCard.y=30;
+							addChild(winCard);
+							m_user2Pai.push(winCard);
+							break;
+						case 3:
+							winCard = new Card(3, 1, pai);
+							winCard.x=5;
+							winCard.y=440;
+							addChild(winCard);
+							m_user3Pai.push(winCard);
+							break;
+						default:
+							break;
+					}
+				}
+				m_timer = new Timer(1500, 1);
+				m_timer.addEventListener(TimerEvent.TIMER_COMPLETE, ShowWindTable);
+				m_timer.start();
+			}
+
+			private function ShowWindTable(evt:TimerEvent):void
+			{
+				m_timer.removeEventListener(TimerEvent.TIMER_COMPLETE, ShowWindTable);
+				MJsound.play("soundWinTable");
+				addChild(m_winTabel);
+			}
+
+			private function myHandler(evt:PlayEvent):void //////定时器结束我要做的操作
+			{
+				var i:int;
+				var j:int;
+				var a:int;
+				var b:int;
+				if (m_userPai.length % 3 != 1)
+				{
+					var glow:GlowFilter = new GlowFilter(); //打出的牌使用发光滤镜效果
+					glow.blurX=32;
+					glow.blurY=32;
+					glow.color=0xff0000;
+					glow.quality=BitmapFilterQuality.LOW;
+					glow.strength=3;
+					glow.alpha=0.6; // self add
+					if (m_OutPai)
+					{
+						m_OutPai.filters=[];
+					}
+					var card:Card=m_userPai[m_userPai.length - 1];
+					MJsound.play(card.m_dot.toString());
+					var x:int = card.x;
+					var y:int = card.y;
+					removeChild(card);
+					m_userPai.splice(m_userPai.indexOf(card), 1);
+					positionShow();
+					paiCanMove(false);
+					var card1:Card = new Card(0, 3, card.m_dot);
+					card1.y=y - 20;
+					card1.x=x;
+					addChild(card1);
+					m_OutPai=card1;
+
+					m_userFloor.push(card1);
+					var move:Move = new Move(card1);
+					move.xFrom=card1.x;
+					move.yFrom=card1.y;
+					var point:Point = floorPaiPosition(0);
+					move.xTo=point.x;
+					move.yTo=point.y;
+					move.startDelay=10;
+					move.duration=200;
+					move.play();
+					var obj:Object = new Object();
+					obj.bid=TheModel.m_ID;
+					obj.pai=card.m_dot;
+					userPaiSort();
+					for (i=0; i < m_userPai.length - 1; i++)
+					{
+						a=getChildIndex(m_userPai[i]);
+						for (j=i + 1; j < m_userPai.length; j++)
+						{
+							b=getChildIndex(m_userPai[j]);
+							if (a > b)
+							{
+								this.setChildIndex(m_userPai[i], b);
+								this.setChildIndex(m_userPai[j], a);
+							}
+						}
+					}
+					TheModel.dispatchEvent(new PlayEvent(EventCMD.OutPai, obj));
+					m_OutPai.filters=[glow];
+				}
+				else
+				{
+					TheModel.dispatchEvent(new PlayEvent(EventCMD.myCancel, new Object()));
+					m_controlBar.effect=false;
+					paiCanMove(false);
+					for (i=0; i < m_userPai.length; i++)
+					{
+						if (m_userPai[i].alpha < 1)
+						{
+							m_userPai[i].alpha=1;
+							m_userPai[i].removeEventListener(MouseEvent.MOUSE_OVER, selectChiPai);
+							m_userPai[i].removeEventListener(MouseEvent.MOUSE_OUT, selectChiPai);
+							m_userPai[i].removeEventListener(MouseEvent.CLICK, selectChiPai);
+						}
+					}
+				}
+			}
+		]]>
+	</mx:Script>
+</mx:Canvas>

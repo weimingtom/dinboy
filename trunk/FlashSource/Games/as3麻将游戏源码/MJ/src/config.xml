@@ -1,0 +1,8 @@
+<SmartFoxClient>
+<!--config file for Royal Ruby TWMJ Service System-->
+    <ip>192.168.58.17</ip>
+    <!-------------port------------------------>
+    <port>9560</port>
+    <!-------------域------------------------>
+     <zone>twmj</zone>
+</SmartFoxClient>

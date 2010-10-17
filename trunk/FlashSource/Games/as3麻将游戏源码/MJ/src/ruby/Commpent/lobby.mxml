@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" fontSize="15" creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+			import ruby.Event.PlayEvent;
+			import ruby.Model.ModelLocator;
+			import ruby.Event.EventCMD;
+		[Bindable]
+		private var TheModel:ModelLocator;
+		
+		private function init():void
+		{
+			TheModel=ModelLocator.getInstance();
+		}
+		private function sendLobbyMessage(evt:MouseEvent):void
+		{
+			Button(evt.target).enabled=false;
+			var obj:Object=new Object();
+			var bt:Button=evt.target as Button;
+			obj.bet="money_"+bt.name;
+			TheModel.dispatchEvent(new PlayEvent(EventCMD.ConfigTable,obj));
+		}
+			
+		]]>
+	</mx:Script>
+	<mx:Button id="btn1" width="80" height="60"  x="261" y="178" name="20" label="20" click="sendLobbyMessage(event)"/>
+	<mx:Button id="btn2" width="80" height="60"  x="84" y="178" name="50" label="50" click="sendLobbyMessage(event)"/>
+	<mx:Button id="btn3" width="80" height="60"  x="84" y="47" name="100" label="100" click="sendLobbyMessage(event)"/>
+	<mx:Button id="btn4" width="80" height="60"  x="261" y="47" name="200" label="200" click="sendLobbyMessage(event)"/>
+</mx:Canvas>
