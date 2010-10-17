@@ -2,13 +2,16 @@ package
 {
 	import adobe.utils.CustomActions;
 	import com.dinboy.ui.DinRect;
+	import com.dinboy.util.dinTransfrom;
 	import com.dinboy.util.Rotator;
+	import fl.controls.BaseButton;
 	import fl.controls.Slider;
 	import fl.events.InteractionInputType;
 	import fl.events.SliderEvent;
 	import fl.events.SliderEventClickTarget;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.MouseEvent;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import com.dinboy.util.DinDisplayUtil
@@ -36,6 +39,11 @@ package
 		 * 需要被旋转的长方体
 		 */
 		private var _rect:DinRect;
+		
+		/**
+		 * 全局坐标
+		 */
+		private var _gobalPoint:Point;
 		
 		
 		public function CenterPoint() 
@@ -71,6 +79,26 @@ package
 			this.addChild(this._rect);
 			this._rotationSlider.value = this._rect.rotation;
 			this._scaleSlider.value = this._rect.scaleX;
+			
+			this._gobalPoint = new Point();
+			addEventListener(MouseEvent.CLICK, this.ClickHandler, false, 0, true);
+		}
+		
+		/**
+		 * 舞台点击,获取到需要旋转的坐标点
+		 * @param	evt
+		 */
+		private function ClickHandler(evt:MouseEvent):void
+		{
+				if (evt.target is BaseButton || evt.target is BaseButton) return;
+		
+				
+				this._gobalPoint = new Point(stage.mouseX, stage.mouseY);
+
+				this.graphics.clear();
+				this.graphics.beginFill(0x000000);
+				this.graphics.drawRect(stage.mouseX, stage.mouseY, 1, 1);
+				this.graphics.endFill();
 		}
 		
 		/**
@@ -79,15 +107,16 @@ package
 		 */
 		private function scaleSliderThumbDragHandler(evt:SliderEvent):void
 		{
-			var $b:Rectangle = this._rect.getBounds(this._rect.parent);
-			var $point:Point = new Point($b.x+$b.width / 2,$b.y+ $b.height / 2);
-			var $aPoint:Point = this._rect.parent.globalToLocal(this._rect.parent.localToGlobal($point));
-					this._rect.scaleX = this._rect.scaleY = this._scaleSlider.value;
-					$b=this._rect.getBounds(this._rect);
-					$point = new Point($b.x+$b.width / 2,$b.y+ $b.height / 2);
-			var $bPoint:Point = this._rect.parent.globalToLocal(this._rect.localToGlobal($point));
-			this._rect.x	+= $aPoint.x -$bPoint.x;
-			this._rect.y	+= $aPoint.y -$bPoint.y;
+			dinTransfrom.transfromByPoint(this._rect, { point:this._gobalPoint,scale:this._scaleSlider.value });
+			//var $b:Rectangle = this._rect.getBounds(this._rect.parent);
+			//var $point:Point = new Point($b.x+$b.width / 2,$b.y+ $b.height / 2);
+			//var $aPoint:Point = this._rect.parent.globalToLocal(this._rect.parent.localToGlobal($point));
+					//this._rect.scaleX = this._rect.scaleY = this._scaleSlider.value;
+					//$b=this._rect.getBounds(this._rect);
+					//$point = new Point($b.x+$b.width / 2,$b.y+ $b.height / 2);
+			//var $bPoint:Point = this._rect.parent.globalToLocal(this._rect.localToGlobal($point));
+			//this._rect.x	+= $aPoint.x -$bPoint.x;
+			//this._rect.y	+= $aPoint.y -$bPoint.y;
 		}
 		
 		/**
@@ -96,15 +125,16 @@ package
 		 */
 		private function ratationThumbDragHandler(evt:SliderEvent):void
 		{
-			var $b:Rectangle = this._rect.getBounds(this._rect.parent);
-			var $point:Point = new Point($b.x+$b.width / 2,$b.y+ $b.height / 2);
-			var $aPoint:Point = this._rect.parent.globalToLocal(this._rect.parent.localToGlobal($point));
-					this._rect.rotation= this._rotationSlider.value;
-					$b=this._rect.getBounds(this._rect);
-					$point = new Point($b.x+$b.width / 2,$b.y+ $b.height / 2);
-			var $bPoint:Point = this._rect.parent.globalToLocal(this._rect.localToGlobal($point));
-			this._rect.x	+= $aPoint.x -$bPoint.x;
-			this._rect.y	+= $aPoint.y -$bPoint.y;
+			dinTransfrom.transfromByPoint(this._rect, { point:this._gobalPoint,rotation:this._rotationSlider.value });
+			//var $b:Rectangle = this._rect.getBounds(this._rect.parent);
+			//var $point:Point = new Point($b.x+$b.width / 2,$b.y+ $b.height / 2);
+			//var $aPoint:Point = this._rect.parent.globalToLocal(this._rect.parent.localToGlobal($point));
+					//this._rect.rotation= this._rotationSlider.value;
+					//$b=this._rect.getBounds(this._rect);
+					//$point = new Point($b.x+$b.width / 2,$b.y+ $b.height / 2);
+			//var $bPoint:Point = this._rect.parent.globalToLocal(this._rect.localToGlobal($point));
+			//this._rect.x	+= $aPoint.x -$bPoint.x;
+			//this._rect.y	+= $aPoint.y -$bPoint.y;
 		}
 
 
