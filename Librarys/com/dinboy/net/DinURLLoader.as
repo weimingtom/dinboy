@@ -76,6 +76,11 @@ package com.dinboy.net
 		 */
 		private var $charSet:String;
 		
+		/**
+		 * 加载的使用传输方法 GET|POST 默认为GET
+		 */
+		private var $method:String=URLRequestMethod.GET;
+		
 		
 		/***************************/
 		public function  DinURLLoader($url:String=null)
@@ -96,17 +101,16 @@ package com.dinboy.net
 			if (!this.$URLRequest) this.$URLRequest = new URLRequest();
 			if ($url) { this.$url = $url; }
 			this.$URLRequest.url = this.$url;
-												 
-			//当传参进来的不是为空时,把加载方式转换成POST,并传参
+			this.$URLRequest.method = this.$method;		
+			this.$URLRequest.data = null;
 			if ($object!=null) 
 			{
-				if (!this.$URLVariables) this.$URLVariables = new URLVariables();
+				this.$URLVariables = new URLVariables();
 				for (var $item:String in  this.$object) 
 				{
 					this.$URLVariables[$item] = this.$object[$item];
 				}
 				this.$URLRequest.data = this.$URLVariables
-				this.$URLRequest.method = URLRequestMethod.POST;
 			}
 		}
 		
@@ -144,7 +148,6 @@ package com.dinboy.net
 		private function  urlloaderComplete(evt:Event):void 
 		{
 			this.urlloaderRemoveEvent(super);
-		//	super.dispatchEvent(evt);
 		}
 		
 		/**
@@ -153,10 +156,9 @@ package com.dinboy.net
 		 */
 		private function  urlloaderProgress(evt:ProgressEvent):void 
 		{
-			this.$loadedweigth = evt.bytesLoaded / 1024 >> 0;
-			this.$weight = evt.bytesTotal / 1024 >> 0;
+			this.$loadedweigth = evt.bytesLoaded >>10;
+			this.$weight = evt.bytesTotal >> 10;
 			this.$weightPercent = evt.bytesLoaded / evt.bytesTotal * 100 >> 0;
-		//	super.dispatchEvent(evt);
 		}
 		
 		
@@ -167,10 +169,10 @@ package com.dinboy.net
 		private function urlloaderIOError(evt:IOErrorEvent):void 
 		{
 			if (this.$ignoreError)  {
-				trace("对不起,您[正常模式]加载的文件不存在,请检查路径是否正确.");
-				evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.urlloaderIOError);
-				evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.urlloaderSecurityError);
-			}else dispatchEvent(evt)
+				trace("[DinURLLoader] 对不起,您[正常模式]加载的文件["+this.$url+"]不存在,请检查路径是否正确.");
+			}else dispatchEvent(evt);
+			evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.urlloaderIOError);
+			evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.urlloaderSecurityError);
 		}
 		
 		/**
@@ -179,10 +181,10 @@ package com.dinboy.net
 		private function urlloaderSecurityError(evt:SecurityErrorEvent):void 
 		{
 			if (this.$ignoreError) {
-				trace("对不起,您以[正常模式]加载的文件受到安全保护,对方禁止让您加载使用!请与管理员联系.");
-				evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.urlloaderIOError);
-				evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.urlloaderSecurityError);
-			}else dispatchEvent(evt);
+				trace("[DinURLLoader] 对不起,您以[正常模式]加载的文件["+this.$url+"]受到安全保护,对方禁止让您加载使用!请与管理员联系.");
+				}else dispatchEvent(evt);
+			evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.urlloaderIOError);
+			evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.urlloaderSecurityError);
 		}
 		//↑↑↑↑↑=============================================
 		//↑↑↑↑↑==========##### URLLoader侦听函数 #####===========
@@ -238,8 +240,8 @@ package com.dinboy.net
 		 */
 		private function URlStreamProgressHandler(evt:ProgressEvent):void 
 		{
-			this.$loadedweigth = evt.bytesLoaded / 1024 >> 0;
-			this.$weight = evt.bytesTotal / 1024 >> 0;
+			this.$loadedweigth = evt.bytesLoaded >> 10;
+			this.$weight = evt.bytesTotal >> 10;
 			this.$weightPercent = evt.bytesLoaded / evt.bytesTotal * 100 >> 0;
 			this.dispatchEvent(evt);
 		}
@@ -252,7 +254,7 @@ package com.dinboy.net
 			if (this.$ignoreError)
 			{
 				evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.URlStreamIOErrorHandler);
-				trace("对不起,您以[二进制]加载的文件不存在,请检查路径是否正确.");
+				trace("[DinURLLoader] 对不起,您以[二进制]加载的文件["+this.$url+"]不存在,请检查路径是否正确.");
 			}else this.dispatchEvent(evt);
 		}
 		
@@ -262,7 +264,7 @@ package com.dinboy.net
 		 */
 		private function URLStreamHttpStausHandler(evt:HTTPStatusEvent):void 
 		{
-			trace("加载 ["+this.$url+"] 处于 ["+evt.status+"] 状态.");
+			trace("[DinURLLoader] 加载 ["+this.$url+"] 处于 ["+evt.status+"] 状态.");
 			this.dispatchEvent(evt);
 		}
 		
@@ -275,7 +277,7 @@ package com.dinboy.net
 			if (this.$ignoreError) 
 				{
 					evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.URLStreamSecurityErrorHandler);
-					trace("对不起,您以[二进制]加载的文件 存在 ["+evt.text+"] 错误.");
+					trace("[DinURLLoader] 对不起,您以[二进制]加载的文件 存在 ["+evt.text+"] 错误.");
 				}else this.dispatchEvent(evt);
 		}
 		
@@ -332,7 +334,7 @@ package com.dinboy.net
 			}
 			catch (err:Error)
 			{
-				trace("尝试加载"+$url+"失败");
+				trace("[DinURLLoader] 尝试加载["+$url+"]失败");
 			}
 		}
 		
@@ -353,7 +355,7 @@ package com.dinboy.net
 				this.$URLStream.load(this.$URLRequest);
 			}catch (err:Error)
 			{
-				trace("尝试加载"+$url+"失败");
+				trace("[DinURLLoader] 尝试加载["+$url+"]失败");
 			}
 		}
 		
@@ -408,6 +410,16 @@ package com.dinboy.net
 		public function set ignoreError($value:Boolean):void 
 		{
 			this.$ignoreError = $value;
+		}
+		
+		/**
+		 * 设置/获取 加载的方法 GET|POST  默认为 "GET";
+		 */
+		public function get method():String { return this.$method; }
+		
+		public function set method($value:String):void 
+		{
+			this.$method = $value;
 		}
 
 		/********** [DINBOY] Say: Class The End  ************/	

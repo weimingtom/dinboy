@@ -69,7 +69,12 @@ package com.dinboy.net
 		/**
 		 * 总字节数 用在URLStream
 		 */
-		private var $bytesToal:uint=0;
+		private var $bytesToal:uint = 0;
+		
+		/**
+		 * 加载数据的方法
+		 */
+		private var $method:String = URLRequestMethod.GET;
 		
 		
 		
@@ -109,17 +114,17 @@ package com.dinboy.net
 			if (!this.$URLRequest) this.$URLRequest = new URLRequest();
 			if ($url) { this.$url = $url; }
 			this.$URLRequest.url = this.$url;
+			this.$URLRequest.data = null;
+			this.$URLRequest.method =this.$method;
 												 
-			//当传参进来的不是为空时,把加载方式转换成POST,并传参
 			if ($object!=null) 
 			{
-				if (!this.$URLVariables) this.$URLVariables = new URLVariables();
+				 this.$URLVariables = new URLVariables();
 				for (var $item:String in  this.$object) 
 				{
 					this.$URLVariables[$item] = this.$object[$item];
 				}
 				this.$URLRequest.data = this.$URLVariables
-				this.$URLRequest.method = URLRequestMethod.POST;
 			}
 		}
 		
@@ -133,8 +138,8 @@ package com.dinboy.net
 		 */
 		private function LoaderAddEvent($loaderinfo:LoaderInfo):void 
 		{
-			$loaderinfo.addEventListener(IOErrorEvent.IO_ERROR, this.loaderIOError, false, int.MAX_VALUE,true);
-			$loaderinfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.loaderSecurityError, false, int.MAX_VALUE,true);
+			if(this.$ignoreError)	$loaderinfo.addEventListener(IOErrorEvent.IO_ERROR, this.loaderIOError, false, int.MAX_VALUE,true);
+			if(this.$ignoreError)	$loaderinfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.loaderSecurityError, false, int.MAX_VALUE,true);
 			$loaderinfo.addEventListener(Event.COMPLETE, this.loaderComplete, false, int.MAX_VALUE, true);
 			$loaderinfo.addEventListener(ProgressEvent.PROGRESS, this.loaderProgress, false, int.MAX_VALUE, true);
 		}
@@ -167,6 +172,7 @@ package com.dinboy.net
 				}
 			}
 			else this.LoaderRemoveEvent(super.contentLoaderInfo);
+			dispatchEvent(evt);
 		}
 		
 		/**
@@ -179,6 +185,7 @@ package com.dinboy.net
 				evt.bytesLoaded=this.$bytesLoaded;
 				evt.bytesTotal = this.$bytesToal;
 			}
+			dispatchEvent(evt);
 		}
 		
 		
@@ -188,11 +195,11 @@ package com.dinboy.net
 		 */
 		private function loaderIOError(evt:IOErrorEvent):void 
 		{
-			if (this.$ignoreError)  {
-				trace("对不起,您[正常模式]加载的文件不存在,请检查路径是否正确.");
+//			if (this.$ignoreError)  {
+				trace("[DinLoader] 对不起,您[正常模式]加载的文件[" +this.$url+ "]不存在,请检查路径是否正确.");
 				evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.loaderIOError);
 				evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.loaderSecurityError);
-			}else dispatchEvent(evt)
+	//		}else dispatchEvent(evt);
 			
 		}
 		
@@ -201,11 +208,11 @@ package com.dinboy.net
 		 */
 		private function loaderSecurityError(evt:SecurityErrorEvent):void 
 		{
-			if (this.$ignoreError) {
-				trace("对不起,您以[正常模式]加载的文件受到安全保护,对方禁止让您加载使用!请与管理员联系.");
+	//		if (this.$ignoreError) {
+				trace("[DinLoader] 对不起,您以[正常模式]加载的文件[" +this.$url+ "]受到安全保护,对方禁止让您加载使用!请与管理员联系.");
 				evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.loaderIOError);
 				evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.loaderSecurityError);
-			}else dispatchEvent(evt);
+		//	}else dispatchEvent(evt);
 		}
 		
 		//===============================================
@@ -219,8 +226,8 @@ package com.dinboy.net
 		{
 			this.$URLStream.addEventListener(Event.COMPLETE, this.URlStreamCompleteHandler, false, 0, true);
 			this.$URLStream.addEventListener(ProgressEvent.PROGRESS, this.URlStreamProgressHandler, false, 0, true);
-			this.$URLStream.addEventListener(IOErrorEvent.IO_ERROR, this.URlStreamIOErrorHandler, false, 0, true);
-			this.$URLStream.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.URlStreamSecurityErrorHandler, false, 0, true);
+			if(this.$ignoreError)	this.$URLStream.addEventListener(IOErrorEvent.IO_ERROR, this.URlStreamIOErrorHandler, false, 0, true);
+			if(this.$ignoreError)	this.$URLStream.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.URlStreamSecurityErrorHandler, false, 0, true);
 		}
 		
 		/**
@@ -264,11 +271,11 @@ package com.dinboy.net
 		 */
 		private function URlStreamIOErrorHandler(evt:IOErrorEvent):void 
 		{
-			if (this.$ignoreError) 
-			{
+		//	if (this.$ignoreError) 
+		//	{
 				this.$URLStream.removeEventListener(IOErrorEvent.IO_ERROR, this.URlStreamIOErrorHandler);
-				trace("对不起,您以[渐进式]加载的文件不存在,请检查路径是否正确.");
-			}else this.dispatchEvent(evt);
+				trace("[DinLoader] 对不起,您以[渐进式]加载的文件[" +this.$url+ "]不存在,请检查路径是否正确.");
+		//	}else this.dispatchEvent(evt);
 			
 		}
 		
@@ -278,11 +285,11 @@ package com.dinboy.net
 		 */
 		private function URlStreamSecurityErrorHandler(evt:SecurityErrorEvent):void 
 		{
-			if (this.$ignoreError) 
-			{
+		//	if (this.$ignoreError) 
+		//	{
 				this.$URLStream.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.URlStreamSecurityErrorHandler);
-				trace("对不起,您以[渐进式]加载的文件存在安全沙箱问题.");
-			}else this.dispatchEvent(evt);
+				trace("[DinLoader] 对不起,您以[渐进式]加载的文件[" +this.$url+ "]存在安全沙箱问题.");
+		//	}else this.dispatchEvent(evt);
 		}
 		
 		//=============================================
@@ -352,7 +359,14 @@ package com.dinboy.net
 			super.unloadAndStop();
 			
 			this.LoaderAddEvent(super.contentLoaderInfo);
-			super.load(this.$URLRequest, $context);
+			try 
+			{
+				super.load(this.$URLRequest, $context);
+			}
+			catch (err:TypeError)
+			{
+				trace("[DinLoader] 尝试加载["+this.$url+"]失败");
+			}
 		}
 		
 		/**
@@ -374,8 +388,15 @@ package com.dinboy.net
 			this.addEventListener(Event.ENTER_FRAME, this.onEnterFrame, false, 0, true);
 			this.LoaderAddEvent(super.contentLoaderInfo);
 			this.streamAddEvent();
+			try 
+			{
+				this.$URLStream.load(this.$URLRequest);
+			}
+			catch (err:Error)
+			{
+				trace("[DinLoader] 尝试加载["+this.$url+"]失败");
+			}
 			
-			this.$URLStream.load(this.$URLRequest);
 		}
 		
 		/** 
@@ -416,7 +437,7 @@ package com.dinboy.net
 		}
 		
 		/**
-		 * 设置/获取 加载的变量参数 默认:null  <strong>当不为null时,加载的方式为Post</strong>
+		 * 设置/获取 加载的变量参数 默认:null  
 		 */
 		public function get object():Object { return this.$object; }
 		public function set object($value:Object):void 
@@ -424,8 +445,23 @@ package com.dinboy.net
 			this.$object = $value;
 		}
 		
-
+		/**
+		 * 设置/获取 加载数据的方法 默认为:get
+		 */
+		public function get method():String { return this.$method; }
 		
+		public function set method($value:String):void 
+		{
+			this.$method = $value;
+		}
+		
+		/**
+		 * 当转以文本显示时
+		 */
+		override public function toString():String 
+		{
+			return "[com.dinboy.net.DinLoader] extends by Loader";
+		}
 		
 		
 		/********** [DINBOY] Say: Class The End  ************/	
