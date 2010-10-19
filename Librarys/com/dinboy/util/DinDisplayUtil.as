@@ -51,38 +51,7 @@
 			var  $displayObject:DisplayObject = $vector[$i];
 			DinDisplayUtil.SymmetryByCount($displayObject, $i, $axis, $fromaxis, $space, $maxcount, $direction,$align);
 		}
-		/*
-		var $i:int;
-		for ($i = 0; $i < $count; $i++)
-		{
-			var $model:int = $i % 2;
-				var  $displayObject:DisplayObject = $vector[$i];
-				if ($direction=="H")
-				{
-						$displayObject.y = $axis.y;
-						if ($model==0) 
-						{
-							$displayObject.x = $axis.x - $fromaxis - ($space + $displayObject.width) * ($i + 1) / 2;
-						}
-						if ($model==1) 
-						{
-							$displayObject.x = $axis.x + $fromaxis + ($space + $displayObject.width) * ($i - 1) / 2;
-						}
-				}
-				else if($direction=="V")
-				{
-					$displayObject.y = $axis.x;
-					 if ($model==0) 
-						{
-							$displayObject.y = $axis.y - $fromaxis - ($space + $displayObject.height) * ($i+1) / 2;
-						}
-						if ($model==1) 
-						{
-							$displayObject.y = $axis.y + $fromaxis + ($space + $displayObject.height) * ($i-1) / 2;
-						}
-				}
-		}
-		*/
+
 	}
 	
 	/**
@@ -133,7 +102,7 @@
 				{
 					    if ($align=="bottom") 
 						{
-							$displayObject.y = $axis.y-$displayObject.height;
+							$displayObject.y = $axis.y - $displayObject.height;
 						}
 						else  if($align=="top")
 						{
@@ -202,12 +171,32 @@
 	
 	/**
 	 * 缩放显示对象
-	 * @param	$displayObject 要被显示对象
-	 * @param	$Object 要缩放的参数 width:最大宽度 ,height:最大高度
+	 * @param	$displayObject 要被显示对象;
+	 * @param	$width 要缩放的参数 width:最大宽度;
+	 * @param	$height 要缩放的参数 height:最大宽度;
 	 */
-	public static function  directRatio($displayObject:DisplayObject,$Object:Object=null):void 
+	public static function  directRatio($displayObject:DisplayObject,$width:Number,$height:Number):void 
 	{
-			var $obj:Object = $Object;
+		//	var $obj:Object = $Object;
+			
+			var $Dwidth:Number = $displayObject.width;
+			
+			var $Dheight:Number = $displayObject.height;
+			
+			var $ratio:Number = Math.max($Dwidth / $width, $Dheight / $height, 1);
+			
+			$displayObject.width = $Dwidth / $ratio;
+			$displayObject.height = $Dheight / $ratio;
+			
+			//function AVProporcao(t:DisplayObject, w:Number, h:Number):Object {
+			//var l:Number = t.width;
+			//var a:Number = t.height;
+			//var r:Number = Math.max(l / w, a / h);
+			//return { width:l / r, height:a / r };
+		//}
+			//
+			
+			/*
 		if ($obj) 
 			{
 				var $scaled:Number=1;
@@ -236,7 +225,7 @@
 					$displayObject.width *= $scaled;
 				}
 			}
-
+		*/
 	}
 	
 	/**
@@ -324,6 +313,7 @@
 		 */
 		var $hitSprite:Sprite = new Sprite();
 			  $hitSprite.visible = false;
+			  $hitSprite.mouseEnabled = false;
 			  $displayObject.hitArea = $hitSprite;
 			  try 
 			  {
@@ -333,7 +323,7 @@
 			  {
 				  trace("对不起,您需要转变的对象不是一个容器");
 			  }
-
+				
 			  var $bit:BitmapData = new BitmapData($displayObject.width,$displayObject.height,true,0x00000000); 
 					
 				$bit.draw($displayObject); 
@@ -341,7 +331,7 @@
 				{
 						//重绘图象到bit 
 						$hitSprite.graphics.clear(); 
-						$hitSprite.graphics.beginFill(0); 
+						$hitSprite.graphics.beginFill(0xFFFFFF,0); 
 						for(var x:uint=0;x<$bit.width;x++) 
 						{
 							for(var y:uint=0;y<$bit.height;y++) 
@@ -488,45 +478,47 @@
 	 */
 	public static function randomPlace($displayObject:DisplayObject,$point:Point,$weight:Number,$direction:String="H" ,$align:String="bottom"):void 
 	{
+		var $Rectangle:Rectangle = $displayObject.getBounds($displayObject);
+		trace($Rectangle);
 			if ($direction=="H")
 				{
 					    if ($align=="bottom") 
 						{
-							$displayObject.y = $point.y-$displayObject.height;
+							$displayObject.y = $point.y - $Rectangle.height - $Rectangle.y;
 						}
 						else  if($align=="top")
 						{
-							$displayObject.y = $point.y;
+							$displayObject.y = $point.y - $Rectangle.y;
 						}
 						else if($align=="middle")
 						{
-							$displayObject.y = $point.y + ($displayObject.height>>1);
+							$displayObject.y = $point.y - $Rectangle.y + ($Rectangle.height >> 1);
 						}
 						else 
 						{
 							trace("横排无其他对齐方式");
 						}
-							$displayObject.x = $point.x +($weight * Math.random()>>0);
+							$displayObject.x = $point.x-$Rectangle.x +($weight * Math.random()>>0);
 				}
 				else if($direction=="V")
 				{
 					if ($align=="left") 
 						{
-							$displayObject.x = $point.x;
+							$displayObject.x = $point.x - $Rectangle.x;
 						}
-						else  if($align=="top")
+						else  if($align=="right")
 						{
-							$displayObject.x = $point.x-$displayObject.width;
+							$displayObject.x = $point.x - $Rectangle.x - $Rectangle.width;
 						}
 						else if($align=="center")
 						{
-							$displayObject.x = $point.x+($displayObject.width>>1);
+							$displayObject.x = $point.x - $Rectangle.x + ($Rectangle.width >> 1);
 						}
 						else 
 						{
 							trace("竖排排无其他对齐方式");
 						}
-							$displayObject.y = $point.y +  ($weight * Math.random()>>0);
+							$displayObject.y = $point.y -$Rectangle.y+  ($weight * Math.random()>>0);
 				}
 	}
 	
@@ -581,19 +573,25 @@
 		var $single:Boolean = $len% 2 == 1?true:false;
 		var $point:Point = new Point($object["x"], $object["y"]);
 		var $i:int;
+		var $Rectangle:Rectangle ;
+		var $align:String = $object["align"] != null?$object["align"]:"B";
 			if ($single)
 			{
-				for ( $i = 0; $i <$len ; $i++) 
+				for ( $i = 0; $i <$len ; $i++)
 				{
-					$vector[$i].x = $point.x +  (($len - 1) / 2 - $i) * $object["space"];
-					$vector[$i].y = $point.y;
+					$Rectangle = $vector[$i].getBounds($vector[$i]);
+					$vector[$i].x = $point.x +  (($len - 1) / 2 - $i) * $object["space"] - $Rectangle.x - ($Rectangle.width >> 1);
+					if ($align == "T") $vector[$i].y = $point.y - $Rectangle.y;
+					if ($align == "B") $vector[$i].y = $point.y - $Rectangle.y - $Rectangle.height;
 				}
 			}else 
 			{
 				for ($i  = 0; $i <$len ; $i++)
 				{
-					$vector[$i].x = $point.x +  (($len) / 2 - ($i+0.5)) * $object["space"] ;
-					$vector[$i].y = $point.y;
+					$Rectangle = $vector[$i].getBounds($vector[$i]);
+					$vector[$i].x = $point.x +  (($len) / 2 - ($i + 0.5)) * $object["space"]  - $Rectangle.x - ($Rectangle.width >> 1);
+					if ($align == "T") $vector[$i].y = $point.y - $Rectangle.y;
+					if ($align == "B") $vector[$i].y = $point.y - $Rectangle.y - $Rectangle.height;
 				}
 			}
 	}
