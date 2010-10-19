@@ -171,6 +171,10 @@ package com.arpitonline.controls.mp3Playback{
  			if(song){
  				song.stop();
  			}
+			if (hasStarted) 
+			{
+				hasStarted = !hasStarted;
+			}
  			this.soundFactory = null;
  		}
  		
