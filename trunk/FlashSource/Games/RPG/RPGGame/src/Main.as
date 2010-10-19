@@ -9,6 +9,7 @@ package
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.geom.Matrix;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
@@ -79,6 +80,28 @@ package
 		 */
 		private var _offsetY:int;
 		
+		/**
+		 * 人物的面向角度
+		 */
+		private var _heroAngle:Number;
+		
+		/**
+		 * 人物移动到的point
+		 */
+		private var _gotoPoint:Point;
+		
+		/**
+		 * 人物的动作
+		 */
+		private var _motionUint:uint;
+		
+		/**
+		 * 每次偏移步数
+		 */
+		private const STEPS:uint = 10;
+		
+		
+		
 		public function Main():void 
 		{
 			_heroW = 48;
@@ -87,6 +110,7 @@ package
 			_heroBitArray = new Array();
 			_keyCodeArray = [0, 0, 0, 0];
 			_rotationUint = 0;
+			_gotoPoint = new Point();
 			
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
@@ -101,8 +125,6 @@ package
 			this._heroLoader.loadNormal("hero.png");
 			this._heroLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, this.heroLoadComplete, false, 0, true);
 			
-			stage.addEventListener(KeyboardEvent.KEY_DOWN, this.keyDownHandler, false, 0, true);
-			stage.addEventListener(KeyboardEvent.KEY_UP, this.keyUpHandler, false, 0, true);
 		}
 		
 		/**
@@ -151,8 +173,144 @@ package
 				break;
 			}
 			_keyCodeString = _keyCodeArray.join("");
+		}
+		
+		/**
+		 * 当鼠标点击时
+		 * @param	evt
+		 */
+		private function stageClickHandler(evt:MouseEvent):void
+		{
+			var __rectangle:Rectangle = _heroBitmap.getBounds(this.parent);
+			var __dx:Number , __dy:Number;
 			
-			if (!_heroTimer.running) _heroTimer.start();
+			_gotoPoint.x = stage.mouseX;
+			_gotoPoint.y = stage.mouseY;
+			if ((_gotoPoint.x>__rectangle.x && _gotoPoint.x<__rectangle.x+__rectangle.width) || (_gotoPoint.y>__rectangle.y && _gotoPoint.y<__rectangle.y+__rectangle.height))
+			{
+				_heroTimer.reset();
+				_heroTimer.stop();
+				return;
+			}
+			else 
+			{
+				if (!_heroTimer.running) 
+				{
+					_heroTimer.start();
+				}
+			}
+			
+			 __dx= stage.mouseX - __rectangle.x - (__rectangle.width >> 1);
+			 __dy= stage.mouseY - __rectangle.y - (__rectangle.height >> 1);
+			
+			_heroAngle = Math.atan2(__dy, __dx) * 180 / Math.PI;
+			
+			//	 1 	 1		 1	 	 1
+			//	上	下	左	右
+			if (_heroAngle>157.5 && _heroAngle<=180 || _heroAngle>-180&&_heroAngle<-157.5) 
+			{
+				_keyCodeString = "0010";
+			}
+			else if (_heroAngle>-157.5&&_heroAngle<=-112.5) 
+			{
+				_keyCodeString = "1010";
+			}
+			else if (_heroAngle>-112.5&&_heroAngle<=-67.5) 
+			{
+				_keyCodeString = "1000";
+			}
+			else if (_heroAngle>-67.5&&_heroAngle<=-22.5) 
+			{
+				_keyCodeString = "1001";
+			}
+			else if (_heroAngle>-22.5&& _heroAngle<=22.5) 
+			{
+				_keyCodeString = "0001";
+			}
+			else if (_heroAngle>22.5&&_heroAngle<=67.5) 
+			{
+				_keyCodeString = "0101";
+			}
+			else if (_heroAngle>67.5&&_heroAngle<=112.5)
+			{
+				_keyCodeString = "0100";
+				}
+			else if (_heroAngle>112.5&&_heroAngle<=157.5) 
+			{
+				_keyCodeString = "0110";
+			}
+			
+			if (!_heroTimer.running) 
+			{
+				_heroTimer.start();
+			}
+			
+		}
+		
+		/**
+		 * 当鼠标移动时
+		 * @param	evt
+		 */
+		private function stageMousemoveHandler(evt:MouseEvent):void
+		{
+			var __rectangle:Rectangle = _heroBitmap.getBounds(this.parent);
+			
+			if ((stage.mouseX>__rectangle.x && stage.mouseX<__rectangle.x+__rectangle.width) || (stage.mouseY>__rectangle.y && stage.mouseY<__rectangle.y+__rectangle.height))
+			{
+				_heroTimer.reset();
+				_heroTimer.stop();
+			}
+			else 
+			{
+				if (!_heroTimer.running) 
+				{
+					_heroTimer.start();
+				}
+			}
+			
+			var __dx:Number = stage.mouseX - __rectangle.x - (__rectangle.width >> 1);
+			var __dy:Number = stage.mouseY - __rectangle.y - (__rectangle.height >> 1);
+			
+			
+			_heroAngle = Math.atan2(__dy, __dx) * 180 / Math.PI;
+			
+			//	 1 	 1		 1	 	 1
+			//	上	下	左	右
+			if (_heroAngle>157.5 && _heroAngle<=180 || _heroAngle>-180&&_heroAngle<-157.5) 
+			{
+				_keyCodeString = "0010";
+			}
+			else if (_heroAngle>-157.5&&_heroAngle<=-112.5) 
+			{
+				_keyCodeString = "1010";
+			}
+			else if (_heroAngle>-112.5&&_heroAngle<=-67.5) 
+			{
+				_keyCodeString = "1000";
+			}
+			else if (_heroAngle>-67.5&&_heroAngle<=-22.5) 
+			{
+				_keyCodeString = "1001";
+			}
+			else if (_heroAngle>-22.5&& _heroAngle<=22.5) 
+			{
+				_keyCodeString = "0001";
+			}
+			else if (_heroAngle>22.5&&_heroAngle<=67.5) 
+			{
+				_keyCodeString = "0101";
+			}
+			else if (_heroAngle>67.5&&_heroAngle<=112.5)
+			{
+				_keyCodeString = "0100";
+				}
+			else if (_heroAngle>112.5&&_heroAngle<=157.5) 
+			{
+				_keyCodeString = "0110";
+			}
+			
+			_heroTimer.start();
+			
 		}
 		
 		/**
@@ -179,80 +337,99 @@ package
 					_heroBitArray[__i] = __hArr;
 				}
 				
-				_heroBitmap.bitmapData = null;
+				_heroBitmap.bitmapData = _heroBitArray[3][0];
 				addChild(_heroBitmap);
 				
 				_heroTimer = new Timer(50);
 				_heroTimer.addEventListener(TimerEvent.TIMER, this.heroTimerHandler, false, 0, true);
+				 _heroTimer.start();
+				
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, this.keyDownHandler, false, 0, true);
+				stage.addEventListener(KeyboardEvent.KEY_UP, this.keyUpHandler, false, 0, true);
+				
+		//		stage.addEventListener(MouseEvent.MOUSE_MOVE, this.stageMousemoveHandler, false, 0, true);
+				stage.addEventListener(MouseEvent.CLICK, this.stageClickHandler, false, 0, true);
 		}
 		
+	
 		/**
 		 * 运行人物动作
 		 * @param	evt
 		 */
 		private function heroTimerHandler(evt:TimerEvent):void
 		{
-			//_heroBitArray.push(_heroBitArray.shift());
-			//_heroBitmap.bitmapData = _heroBitArray[0][0];
 			
 			//	 1 	 1		 1	 	 1
 			//	上	下	左	右
 			_offsetX = 0;
 			_offsetY = 0;
 			
+			 _motionUint > 2?_motionUint = 0:_motionUint++;
+
 			switch (_keyCodeString) 
 			{
 				case "1000":						//上
 					_rotationUint = 3;
-					_offsetY = -5;
+					_offsetY = -STEPS;
 				break;
 				case "1010":						//左上
 					_rotationUint = 6;
-					_offsetX = -5;
-					_offsetY = -5;
+					_offsetX = -STEPS;
+					_offsetY = -STEPS;
 				break;
 				case "1001":						//右上
 					_rotationUint = 7;
-					_offsetX = 5;
-					_offsetY = -5;
+					_offsetX = STEPS;
+					_offsetY = -STEPS;
 				break;
 				case "0100":						//下
 					_rotationUint = 0;
-					_offsetY = 5;
+					_offsetY = STEPS;
 				break;
 				case "0110":
 					_rotationUint = 4;			//左下
-					_offsetX = -5;
-					_offsetY = 5;
+					_offsetX = -STEPS;
+					_offsetY = STEPS;
 				break;
 				case "0101":
 					_rotationUint = 5;			//右下
-					_offsetX = 5;
-					_offsetY = 5;
+					_offsetX = STEPS;
+					_offsetY = STEPS;
 				break;
 				case "0010":
 					_rotationUint = 1;			//左
-					_offsetX = -5;
+					_offsetX = -STEPS;
 				break;
 				case "0001":
 					_rotationUint = 2;			//右
-					_offsetX = 5;
+					_offsetX = STEPS;
 				break;
 				case "0000":
-					_heroTimer.reset();
-					_heroTimer.stop();
+					_offsetX = 0;
+					_offsetY = 0;
 				break;
+				default:
+					_offsetX = 0;
+					_offsetY = 0;
 			}
-		//	trace("_keyCodeString:", _keyCodeString, "_rotationUint:", _rotationUint, "_heroBitArray.length:", _heroBitArray.length);
-				var __array:Array = _heroBitArray[_rotationUint];
-			//_heroBitArray[_rotationUint].push(_heroBitArray[_rotationUint].shift());
-				 __array.push(__array.shift());
-			//_heroBitmap.bitmapData = _heroBitArray[_rotationUint][0];
-			_heroBitmap.bitmapData = __array[0];
-			_heroBitmap.x += _offsetX;
-			_heroBitmap.y += _offsetY;
+			var	 __array:Array = _heroBitArray[_rotationUint];
+					
+					_heroBitmap.x += _offsetX;
+					_heroBitmap.y += _offsetY;
+					
+			//	trace(_heroBitmap.x-(_heroBitmap.width>>1)>=_gotoPoint.x &&_heroBitmap.y-(_heroBitmap.height>>1)>=_gotoPoint.y);
+					if (_heroBitmap.x+(_heroBitmap.width>>1)>=_gotoPoint.x &&_heroBitmap.y+(_heroBitmap.height>>1)>=_gotoPoint.y) 
+					{
+						//var	 __array:Array = _heroBitArray[_rotationUint];
+						//__array.push(__array.shift());
+						//_heroBitmap.bitmapData = __array[0];
+						_motionUint = 0;
+						_keyCodeString = "0000";
+					}
+					_heroBitmap.bitmapData = __array[_motionUint];
+					//_heroBitmap.x += Math.sin(_offsetX * Math.PI / 180) * _offsetX>>0;
+					//_heroBitmap.y += Math.cos(_offsetY* Math.PI / 180) * _offsetY>>0;
 			
-			//trace(__array);
 		}
 		
 		

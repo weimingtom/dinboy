@@ -14,16 +14,17 @@
     </define>
     <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'2010-10-18'</value>
+      <value>'2010-10-19'</value>
     </define>
     <source-path append="true">
-      <path-element>F:\DINBOY\GoogleCode_DinBoy\FlashSource\Games\RPG\RPGGame\src</path-element>
-      <path-element>F:\DINBOY\GoogleCode_DinBoy\Librarys</path-element>
-      <path-element>D:\Program Files\FlashDevelop\Library\AS3\classes</path-element>
+      <path-element>E:\DinBoy\GooleCode_Dinboy\FlashSource\Games\RPG\RPGGame\src</path-element>
+      <path-element>E:\DinBoy\GooleCode_Dinboy\Librarys</path-element>
+      <path-element>E:\WangJi\网祭网flash\Library</path-element>
+      <path-element>E:\Program Files\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
   </compiler>
   <file-specs>
-    <path-element>F:\DINBOY\GoogleCode_DinBoy\FlashSource\Games\RPG\RPGGame\src\Main.as</path-element>
+    <path-element>E:\DinBoy\GooleCode_Dinboy\FlashSource\Games\RPG\RPGGame\src\Main.as</path-element>
   </file-specs>
   <default-background-color>#FFFFFF</default-background-color>
   <default-frame-rate>30</default-frame-rate>
