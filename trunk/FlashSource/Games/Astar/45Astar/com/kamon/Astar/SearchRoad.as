@@ -81,7 +81,7 @@ package com.kamon.Astar{
 			var len:uint=0;
 			findA[ny][nx]=1;
 			closeA.push([nx,ny,px,py]);
-			for (var n:uint=0; n < 8; n++) {
+			for (var n:uint=0; n < 8; n++) {2
 				var adjX=nx + dirA[n][0];
 				var adjY=ny + dirA[n][1];
 				if (adjX < 0 || adjX >= findA.length || adjY < 0 || adjY >= findA.length) {
@@ -123,7 +123,7 @@ package com.kamon.Astar{
 					}
 				}
 				var moveToCloseA:Array=openA.splice(min,1);
-				searchPath(moveToCloseA[0][0],moveToCloseA[0][1],moveToCloseA[0][2],moveToCloseA[0][3],moveToCloseA[0][5]);
+				searchPath(moveToCloseA[0][0], moveToCloseA[0][1], moveToCloseA[0][2], moveToCloseA[0][3], moveToCloseA[0][5]);
 			}
 		}
 	}
