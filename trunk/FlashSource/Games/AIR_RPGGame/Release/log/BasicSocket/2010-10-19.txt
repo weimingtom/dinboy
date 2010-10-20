@@ -1,0 +1,24 @@
+startServer():正在中止线程。/System.Threading.ThreadAbortException: 正在中止线程。
+   在 System.Threading.WaitHandle.WaitOneNative(SafeWaitHandle waitHandle, UInt32 millisecondsTimeout, Boolean hasThreadAffinity, Boolean exitContext)
+   在 System.Threading.WaitHandle.WaitOne(Int64 timeout, Boolean exitContext)
+   在 System.Threading.WaitHandle.WaitOne(Int32 millisecondsTimeout, Boolean exitContext)
+   在 System.Threading.WaitHandle.WaitOne()
+   在 MyLibrary.sok.business.BasicSocket.startServer(IPAddress _ip, Int32 _port) 位置 D:\My Work Space\Net\MyServer\MyLibrary\sok\business\BasicSocket.cs:行号 86
+startServer():正在中止线程。/System.Threading.ThreadAbortException: 正在中止线程。
+   在 System.Threading.WaitHandle.WaitOneNative(SafeWaitHandle waitHandle, UInt32 millisecondsTimeout, Boolean hasThreadAffinity, Boolean exitContext)
+   在 System.Threading.WaitHandle.WaitOne(Int64 timeout, Boolean exitContext)
+   在 System.Threading.WaitHandle.WaitOne(Int32 millisecondsTimeout, Boolean exitContext)
+   在 System.Threading.WaitHandle.WaitOne()
+   在 MyLibrary.sok.business.BasicSocket.startServer(IPAddress _ip, Int32 _port) 位置 D:\My Work Space\Net\MyServer\MyLibrary\sok\business\BasicSocket.cs:行号 86
+startServer():正在中止线程。/System.Threading.ThreadAbortException: 正在中止线程。
+   在 System.Threading.WaitHandle.WaitOneNative(SafeWaitHandle waitHandle, UInt32 millisecondsTimeout, Boolean hasThreadAffinity, Boolean exitContext)
+   在 System.Threading.WaitHandle.WaitOne(Int64 timeout, Boolean exitContext)
+   在 System.Threading.WaitHandle.WaitOne(Int32 millisecondsTimeout, Boolean exitContext)
+   在 System.Threading.WaitHandle.WaitOne()
+   在 MyLibrary.sok.business.BasicSocket.startServer(IPAddress _ip, Int32 _port) 位置 D:\My Work Space\Net\MyServer\MyLibrary\sok\business\BasicSocket.cs:行号 86
+startServer():正在中止线程。/System.Threading.ThreadAbortException: 正在中止线程。
+   在 System.Threading.WaitHandle.WaitOneNative(SafeWaitHandle waitHandle, UInt32 millisecondsTimeout, Boolean hasThreadAffinity, Boolean exitContext)
+   在 System.Threading.WaitHandle.WaitOne(Int64 timeout, Boolean exitContext)
+   在 System.Threading.WaitHandle.WaitOne(Int32 millisecondsTimeout, Boolean exitContext)
+   在 System.Threading.WaitHandle.WaitOne()
+   在 MyLibrary.sok.business.BasicSocket.startServer(IPAddress _ip, Int32 _port) 位置 D:\My Work Space\Net\MyServer\MyLibrary\sok\business\BasicSocket.cs:行号 86
