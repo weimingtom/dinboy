@@ -418,7 +418,7 @@ package
 					_heroBitmap.y += _offsetY;
 					
 			//	trace(_heroBitmap.x-(_heroBitmap.width>>1)>=_gotoPoint.x &&_heroBitmap.y-(_heroBitmap.height>>1)>=_gotoPoint.y);
-					if (_heroBitmap.x+(_heroBitmap.width>>1)>=_gotoPoint.x &&_heroBitmap.y+(_heroBitmap.height>>1)>=_gotoPoint.y) 
+					if (Math.abs(_heroBitmap.x+(_heroBitmap.width>>1)-_gotoPoint.x)<=STEPS && Math.abs(_heroBitmap.y+(_heroBitmap.height>>1)-_gotoPoint.y)<=STEPS) 
 					{
 						//var	 __array:Array = _heroBitArray[_rotationUint];
 						//__array.push(__array.shift());
