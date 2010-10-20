@@ -18,6 +18,7 @@ package
 	 * ...
 	 * @author 钉崽 [Dinboy.com]
 	 */
+	[SWF(width="800",height="600")]
 	public class Main extends Sprite 
 	{
 		/**
@@ -100,7 +101,10 @@ package
 		 */
 		private const STEPS:uint = 10;
 		
-		
+		/**
+		 * 地图的数据数组
+		 */
+		private var _mpaDataArray:Array;
 		
 		public function Main():void 
 		{
@@ -417,18 +421,12 @@ package
 					_heroBitmap.x += _offsetX;
 					_heroBitmap.y += _offsetY;
 					
-			//	trace(_heroBitmap.x-(_heroBitmap.width>>1)>=_gotoPoint.x &&_heroBitmap.y-(_heroBitmap.height>>1)>=_gotoPoint.y);
 					if (Math.abs(_heroBitmap.x+(_heroBitmap.width>>1)-_gotoPoint.x)<=STEPS && Math.abs(_heroBitmap.y+(_heroBitmap.height>>1)-_gotoPoint.y)<=STEPS) 
 					{
-						//var	 __array:Array = _heroBitArray[_rotationUint];
-						//__array.push(__array.shift());
-						//_heroBitmap.bitmapData = __array[0];
 						_motionUint = 0;
 						_keyCodeString = "0000";
 					}
 					_heroBitmap.bitmapData = __array[_motionUint];
-					//_heroBitmap.x += Math.sin(_offsetX * Math.PI / 180) * _offsetX>>0;
-					//_heroBitmap.y += Math.cos(_offsetY* Math.PI / 180) * _offsetY>>0;
 			
 		}
 		
