@@ -14,6 +14,7 @@ package
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
 	
+	
 	/**
 	 * ...
 	 * @author 钉崽 [Dinboy.com]
