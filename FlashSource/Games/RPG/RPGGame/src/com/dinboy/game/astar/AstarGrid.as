@@ -44,6 +44,7 @@ package com.dinboy.game.astar
 			_numRows = __numRows;
 			
 			_nodesArray = new Array();				//实例初始化 节点数组
+			
 			var	__i:int,__j:int;
 			for (__i = 0; __i < _numCols ; __i++) 
 			{
@@ -73,7 +74,7 @@ package com.dinboy.game.astar
 		 */
 		public	function setStartNode(__x:int,__y:int):void 
 		{
-			_startNode[__x][__y] = _nodesArray[__x][__y] as AstarNode;
+			_startNode = _nodesArray[__x][__y] as AstarNode;
 		}
 		
 		/**
@@ -83,7 +84,7 @@ package com.dinboy.game.astar
 		 */
 		public function setEndNode(__x:int,__y:int):void 
 		{
-			_endNode[__x][__y] = _nodesArray[__x][__y] as AstarNode;
+			_endNode = _nodesArray[__x][__y] as AstarNode;
 		}
 		
 		/**
