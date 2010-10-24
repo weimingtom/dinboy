@@ -12,12 +12,12 @@ package com.dinboy.game.astar.util
 		/**
 		 * 直线代价
 		 */
-		public static var _straightCost:Number = 1.0;
+		public static var straightCost:Number = 1.0;
 		
 		/**
 		 *	对角线代价
 		 */
-		public static var _diagCost:Number = 1.4;
+		public static var diagCost:Number = 1.4;
 		
 		
 		/**
@@ -28,7 +28,7 @@ package com.dinboy.game.astar.util
 		 */
 		public static function manhattan(__startNode:AstarNode,__endNode:AstarNode):Number 
 		{
-			return Math.abs(__startNode.x - __endNode.x) * _straightCost + Math.abs(__startNode.y - __endNode.y) * _straightCost;
+			return Math.abs(__startNode.x - __endNode.x) * straightCost + Math.abs(__startNode.y - __endNode.y) * straightCost;
 		}
 		
 		/**
@@ -42,7 +42,7 @@ package com.dinboy.game.astar.util
 				var __dx:Number = __startNode.x - __endNode.x;
 				var __dy:Number = __startNode.y - __endNode.y;
 				
-				return Math.sqrt(__dx * __dx + __dy * __dy)*_straightCost;
+				return Math.sqrt(__dx * __dx + __dy * __dy)*straightCost;
 		}
 		
 		/**
@@ -63,7 +63,7 @@ package com.dinboy.game.astar.util
 				//直线距离
 				var __straight:Number = __dx + __dy;
 				
-				return _diagCost * __diag + _straightCost * (__straight - 2 * __diag);
+				return diagCost * __diag + straightCost * (__straight - 2 * __diag);
 		}
 		
 	
