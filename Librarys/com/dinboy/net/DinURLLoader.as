@@ -103,7 +103,7 @@ package com.dinboy.net
 			this.$URLRequest.url = this.$url;
 			this.$URLRequest.method = this.$method;		
 			this.$URLRequest.data = null;
-			if ($object!=null) 
+			if ($object!=null && $object!={}) 
 			{
 				this.$URLVariables = new URLVariables();
 				for (var $item:String in  this.$object) 
@@ -168,11 +168,11 @@ package com.dinboy.net
 		 */
 		private function urlloaderIOError(evt:IOErrorEvent):void 
 		{
+			evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.urlloaderIOError);
+			evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.urlloaderSecurityError);
 			if (this.$ignoreError)  {
 				trace("[DinURLLoader] 对不起,您[正常模式]加载的文件["+this.$url+"]不存在,请检查路径是否正确.");
 			}else dispatchEvent(evt);
-			evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.urlloaderIOError);
-			evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.urlloaderSecurityError);
 		}
 		
 		/**
@@ -180,11 +180,11 @@ package com.dinboy.net
 		 */
 		private function urlloaderSecurityError(evt:SecurityErrorEvent):void 
 		{
+			evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.urlloaderIOError);
+			evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.urlloaderSecurityError);
 			if (this.$ignoreError) {
 				trace("[DinURLLoader] 对不起,您以[正常模式]加载的文件["+this.$url+"]受到安全保护,对方禁止让您加载使用!请与管理员联系.");
 				}else dispatchEvent(evt);
-			evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.urlloaderIOError);
-			evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.urlloaderSecurityError);
 		}
 		//↑↑↑↑↑=============================================
 		//↑↑↑↑↑==========##### URLLoader侦听函数 #####===========
@@ -251,9 +251,9 @@ package com.dinboy.net
 		 */
 		private function URlStreamIOErrorHandler(evt:IOErrorEvent):void 
 		{
+			evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.URlStreamIOErrorHandler);
 			if (this.$ignoreError)
 			{
-				evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.URlStreamIOErrorHandler);
 				trace("[DinURLLoader] 对不起,您以[二进制]加载的文件["+this.$url+"]不存在,请检查路径是否正确.");
 			}else this.dispatchEvent(evt);
 		}
@@ -264,6 +264,7 @@ package com.dinboy.net
 		 */
 		private function URLStreamHttpStausHandler(evt:HTTPStatusEvent):void 
 		{
+			evt.currentTarget.removeEventListener(HTTPStatusEvent.HTTP_STATUS, this.URLStreamHttpStausHandler);
 			trace("[DinURLLoader] 加载 ["+this.$url+"] 处于 ["+evt.status+"] 状态.");
 			this.dispatchEvent(evt);
 		}
@@ -274,9 +275,9 @@ package com.dinboy.net
 		 */
 		private function URLStreamSecurityErrorHandler(evt:SecurityErrorEvent):void 
 		{
+			evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.URLStreamSecurityErrorHandler);
 			if (this.$ignoreError) 
 				{
-					evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.URLStreamSecurityErrorHandler);
 					trace("[DinURLLoader] 对不起,您以[二进制]加载的文件 存在 ["+evt.text+"] 错误.");
 				}else this.dispatchEvent(evt);
 		}

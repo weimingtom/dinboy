@@ -10,7 +10,7 @@ package com.dinboy.util
 	 * @copy		钉崽 © 2010
 	 * @version		v1.0 [2010-10-17 11:41]
 	 */
-	public class dinTransfrom
+	public class DinTransfrom
 	{
 		/**
 		 * 显示需要沿某个转换的注册点
@@ -30,14 +30,14 @@ package com.dinboy.util
 		/**
 		 * 静态的本转换对象
 		 */
-		private static var _instance:dinTransfrom=null;
+		private static var _instance:DinTransfrom=null;
 		
 		/**
 		 * 改变对象属性的工具.
 		 */
-		public function dinTransfrom() 
+		public function DinTransfrom() 
 		{
-			trace("[dinTransfrom] 是一个静态类,不需要实例化~");
+			trace("[DinTransfrom] 是一个静态类,不需要实例化~");
 		}
 		
 		/**
@@ -45,7 +45,7 @@ package com.dinboy.util
 		 */
 		public static function init():void 
 		{
-			if (_instance == null)  _instance = new dinTransfrom();
+			if (_instance == null)  _instance = new DinTransfrom();
 		}
 		
 		/**
