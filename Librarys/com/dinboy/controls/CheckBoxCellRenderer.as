@@ -3,6 +3,8 @@ package com.dinboy.controls
 	import fl.controls.CheckBox;
 	import fl.controls.listClasses.ICellRenderer;
 	import fl.controls.listClasses.ListData;
+	import flash.events.Event;
+	import flash.events.MouseEvent;
 
 	/**
 	 * @author		Dinboy
@@ -16,7 +18,8 @@ package com.dinboy.controls
 		
 		public function CheckBoxCellRenderer() 
 		{
-			
+			super();
+			focusEnabled = false;
 		}
 		
 		public function set data(d:Object):void {
@@ -33,6 +36,10 @@ package com.dinboy.controls
             return _listData;
         }
 
+		
+		override protected function toggleSelected(event:MouseEvent):void {
+			selected = !selected;
+		}	
 
 
 
