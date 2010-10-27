@@ -138,8 +138,8 @@ package com.dinboy.net
 		 */
 		private function LoaderAddEvent($loaderinfo:LoaderInfo):void 
 		{
-			if(this.$ignoreError)	$loaderinfo.addEventListener(IOErrorEvent.IO_ERROR, this.loaderIOError, false, int.MAX_VALUE,true);
-			if(this.$ignoreError)	$loaderinfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.loaderSecurityError, false, int.MAX_VALUE,true);
+			$loaderinfo.addEventListener(IOErrorEvent.IO_ERROR, this.loaderIOError, false, int.MAX_VALUE,true);
+			$loaderinfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.loaderSecurityError, false, int.MAX_VALUE,true);
 			$loaderinfo.addEventListener(Event.COMPLETE, this.loaderComplete, false, int.MAX_VALUE, true);
 			$loaderinfo.addEventListener(ProgressEvent.PROGRESS, this.loaderProgress, false, int.MAX_VALUE, true);
 		}
@@ -172,7 +172,7 @@ package com.dinboy.net
 				}
 			}
 			else this.LoaderRemoveEvent(super.contentLoaderInfo);
-			dispatchEvent(evt);
+			this.dispatchEvent(evt);
 		}
 		
 		/**
@@ -194,12 +194,12 @@ package com.dinboy.net
 		 * @param	evt
 		 */
 		private function loaderIOError(evt:IOErrorEvent):void 
-		{
-//			if (this.$ignoreError)  {
+		{				
+			evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.loaderIOError);
+			evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.loaderSecurityError);
+			if (this.$ignoreError)  {
 				trace("[DinLoader] 对不起,您[正常模式]加载的文件[" +this.$url+ "]不存在,请检查路径是否正确.");
-				evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.loaderIOError);
-				evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.loaderSecurityError);
-	//		}else dispatchEvent(evt);
+			}else dispatchEvent(evt);
 			
 		}
 		
@@ -208,11 +208,11 @@ package com.dinboy.net
 		 */
 		private function loaderSecurityError(evt:SecurityErrorEvent):void 
 		{
-	//		if (this.$ignoreError) {
-				trace("[DinLoader] 对不起,您以[正常模式]加载的文件[" +this.$url+ "]受到安全保护,对方禁止让您加载使用!请与管理员联系.");
 				evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.loaderIOError);
 				evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.loaderSecurityError);
-		//	}else dispatchEvent(evt);
+			if (this.$ignoreError) {
+				trace("[DinLoader] 对不起,您以[正常模式]加载的文件[" +this.$url+ "]受到安全保护,对方禁止让您加载使用!请与管理员联系.");
+			}else dispatchEvent(evt);
 		}
 		
 		//===============================================
@@ -226,8 +226,8 @@ package com.dinboy.net
 		{
 			this.$URLStream.addEventListener(Event.COMPLETE, this.URlStreamCompleteHandler, false, 0, true);
 			this.$URLStream.addEventListener(ProgressEvent.PROGRESS, this.URlStreamProgressHandler, false, 0, true);
-			if(this.$ignoreError)	this.$URLStream.addEventListener(IOErrorEvent.IO_ERROR, this.URlStreamIOErrorHandler, false, 0, true);
-			if(this.$ignoreError)	this.$URLStream.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.URlStreamSecurityErrorHandler, false, 0, true);
+			this.$URLStream.addEventListener(IOErrorEvent.IO_ERROR, this.URlStreamIOErrorHandler, false, 0, true);
+			this.$URLStream.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.URlStreamSecurityErrorHandler, false, 0, true);
 		}
 		
 		/**
@@ -271,11 +271,11 @@ package com.dinboy.net
 		 */
 		private function URlStreamIOErrorHandler(evt:IOErrorEvent):void 
 		{
-		//	if (this.$ignoreError) 
-		//	{
-				this.$URLStream.removeEventListener(IOErrorEvent.IO_ERROR, this.URlStreamIOErrorHandler);
+			this.$URLStream.removeEventListener(IOErrorEvent.IO_ERROR, this.URlStreamIOErrorHandler);
+			if (this.$ignoreError) 
+			{
 				trace("[DinLoader] 对不起,您以[渐进式]加载的文件[" +this.$url+ "]不存在,请检查路径是否正确.");
-		//	}else this.dispatchEvent(evt);
+			}else this.dispatchEvent(evt);
 			
 		}
 		
@@ -284,12 +284,12 @@ package com.dinboy.net
 		 * @param	evt
 		 */
 		private function URlStreamSecurityErrorHandler(evt:SecurityErrorEvent):void 
-		{
-		//	if (this.$ignoreError) 
-		//	{
-				this.$URLStream.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.URlStreamSecurityErrorHandler);
+		{				
+			this.$URLStream.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.URlStreamSecurityErrorHandler);
+			if (this.$ignoreError) 
+			{
 				trace("[DinLoader] 对不起,您以[渐进式]加载的文件[" +this.$url+ "]存在安全沙箱问题.");
-		//	}else this.dispatchEvent(evt);
+			}else this.dispatchEvent(evt);
 		}
 		
 		//=============================================
@@ -301,7 +301,7 @@ package com.dinboy.net
 		 * 实时侦听,显示图片
 		 * @param	evt
 		 */
-		private function  onEnterFrame(evt:Event):void 
+		private function  enterFrameHandler(evt:Event):void 
 		{
 			if (! this.$dataChange||! this.$URLStream.connected) return;
 			
@@ -341,7 +341,7 @@ package com.dinboy.net
 
 			// 清除显示数据事件 
 			if (this.hasEventListener(Event.ENTER_FRAME)) {
-				this.removeEventListener(Event.ENTER_FRAME, this.onEnterFrame);
+				this.removeEventListener(Event.ENTER_FRAME, this.enterFrameHandler);
 			}
 //			super.close();
 			this.$ByteArray=null;
@@ -385,7 +385,7 @@ package com.dinboy.net
 			
 			super.unload();
 			
-			this.addEventListener(Event.ENTER_FRAME, this.onEnterFrame, false, 0, true);
+			this.addEventListener(Event.ENTER_FRAME, this.enterFrameHandler, false, 0, true);
 			this.LoaderAddEvent(super.contentLoaderInfo);
 			this.streamAddEvent();
 			try 
