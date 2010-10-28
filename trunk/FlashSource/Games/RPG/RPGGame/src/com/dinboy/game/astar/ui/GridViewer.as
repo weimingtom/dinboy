@@ -130,7 +130,7 @@ package com.dinboy.game.astar.ui
 				__node = __closeArray[i] as AstarNode;
 				graphics.beginFill(0xFFFF00);
 				graphics.drawRect(__node.x * _cellSize, __node.y * _cellSize, _cellSize, _cellSize);
-				graphics.endFill();
+			//	graphics.endFill();
 			}
 			
 			
@@ -142,15 +142,14 @@ package com.dinboy.game.astar.ui
 		 */
 		private function  showPath(__astar:Astar):void 
 		{
-			var __path:Array = __astar.path;
 			
+			var __path:Array = __astar.path;
 			var i:int;
 			for (i = 0; i < __path.length; i++) 
 			{
 				graphics.lineStyle(0);
 				graphics.beginFill(0);
-				graphics.drawCircle(__path[i].x * _cellSize-_cellSize >> 1, __path[i].y - _cellSize >> 1, _cellSize / 3);
-				
+				graphics.drawCircle(__path[i].x*_cellSize +(_cellSize >> 1), __path[i].y*_cellSize +( _cellSize >> 1), _cellSize / 3);
 			}
 			graphics.endFill();
 		}

@@ -136,7 +136,7 @@ package com.dinboy.game.astar
 						var __testNode:AstarNode = _mapGrid.getNode(i, j);
 						
 						//如果被检测的节点是当前节点或者不能穿越,则跳过并继续
-						if (__testNode == __node || !__testNode.walkable) continue;
+						if (__testNode == __node || !__testNode.walkable || !_mapGrid.getNode(__node.x, __testNode.y).walkable || !_mapGrid.getNode(__testNode.x, __node.y)) continue;
 						
 						//节点的对应代价
 						var __cost:Number = _straightCost;
