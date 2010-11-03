@@ -14,7 +14,7 @@ package com.dinboy.ui
 	 */
 	public class Loading extends Sprite
 	{		
-		[Embed(source="../../../../lib/04B_08__.TTF", fontName="FONT04B_08", unicodeRange="U+0020-U+002F,U+0030-U+0039,U+003A-U+0040,U+0041-U+005A,U+005B-U+0060,U+0061-U+007A,U+007B-U+007E")]
+		[Embed(source="../../../lib/04B_08__.TTF", fontName="FONT04B_08", unicodeRange="U+0020-U+002F,U+0030-U+0039,U+003A-U+0040,U+0041-U+005A,U+005B-U+0060,U+0061-U+007A,U+007B-U+007E")]
 		public static var FONT04B_08:Class; 
 		
 		/**
