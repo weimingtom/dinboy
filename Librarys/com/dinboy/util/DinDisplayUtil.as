@@ -177,55 +177,12 @@
 	 */
 	public static function  directRatio($displayObject:DisplayObject,$width:Number,$height:Number):void 
 	{
-		//	var $obj:Object = $Object;
-			
 			var $Dwidth:Number = $displayObject.width;
-			
 			var $Dheight:Number = $displayObject.height;
-			
 			var $ratio:Number = Math.max($Dwidth / $width, $Dheight / $height, 1);
 			
 			$displayObject.width = $Dwidth / $ratio;
 			$displayObject.height = $Dheight / $ratio;
-			
-			//function AVProporcao(t:DisplayObject, w:Number, h:Number):Object {
-			//var l:Number = t.width;
-			//var a:Number = t.height;
-			//var r:Number = Math.max(l / w, a / h);
-			//return { width:l / r, height:a / r };
-		//}
-			//
-			
-			/*
-		if ($obj) 
-			{
-				var $scaled:Number=1;
-				if ($obj["width"]) 
-				{
-					$scaled =  $obj["width"]/$displayObject.width;
-					$displayObject.width = $obj["width"];
-					$displayObject.height *= $scaled;
-				}
-				if ($obj["height"]) 
-					{
-					$scaled = $obj["height"]/$displayObject.height ;
-					$displayObject.height = $obj["height"];
-					$displayObject.width *= $scaled;
-					}
-				if ($obj["maxWidth"]<$displayObject.width) 
-				{
-					$scaled = $obj["maxWidth"] / $displayObject.width ;
-					$displayObject.width = $obj["maxWidth"];
-					$displayObject.height *= $scaled;
-				}
-				if ($obj["maxHeight"]<$displayObject.width) 
-				{
-					$scaled = $obj["maxHeight"] / $displayObject.height ;
-					$displayObject.height = $obj["maxHeight"];
-					$displayObject.width *= $scaled;
-				}
-			}
-		*/
 	}
 	
 	/**
@@ -245,34 +202,35 @@
 			   $duplicate.graphics.beginBitmapFill($BitmapData);
 			   $duplicate.graphics.drawRect(0, 0,$width, $height);
 			   $duplicate.graphics.endFill();
-		if ($obj) 
-			{
-				var $scaled:Number=1;
-				if ($obj["width"]) 
-				{
-					$scaled =  $obj["width"]/$duplicate.width;
-					$duplicate.width = $obj["width"];
-					$duplicate.height *= $scaled;
-				}
-				if ($obj["height"]) 
-					{
-					$scaled = $obj["height"]/$duplicate.height ;
-					$duplicate.height = $obj["height"];
-					$duplicate.width *= $scaled;
-					}
-				if ($obj["maxWidth"]<$duplicate.width) 
-				{
-					$scaled = $obj["maxWidth"] / $duplicate.width ;
-					$duplicate.width = $obj["maxWidth"];
-					$duplicate.height *= $scaled;
-				}
-				if ($obj["maxHeight"]<$duplicate.width) 
-				{
-					$scaled = $obj["maxHeight"] / $duplicate.height ;
-					$duplicate.height = $obj["maxHeight"];
-					$duplicate.width *= $scaled;
-				}
-			}
+			   directRatio($displayObject, $obj["wisth"], $obj["height"]);
+		//if ($obj) 
+			//{
+				//var $scaled:Number=1;
+				//if ($obj["width"]) 
+				//{
+					//$scaled =  $obj["width"]/$duplicate.width;
+					//$duplicate.width = $obj["width"];
+					//$duplicate.height *= $scaled;
+				//}
+				//if ($obj["height"]) 
+					//{
+					//$scaled = $obj["height"]/$duplicate.height ;
+					//$duplicate.height = $obj["height"];
+					//$duplicate.width *= $scaled;
+					//}
+				//if ($obj["maxWidth"]<$duplicate.width) 
+				//{
+					//$scaled = $obj["maxWidth"] / $duplicate.width ;
+					//$duplicate.width = $obj["maxWidth"];
+					//$duplicate.height *= $scaled;
+				//}
+				//if ($obj["maxHeight"]<$duplicate.width) 
+				//{
+					//$scaled = $obj["maxHeight"] / $duplicate.height ;
+					//$duplicate.height = $obj["maxHeight"];
+					//$duplicate.width *= $scaled;
+				//}
+			//}
 
 			return $duplicate;
 	}

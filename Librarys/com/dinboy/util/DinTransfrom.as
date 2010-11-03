@@ -118,6 +118,42 @@ package com.dinboy.util
 				}
 			}
 		}
+		
+		/**
+		 * 缩放显示对象,并不超过原始尺寸
+		 * @param	__Object		需要缩放的显示对象
+		 * @param	__width		缩放的宽最大值
+		 * @param	__height		缩放的高最大值
+		 * @return 缩放完成后的显示对象
+		 */
+		public static function ratioUnbeyondMatch(__Object:Object,__width:Number,__height:Number):* 
+		{
+			if (!__Object || !__width || !__height)	return;
+			var __Dwidth:Number = __Object.width;
+			var __Dheight:Number = __Object.height;
+			var __ratio:Number = Math.max(__Dwidth / __width, __Dheight / __Dheight, 1);
+			__Object.width = __Dwidth / __ratio;
+			__Object.height = __Dheight / __ratio;
+			return __Object;
+		}
+		
+		/**
+		 * 显示对象缩放绝对匹配参数,可超越原始尺寸
+		 * @param	__Object				需要缩放的显示对象
+		 * @param	__width				缩放的宽度
+		 * @param	__height				缩放的高度
+		 * @return 缩放完成后的显示对象
+		 */
+		public static function ratioBeyondMatch(__Object:Object,__width:Number,__height:Number):* 
+		{
+			if (!__Object || !__width || !__height)	return;
+			var __Dwidth:Number = __Object.width;
+			var __Dheight:Number = __Object.height;
+			var __ratio:Number = Math.max(__Dwidth / __width, __Dheight / __Dheight);
+			__Object.width = __Dwidth / __ratio;
+			__Object.height = __Dheight / __ratio;
+			return __Object;
+		}
 
 
 
