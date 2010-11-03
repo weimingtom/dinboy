@@ -27,7 +27,7 @@ package com.dinboy.external
 		{
 			if (ExternalInterface.available)
 			{
-				ExternalInterface.call(functionName, rest);
+				return ExternalInterface.call(functionName, rest);
 			}
 		}
 		
@@ -52,7 +52,7 @@ package com.dinboy.external
 		{
 			if (ExternalInterface.available)
 			{
-				ExternalInterface.call("alert", message);
+				return ExternalInterface.call("alert", message);
 			}
 		}
 
