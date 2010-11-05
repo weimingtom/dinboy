@@ -84,7 +84,7 @@ package com.dinboy.ui
 			addChild(_loadingScroller);
 			
 			_englishTextFormat = new TextFormat("FONT04B_08");
-			_englishTextFormat.color = 0xD9D9D9;
+			_englishTextFormat.color = 0x333333;
 			_englishTextFormat.size = 8;
 			
 			 _logoAuthorTextField = new TextField();
@@ -97,7 +97,7 @@ package com.dinboy.ui
 			 _logoAuthorTextField.htmlText = "Loading By <a href=\"http://www.dinboy.com\">dinboy</a>";
 			 addChild(_logoAuthorTextField);
 			 
-			 _englishTextFormat.color = 0x000000;
+			 _englishTextFormat.color = 0xFFFFFF;
 			 _percentTextField = new TextField();
 			 _percentTextField.defaultTextFormat = _englishTextFormat;
 			 _percentTextField.selectable = false;
