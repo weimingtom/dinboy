@@ -1,4 +1,4 @@
-package com.dinboy.display 
+package com.dinboy.controls 
 {
 	import com.dinboy.net.DinLoader;
 	import com.dinboy.util.DinDisplayUtil;
