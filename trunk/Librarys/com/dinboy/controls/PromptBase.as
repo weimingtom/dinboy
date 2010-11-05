@@ -1,4 +1,4 @@
-package com.dinboy.ui 
+package com.dinboy.controls
 {
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;

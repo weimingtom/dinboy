@@ -1,4 +1,4 @@
-package com.dinboy.ui 
+package com.dinboy.controls
 {
 	import flash.display.Shape;
 	import flash.display.Sprite;

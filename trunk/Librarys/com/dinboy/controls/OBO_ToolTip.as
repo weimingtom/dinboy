@@ -3,7 +3,7 @@
 * @author Devon O. Wolfgang
 */
 
-package com.dinboy.display
+package com.dinboy.controls
 {
 
     import flash.display.DisplayObjectContainer;

@@ -1,4 +1,4 @@
-package com.dinboy.display 
+package com.dinboy.controls 
 {
 	import flash.display.*;
 	import flash.events.*;
