@@ -1,4 +1,4 @@
-package com.dinboy.controls 
+package com.dinboy.ui 
 {
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Sprite;
