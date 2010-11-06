@@ -92,9 +92,8 @@ package com.dinboy.ui
 			 _logoAuthorTextField.selectable = false;
 			 _logoAuthorTextField.embedFonts = true;
 			 _logoAuthorTextField.autoSize = TextFieldAutoSize.RIGHT;
-			 _logoAuthorTextField.x = 190;
+			 _logoAuthorTextField.x = width>>1;
 			 _logoAuthorTextField.y = 36;
-			 _logoAuthorTextField.htmlText = "Loading By <a href=\"http://www.dinboy.com\">dinboy</a>";
 			 addChild(_logoAuthorTextField);
 			 
 			 _englishTextFormat.color = 0xFFFFFF;
@@ -109,6 +108,7 @@ package com.dinboy.ui
 			 addChild(_percentTextField);
 		}
 		
+		[Inspectable(type="percent",defaultValue="0")]
 		/**
 		 * 设置百分比
 		 */
@@ -116,6 +116,15 @@ package com.dinboy.ui
 		{
 			_loadingScroller.width = value * _percentageWidth;
 			_percentTextField.text = value + "%";
+		}
+		
+		[Inspectable(type="annotate",defaultValue="Loading By <a href=\"http://www.dinboy.com\">dinboy</a>")]
+		/**
+		 * 设置注释
+		 */
+		public function set annotate(value:String):void 
+		{
+			_logoAuthorTextField.htmlText = value;
 		}
 
 		
