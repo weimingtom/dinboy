@@ -20,6 +20,17 @@ package com.dinboy.controls
 		 * 关闭按钮
 		 */
 		protected var _close:Sprite;
+		
+		/**
+		 * 文本容器高度
+		 */
+		protected var _containerHeight:Number;
+		
+		/**
+		 * 文本信息宽度
+		 */
+		private var _containerWidth:Number;
+		
 		public function PromptBase() 
 		{
 			super();
@@ -55,6 +66,9 @@ package com.dinboy.controls
 			_close.graphics.endFill();
 			addChild(_close);
 			_close.buttonMode = true;
+			
+			_close.addEventListener(MouseEvent.CLICK, closeHandler, false, 0, true);
+			_close.addEventListener(MouseEvent.MOUSE_OVER, closeOverHandler, false, 0, true);
 		}
 
 		/**
@@ -65,9 +79,14 @@ package com.dinboy.controls
 		{
 			super.setMessage(__message, rest);
 			_titleTxt.text = rest[0];
-			_close.addEventListener(MouseEvent.CLICK, closeHandler, false, 0, true);
-			_close.addEventListener(MouseEvent.MOUSE_OVER, closeOverHandler, false, 0, true);
 			
+			_containerWidth = (_messageTxt.width > 180?180:100) + 20;
+			if (_containerWidth>=200) 
+			{
+				_messageTxt.wordWrap = true;
+				_messageTxt.width = 180;
+			}
+			_containerHeight = _messageTxt.height + 20;
 			
 			draw();
 		}
@@ -109,23 +128,18 @@ package com.dinboy.controls
 		 */
 		protected function  draw():void 
 		{
-			var __msgW:Number = _messageTxt.width > 180?180:100;
-			if (__msgW>=180) 
-			{
-				_messageTxt.wordWrap = true;
-				_messageTxt.width = 180;
-			}
+
 			graphics.clear();
 			graphics.beginFill(0x50B9F1);
-			graphics.drawRect(0, 0, __msgW + 20, 20);
+			graphics.drawRect(0, 0, _containerWidth, 20);
 			graphics.beginFill(0xE1F3FD);
-			graphics.drawRect(0, 20, __msgW + 20, _messageTxt.height + 20);
+			graphics.drawRect(0, 20, _containerWidth, _containerHeight );
 			graphics.endFill();
 			
 			_messageTxt.x = 10;
 			_messageTxt.y = 34;
 			
-			_close.x = __msgW -_close.width +17;
+			_close.x = _containerWidth -_close.width-3;
 			_close.y = 3;
 			
 			x = _stage.stageWidth - width >> 1;

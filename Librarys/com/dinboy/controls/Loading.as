@@ -2,6 +2,7 @@ package com.dinboy.controls
 {
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
+	import flash.text.AntiAliasType;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
@@ -33,24 +34,14 @@ package com.dinboy.controls
 		public static var FONT04B_08:Class; 
 		
 		/**
-		 * 注释文本
-		 */
-		private var _annotateTextFormat:TextFormat;
-		
-		/**
-		 * 进度文本
-		 */
-		private var _progressTextFormat:TextFormat;
-		
-		/**
 		 * 用户文本
 		 */
-		private var _logoAuthorTextField:TextField;
+		public var annotateTextField:TextField;
 		
 		/**
 		 * 百分比
 		 */
-		private var _percentTextField:TextField;
+		public var percentTextField:TextField;
 		
 		/**
 		 * 滚动条
@@ -91,7 +82,7 @@ package com.dinboy.controls
 		{
 			super();
 			height = 50;
-	//		initUI();
+	//	initUI();
 		}
 
 		/**
@@ -101,8 +92,10 @@ package com.dinboy.controls
 										background:"loading_Background",
 										progressBar:"loading_Progress",
 										underProgressBar:"loading_underProgress",
-										progressTextFormat:new TextFormat("FONT04B_08",8,0xFFFFFF),
-										annotateTextFormat:new TextFormat("FONT04B_08",8,0x333333)
+										progressTextFormat:null,
+										annotateTextFormat:null,
+										defaultProgressTextFormat:new TextFormat("FONT04B_08", 8, 0xFFFFFF),
+										defaultAnnotateTextFormat:new TextFormat("FONT04B_08", 8, 0x333333)
 		}
 		
 		/**
@@ -114,29 +107,29 @@ package com.dinboy.controls
 	//		progressBar.width = 0;
 
 			
-			 _logoAuthorTextField = new TextField();
-			 _logoAuthorTextField.selectable = false;
-			 _logoAuthorTextField.embedFonts = true;
-			 _logoAuthorTextField.autoSize = TextFieldAutoSize.LEFT;
+			 annotateTextField = new TextField();
+			 annotateTextField.selectable = false;
+		//annotateTextField.antiAliasType = AntiAliasType.ADVANCED;
+			 annotateTextField.autoSize = TextFieldAutoSize.LEFT;
 			 
 			 
-			 _percentTextField = new TextField();
-			 _percentTextField.selectable = false;
-			 _percentTextField.embedFonts = true;
-			 _percentTextField.autoSize = TextFieldAutoSize.LEFT;
-			 //_percentTextField.text = "0%";
+			 percentTextField = new TextField();
+			 percentTextField.selectable = false;
+		//percentTextField.antiAliasType = AntiAliasType.ADVANCED;
+			 percentTextField.autoSize = TextFieldAutoSize.LEFT;
+			 //percentTextField.text = "0%";
 			 
 			background = getDisplayObjectInstance(getStyleValue("background"));
 			underProgressBar =	getDisplayObjectInstance(getStyleValue("underProgressBar"));
 			progressBar = getDisplayObjectInstance(getStyleValue("progressBar"));
-			_annotateTextFormat = getStyleValue("annotateTextFormat")  as TextFormat;
-			_progressTextFormat = getStyleValue("progressTextFormat") as TextFormat;
+
+			
 			 //
 			 //addChild(background);
 			 //addChild(underProgressBar);
 			 //addChild(progressBar);
-			 addChild(_logoAuthorTextField);
-			 addChild(_percentTextField);
+			 addChild(annotateTextField);
+			 addChild(percentTextField);
 			 
 			 super.configUI();
 			}
@@ -176,9 +169,8 @@ package com.dinboy.controls
 		 */
 		protected function drawState():void 
 		{
-			trace("drawState");
-			_percentTextField.text = "0%";
-			_logoAuthorTextField.htmlText = "Loading By <a href=\"http://www.dinboy.com\">dinboy</a>";
+			percentTextField.text = "0%";
+			annotateTextField.htmlText = "Loading By <a href=\"http://www.dinboy.com\">dinboy</a>";
 			//_progressBarWidth = underProgressBar.width;
 			//_percentageWidth = _progressBarWidth / 100;
 			//progressBar.width = _percent * _percentageWidth;
@@ -190,9 +182,8 @@ package com.dinboy.controls
 		 */
 		protected function drawContent():void 
 		{
-			trace("drawContent");
-			_percentTextField.text = _percent + "%";
-			_logoAuthorTextField.htmlText = _annotate;
+			percentTextField.text = _percent + "%";
+			annotateTextField.htmlText = _annotate;
 		}
 		
 		/**
@@ -200,7 +191,6 @@ package com.dinboy.controls
 		 */
 		protected function drawLayout():void 
 		{
-			trace("drawLayout");
 			height = 50;
 			scaleY = 1;
 			
@@ -213,10 +203,10 @@ package com.dinboy.controls
             _progressBarWidth=underProgressBar.width = width - 40;
 			_percentageWidth = _progressBarWidth / 100;
 			progressBar.width = _percent * _percentageWidth;
-			 _logoAuthorTextField.x = width-_logoAuthorTextField.width>>1;
-			 _logoAuthorTextField.y = 36;
-			 _percentTextField.x = width-_percentTextField.width>>1;
-			 _percentTextField.y = 22;
+			 annotateTextField.x = width-annotateTextField.width>>1;
+			 annotateTextField.y = 36;
+			 percentTextField.x = width-percentTextField.width>>1;
+			 percentTextField.y = 22;
 		}
 		
 		/**
@@ -224,7 +214,6 @@ package com.dinboy.controls
 		 */
 		private function drawStyles():void 
 		{
-			trace("drawStyles");
 			var bg:DisplayObject = background;
 			background = getDisplayObjectInstance(getStyleValue("background"));
 			if (background == null) { return; }
@@ -232,7 +221,6 @@ package com.dinboy.controls
 			if (bg != null && bg != background && contains(bg)) { 
 				removeChild(bg); 
 			}
-			
 			var upb:DisplayObject = underProgressBar;
 			underProgressBar = getDisplayObjectInstance(getStyleValue("underProgressBar"));
 			if (underProgressBar == null) { return; }
@@ -240,7 +228,6 @@ package com.dinboy.controls
 			if (upb != null && upb != underProgressBar && contains(upb)) { 
 				removeChild(upb); 
 			}
-			
 			var pb:DisplayObject = progressBar;
 			progressBar = getDisplayObjectInstance(getStyleValue("progressBar"));
 			if (progressBar == null) { return; }
@@ -252,21 +239,33 @@ package com.dinboy.controls
 	//	background = getDisplayObjectInstance(getStyleValue("background"));
 	//	underProgressBar =	getDisplayObjectInstance(getStyleValue("underProgressBar"));
 	//	progressBar = getDisplayObjectInstance(getStyleValue("progressBar"));
-	
-			_annotateTextFormat = getStyleValue("annotateTextFormat")  as TextFormat;
-			_progressTextFormat = getStyleValue("progressTextFormat") as TextFormat;
 			
-			if (_annotateTextFormat!=null) 
-			{
-				_logoAuthorTextField.setTextFormat(_annotateTextFormat);
+ 			var  uiStyles:Object = Loading.getStyleDefinition() ;
+			var defaultATF:TextFormat = uiStyles.defaultAnnotateTextFormat as TextFormat;
+			var defaultPTF:TextFormat = uiStyles.defaultProgressTextFormat as TextFormat;
+			 annotateTextField.setTextFormat(defaultATF);
+			 percentTextField.setTextFormat(defaultPTF);
+			var aTF:TextFormat= getStyleValue("annotateTextFormat")  as TextFormat;
+			var pTF:TextFormat= getStyleValue("progressTextFormat") as TextFormat;
+			if (aTF != null) { 
+				annotateTextField.setTextFormat(aTF); 
+				annotateTextField.embedFonts = false;
 			}
-			if (_percentTextField!=null) 
-			{
-				_percentTextField.setTextFormat(_progressTextFormat);
+			else {
+				aTF = defaultATF;	
+				annotateTextField.embedFonts = true;
 			}
 			
-			_logoAuthorTextField.defaultTextFormat = _annotateTextFormat;
-			_percentTextField.defaultTextFormat = _progressTextFormat;
+			if (pTF != null) {
+				percentTextField.setTextFormat(pTF); 
+				percentTextField.embedFonts = false;
+				}
+			else {
+				pTF=defaultPTF; 
+				percentTextField.embedFonts = true;
+				}
+			annotateTextField.defaultTextFormat = aTF;
+			percentTextField.defaultTextFormat = pTF;
 		}
 
 		
@@ -303,6 +302,7 @@ package com.dinboy.controls
 			invalidate(InvalidationType.STYLES);
 			invalidate(InvalidationType.SIZE);
 		}
+
 
 		
 
