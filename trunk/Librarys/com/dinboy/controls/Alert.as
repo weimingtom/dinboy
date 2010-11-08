@@ -18,9 +18,18 @@ package com.dinboy.controls
 		 */
 		private static var _instance:Alert = null;
 		
+		/**
+		 * 确定按钮
+		 */
+		private var _OKButton:PromptButton;
+		
 		public function Alert() 
 		{
 			super();
+			_OKButton = new PromptButton();
+			_OKButton.label = "确认确认确认";
+			addChild(_OKButton);
+			_OKButton.width = 40;
 		}
 		
 		
@@ -34,6 +43,17 @@ package com.dinboy.controls
 		override protected function initUI():void 
 		{
 			super.initUI();
+		}
+		
+		/**
+		 * [重写 override] 绘制背景及摆放位置
+		 */
+		override protected function  draw():void 
+		{
+			_containerHeight += 20;
+			super.draw();
+			_OKButton.x = width -_OKButton.width >> 1;
+			_OKButton.y = height - _OKButton.height - 4;
 		}
 		
 		
@@ -57,7 +77,7 @@ package com.dinboy.controls
 		 */
 		public static function message(__message:String,__title:String="提示"):void 
 		{
-			_instance.setMessage(__message,__title);
+			_instance.setMessage(__message, __title);
 			_instance._stage.addChild(_instance);
 		}
 		

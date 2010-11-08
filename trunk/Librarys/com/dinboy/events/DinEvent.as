@@ -1,4 +1,4 @@
-package com.dinboy.event 
+package com.dinboy.events 
 {
 	import flash.events.Event;
 	
