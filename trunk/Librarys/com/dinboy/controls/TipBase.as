@@ -33,8 +33,14 @@ package com.dinboy.controls
 		 * 是否已经遮罩着
 		 */
 		protected var _masked:Boolean;
+		
+		/**
+		 * 阴影滤镜
+		 */
+		protected var _dropShadowFilter:DropShadowFilter;
 		public function TipBase() 
 		{
+			super();
 			//初始化UI
 			initUI();
 		}
@@ -49,8 +55,7 @@ package com.dinboy.controls
 		{
 			_messageTxt = new TextField();
 			
-			var __filter:DropShadowFilter = new DropShadowFilter(2, 45, 0, 0.5, 6, 6, 1, 3);
-			filters = [__filter];
+			_dropShadowFilter = new DropShadowFilter(2, 45, 0, 0.5, 6, 6, 1, 3);
 		}
 		
 		/**
@@ -69,6 +74,7 @@ package com.dinboy.controls
 		 */
 		protected function dispo():void 
 		{
+			filters = [];
 			parent.removeChild(this);
 			dispoMasker();
 		}

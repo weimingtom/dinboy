@@ -1,5 +1,6 @@
 package com.dinboy.controls 
 {
+	import com.dinboy.events.PromptEvent;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Sprite;
 	import flash.display.Stage;
@@ -24,12 +25,8 @@ package com.dinboy.controls
 		private var _OKButton:PromptButton;
 		
 		public function Alert() 
-		{
-			super();
-			_OKButton = new PromptButton();
-			_OKButton.label = "确认确认确认";
-			addChild(_OKButton);
-			_OKButton.width = 40;
+		{			
+			super();		
 		}
 		
 		
@@ -43,6 +40,23 @@ package com.dinboy.controls
 		override protected function initUI():void 
 		{
 			super.initUI();
+			_OKButton = new PromptButton();
+			_OKButton.label = "确认";
+			addChild(_OKButton);
+			_OKButton.width = 60;
+			_OKButton.buttonMode = true;
+			_OKButton.tabEnabled = false;
+			_OKButton.addEventListener(MouseEvent.CLICK, okbuttnClickHandler, false, 0, true);
+		}
+		
+		/**
+		 * 确定按钮点击时
+		 * @param	event
+		 */
+		private function okbuttnClickHandler(event:MouseEvent):void 
+		{
+			event.stopPropagation();
+			dispo();
 		}
 		
 		/**
@@ -75,10 +89,11 @@ package com.dinboy.controls
 		 * @param	__message
 		 * @param	..rest
 		 */
-		public static function message(__message:String,__title:String="提示"):void 
+		public static function message(__message:String,__title:String="提示"):Alert 
 		{
 			_instance.setMessage(__message, __title);
 			_instance._stage.addChild(_instance);
+			return _instance;
 		}
 		
 

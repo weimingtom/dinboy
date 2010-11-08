@@ -2,6 +2,7 @@ package
 {
 	import com.dinboy.controls.Alert;
 	import com.dinboy.controls.PromptButton;
+	import com.dinboy.events.PromptEvent;
 	import flash.display.Sprite;
 	
 
@@ -12,14 +13,36 @@ package
 	 */
 	public class AlertTest extends Sprite
 	{
+		private var _alert:Alert;
 		
+		private var _alert2:Alert;
 		public function AlertTest() 
 		{
 			Alert.init(this);
-			Alert.message("我是神,不是人,更不是东西!真的.我是神,不是人,更不是东西!真的.我是神,不是人,更不是东西!真的.我是神,不是人,更不是东西!真的.我是神,不是人,更不是东西!真的.我是神,不是人,更不是东西!真的.我是神,不是人,更不是东西!真的.我是神,不是人,更不是东西!真的.我是神,不是人,更不是东西!真的.我是神,不是人,更不是东西!真的.");
-			var bb:PromptButton = new PromptButton();
-			addChild(bb);
-			bb.label = "a";
+			_alert = Alert.message("钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽");
+			_alert.addEventListener(PromptEvent.PROMPT_ClOSE, promptCloseHandler, false, 0, true);
+			_alert.dragEnabled = true;
+			
+			//var bb:PromptButton = new PromptButton();
+		//	addChild(bb);
+		//	bb.label = "a";
+		}
+		
+		private function promptCloseHandler(e:PromptEvent):void 
+		{
+			
+			_alert.removeEventListener(PromptEvent.PROMPT_ClOSE, promptCloseHandler);
+			_alert2 = Alert.message("钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽");
+			_alert2.addEventListener(PromptEvent.PROMPT_ClOSE, promptCloseHandler2, false, 0, true);
+			_alert2.dragEnabled = true;
+		}
+		
+		private function promptCloseHandler2(e:PromptEvent):void 
+		{
+			_alert2.removeEventListener(PromptEvent.PROMPT_ClOSE, promptCloseHandler2);
+			_alert = Alert.message("钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽");
+			_alert.addEventListener(PromptEvent.PROMPT_ClOSE, promptCloseHandler, false, 0, true);
+			_alert.dragEnabled = true;
 		}
 
 
