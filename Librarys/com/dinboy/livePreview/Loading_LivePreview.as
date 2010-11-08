@@ -1,8 +1,7 @@
 package com.dinboy.controls.livePreview
 {
 	import flash.display.DisplayObject;
-	import flash.display.Sprite;
-	import flash.geom.Matrix;
+	import flash.text.AntiAliasType;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
@@ -21,6 +20,8 @@ package com.dinboy.controls.livePreview
 	
 	[Style(name = "annotateTextFormat", type = "flash.text.TextFormat")]
 	
+	[Style(name = "defaultTextFormat", type = "flash.text.TextFormat")]
+	
 
 	/**
 	 * @author		钉崽[dinboy]
@@ -29,28 +30,18 @@ package com.dinboy.controls.livePreview
 	 */
 	public class Loading_LivePreview extends UIComponent 
 	{		
-		[Embed(source="../../../../lib/04B_08__.TTF", fontName="FONT04B_08", unicodeRange="U+0020-U+002F,U+0030-U+0039,U+003A-U+0040,U+0041-U+005A,U+005B-U+0060,U+0061-U+007A,U+007B-U+007E")]
+		[Embed(source="../../../../lib/04B_08__.TTF", fontName="FONT04B_08", unicodeRange="U+0020-U+002F,U+0030-U+0039,U+003A-U+0040,U+0041-U+005A,U+005B-U+0060,U+0061-U+007A,U+007B-U+007E",mimeType = "application/x-font")]
 		public static var FONT04B_08:Class; 
-		
-		/**
-		 * 注释文本
-		 */
-		private var _annotateTextFormat:TextFormat;
-		
-		/**
-		 * 进度文本
-		 */
-		private var _progressTextFormat:TextFormat;
 		
 		/**
 		 * 用户文本
 		 */
-		private var _logoAuthorTextField:TextField;
+		private var annotateTextField:TextField;
 		
 		/**
 		 * 百分比
 		 */
-		private var _percentTextField:TextField;
+		private var percentTextField:TextField;
 		
 		/**
 		 * 滚动条
@@ -101,8 +92,10 @@ package com.dinboy.controls.livePreview
 										background:"loading_Background",
 										progressBar:"loading_Progress",
 										underProgressBar:"loading_underProgress",
-										progressTextFormat:new TextFormat("FONT04B_08",8,0xFFFFFF),
-										annotateTextFormat:new TextFormat("FONT04B_08",8,0x333333)
+										progressTextFormat:null,
+										annotateTextFormat:null,
+										defaultProgressTextFormat:new TextFormat("FONT04B_08", 8, 0xFFFFFF),
+										defaultAnnotateTextFormat:new TextFormat("FONT04B_08", 8, 0x333333)
 		}
 		
 		/**
@@ -110,36 +103,32 @@ package com.dinboy.controls.livePreview
 		 */
 		override protected function configUI():void {
 			
-			 _logoAuthorTextField = new TextField();
-			 _logoAuthorTextField.selectable = false;
-			 _logoAuthorTextField.embedFonts = true;
-			 _logoAuthorTextField.autoSize = TextFieldAutoSize.LEFT;
+			
+			 annotateTextField = new TextField();
+			 annotateTextField.selectable = false;
+		//annotateTextField.antiAliasType = AntiAliasType.ADVANCED;
+			annotateTextField.autoSize = TextFieldAutoSize.LEFT;
 			 
 			 
-			 _percentTextField = new TextField();
-			 _percentTextField.selectable = false;
-			 _percentTextField.embedFonts = true;
-			_percentTextField.autoSize = TextFieldAutoSize.LEFT;
+			 percentTextField = new TextField();
+			 percentTextField.selectable = false;
+		//percentTextField.antiAliasType = AntiAliasType.ADVANCED;
+			percentTextField.autoSize = TextFieldAutoSize.LEFT;
 			
 			 
 			background = getDisplayObjectInstance(getStyleValue("background"));
 			underProgressBar =	getDisplayObjectInstance(getStyleValue("underProgressBar"));
 			progressBar = getDisplayObjectInstance(getStyleValue("progressBar"));
-			_annotateTextFormat = getStyleValue("annotateTextFormat")  as TextFormat;
-			_progressTextFormat = getStyleValue("progressTextFormat") as TextFormat;
+			
+
 			
 			//progressBar.width = 0;
 			
 			addChild(background);
 			 addChild(underProgressBar);
 			 addChild(progressBar);
-			 addChild(_logoAuthorTextField);
-			 addChild(_percentTextField);
-			 
-			//_logoAuthorTextField.setTextFormat(_annotateTextFormat);
-			 //_percentTextField.setTextFormat( _progressTextFormat);
-			 //_logoAuthorTextField.defaultTextFormat = _annotateTextFormat;
-			 //_percentTextField.defaultTextFormat = _progressTextFormat;
+			 addChild(annotateTextField);
+			 addChild(percentTextField);
 			 
 			 super.configUI();
 			}
@@ -150,19 +139,23 @@ package com.dinboy.controls.livePreview
 		override protected function draw():void {
 			if (isInvalid(InvalidationType.STATE)) {
 					drawState();
-					//invalidate(InvalidationType.STYLES);
-					//invalidate(InvalidationType.DATA);
 				}
 				
 			if (isInvalid(InvalidationType.STYLES,InvalidationType.STATE)) {
 				//绘制背景
 				drawStyles();
-			}
-				
+			}				
+			
+			 //数据改变时
+			//if (isInvalid(InvalidationType.DATA) )
+			//{
+				//drawContent();
+			//}		
+			
 			if (isInvalid(InvalidationType.SIZE,InvalidationType.DATA)) {
 				//重新排列
 				drawLayout();
-			}
+			}				
 			
 			super.draw();
 			}
@@ -171,8 +164,8 @@ package com.dinboy.controls.livePreview
 		 * 绘制状态
 		 */
 		protected function drawState():void {
-			_percentTextField.text = "100	%";
-			_logoAuthorTextField.htmlText = "Loading By <a href=\"http://www.dinboy.com\">dinboy</a>";
+			percentTextField.text = "100	%";
+			annotateTextField.htmlText = "Loading By <a href=\"http://www.dinboy.com\">dinboy</a>";
 		}			
 		
 		
@@ -184,18 +177,37 @@ package com.dinboy.controls.livePreview
 			//background = getDisplayObjectInstance(getStyleValue("background"));
 			//underProgressBar =	getDisplayObjectInstance(getStyleValue("underProgressBar"));
 			//progressBar = getDisplayObjectInstance(getStyleValue("progressBar"));
-			//_annotateTextFormat = getStyleValue("annotateTextFormat")  as TextFormat;
-			//_progressTextFormat = getStyleValue("progressTextFormat") as TextFormat;
 			//
 
-			//_logoAuthorTextField.setTextFormat(_annotateTextFormat);
-			 //_percentTextField.setTextFormat( _progressTextFormat);
+			//annotateTextField.setTextFormat(_annotateTextFormat);
+			 //percentTextField.setTextFormat( _progressTextFormat);
 			 
-			 _logoAuthorTextField.defaultTextFormat = _annotateTextFormat;
-			 _percentTextField.defaultTextFormat = _progressTextFormat;
+ 			var  uiStyles:Object = Loading_LivePreview.getStyleDefinition() ;
+			var defaultATF:TextFormat = uiStyles.defaultAnnotateTextFormat as TextFormat;
+			var defaultPTF:TextFormat = uiStyles.defaultProgressTextFormat as TextFormat;
+			 annotateTextField.setTextFormat(defaultATF); 
+			 percentTextField.setTextFormat(defaultPTF); 
+			
+			var aTF:TextFormat= getStyleValue("annotateTextFormat")  as TextFormat;
+			var pTF:TextFormat= getStyleValue("progressTextFormat") as TextFormat;
+
+			if (aTF != null) { annotateTextField.setTextFormat(aTF);	}
+			else {aTF = defaultATF;	}
+			if (pTF != null) {	percentTextField.setTextFormat(pTF); }
+			else {pTF=defaultPTF; }
+			
+			annotateTextField.defaultTextFormat = aTF;
+			percentTextField.defaultTextFormat = pTF;
 		}
 
-
+		///**
+		 //* 绘制内容
+		 //*/
+		//protected function drawContent():void 
+		//{
+			//percentTextField.text = _percent + "%";
+			//annotateTextField.htmlText = _annotate;
+		//}
 		
 		/**
 		 * 重新排列位置
@@ -205,25 +217,25 @@ package com.dinboy.controls.livePreview
 			height = 50;
 			scaleY = 1;
 			
+			background.width = width;
+			background.height = 50;
 			progressBar.x = underProgressBar.x = 20;
 			progressBar.y = underProgressBar.y = 10;
+			progressBar.height = underProgressBar.height = 10;
 			
-			_percentTextField.text = _percent + "%";
-			_logoAuthorTextField.htmlText = _annotate;
-			
-			 _logoAuthorTextField.x = width - _logoAuthorTextField.width >> 1;
-			 _logoAuthorTextField.y = 36;
-			 
-			 _percentTextField.x = width-_percentTextField.width>>1;
-			 _percentTextField.y = 24;
-			 
-			 underProgressBar.width = width - 40;
-			 _progressBarWidth = underProgressBar.width;
+            _progressBarWidth=underProgressBar.width = width - 40;
 			_percentageWidth = _progressBarWidth / 100;
-			
 			progressBar.width = _percent * _percentageWidth;
 			
-
+			percentTextField.text = _percent + "%";
+			annotateTextField.htmlText = _annotate;
+			
+			 annotateTextField.x = width-annotateTextField.width>>1;
+			 annotateTextField.y = 36;
+			 percentTextField.x = width-percentTextField.width>>1;
+			 percentTextField.y = 22;
+			 
+			 
 		}
 		
 	//============================================
@@ -240,8 +252,7 @@ package com.dinboy.controls.livePreview
 		 */
 		public function set percent(value:Number):void 
 		{
-			_percent = value >= 100?100:value;
-			invalidate(InvalidationType.DATA);
+			_percent = value > 100?100:value;
 		}
 		//public function get percent():Number 
 		//{
@@ -255,7 +266,6 @@ package com.dinboy.controls.livePreview
 		public function set annotate(value:String):void 
 		{
 			_annotate = value;
-			invalidate(InvalidationType.DATA);
 		}
 
 		
