@@ -8,6 +8,7 @@ package com.dinboy.controls
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
 	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
 	
 
 	/**
@@ -60,13 +61,14 @@ package com.dinboy.controls
 			super();
 			
 			textField = new TextField();
-			textField.autoSize = "center";
+			textField.autoSize = TextFieldAutoSize.CENTER;
 			textField.selectable = false;
+			textField.mouseEnabled = false;
 			textField.text = "label";
-			textField.wordWrap = true;
+			textField.wordWrap = false;
 			textField.multiline = false;
 			addChild(textField);
-			_width = 100;
+			_width =40;
 			_height = 20;
 			
 			_matrix = new Matrix();
@@ -96,9 +98,11 @@ package com.dinboy.controls
 	private function drawBackground():void 
 	{
 		_matrix.createGradientBox(_width, _height, Math.PI / 2);
+	
+	//	textField.width = Math.min(textField.textWidth*(textField.length-1)+4, _width - 20);
 		
-		if (textField.width > _width - 10) { textField.width = _width - 10; };
-		if (textField.height > _height ) { textField.height = _height ; };
+	//	if (textField.width > _width - 20) { textField.width = _width - 20; };
+	//	if (textField.height > _height ) { textField.height = _height ; };
 		
 		graphics.clear()
 		graphics.beginGradientFill(GradientType.LINEAR, _colors, _alphas, _rations, _matrix);
@@ -112,9 +116,8 @@ package com.dinboy.controls
 	 */
 	private function setLayout():void 
 	{
-
-		textField.x = width -textField.width >> 1;
-		textField.y = height - textField.height >> 1;
+		textField.x = _width -textField.width >> 1;
+		textField.y = _height - textField.height >> 1;
 	}
 		
 	//============================================
@@ -127,6 +130,7 @@ package com.dinboy.controls
 		public function set label(value:String):void 
 		{			
 			textField.text = value;		
+			width = Math.max(_width, textField.width+10);
 		}
 		
 		/**
