@@ -12,42 +12,42 @@ package com.dinboy.controls.renders
 	 */
 	public class PromptHeader extends Sprite
 	{
-		/**
-		 * 文本
-		 */
-		private var textField:TextField;
+		///**
+		 //* 文本
+		 //*/
+		//private var textField:TextField;
 		
 		private var _label:String;
 		public function PromptHeader() 
 		{
 			
 			super();
-			textField = new TextField();
-			textField.autoSize = "left";
-			textField.wordWrap = false;
-			textField.selectable = false;
-			textField.textColor = 0xFFFFFF;
-			textField.x = 5;
-			textField.y = 5;
-			textField.text = "label";
-			addChild(textField);
+			//textField = new TextField();
+			//textField.autoSize = "left";
+			//textField.wordWrap = false;
+			//textField.selectable = false;
+			//textField.textColor = 0xFFFFFF;
+			//textField.x = 5;
+			//textField.y = 5;
+			//textField.text = "label";
+			//addChild(textField);
 			
 			graphics.clear();
 			graphics.beginFill(0x50B9F1);
-			graphics.drawRoundRectComplex(0, 0, 100, textField.height+6,5,5,0,0);
+			graphics.drawRoundRectComplex(0, 0, 100, 25,5,5,0,0);
 			graphics.endFill();
-			scale9Grid = new Rectangle(10+textField.width, 5 ,1, textField.height);
+			scale9Grid = new Rectangle(5, 5 ,90, 15);
 		}
 		
 		/**
 		 * 文本
 		 */
-		public function get label():String { return textField.text; }
-		public function set label(value:String):void 
-		{
-			textField.text = value;
-			scale9Grid = new Rectangle(10+textField.width, 5 ,1, textField.height);
-		}
+		//public function get label():String { return textField.text; }
+		//public function set label(value:String):void 
+		//{
+			//textField.text = value;
+			//scale9Grid = new Rectangle(10+textField.width, 5 ,1, textField.height);
+		//}
 		
 		
 

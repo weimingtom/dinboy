@@ -17,7 +17,7 @@ package com.dinboy.controls
 		/**
 		 *	信息文本框
 		 */
-		protected var _messageTxt:TextField;
+		protected var _contantTextField:TextField;
 		
 		/**
 		 * 显示舞台
@@ -27,17 +27,20 @@ package com.dinboy.controls
 		/**
 		 * 遮罩图形
 		 */
-		protected var _masker:Shape;
+		protected var _masker:Sprite;
 		
 		/**
-		 * 是否已经遮罩着
+		 * 是否遮罩背景
 		 */
-		protected var _masked:Boolean;
+		protected var _maskEnabled:Boolean;
 		
 		/**
 		 * 阴影滤镜
 		 */
 		protected var _dropShadowFilter:DropShadowFilter;
+		
+		public static var defaultStyles:Object = {		}
+		
 		public function TipBase() 
 		{
 			super();
@@ -53,8 +56,6 @@ package com.dinboy.controls
 		 */
 		protected function initUI():void 
 		{
-			_messageTxt = new TextField();
-			
 			_dropShadowFilter = new DropShadowFilter(2, 45, 0, 0.5, 6, 6, 1, 3);
 		}
 		
@@ -64,9 +65,24 @@ package com.dinboy.controls
 		 */
 		protected  function setMessage(__message:String,...rest):void 
 		{
-			_messageTxt.htmlText = __message;
+			_contantTextField.htmlText = __message;
+		}
+		
+		/**
+		 * 显示对象
+		 */
+		protected function show():void 
+		{
+			_stage.addChild(this);
+			if (_maskEnabled) createMasker();
+		}
+		
+		/**
+		 * 改变样式
+		 */
+		protected function changeStyles():void 
+		{
 			
-			createMasker();
 		}
 		
 		/**
@@ -76,7 +92,7 @@ package com.dinboy.controls
 		{
 			filters = [];
 			parent.removeChild(this);
-			dispoMasker();
+			if(_maskEnabled) dispoMasker();
 		}
 		
 
@@ -84,7 +100,31 @@ package com.dinboy.controls
 		//============================================
 		//===== Public Static Function ======
 		//============================================
-	
+		/**
+		 * 合并皮肤
+		 * @param	...list	合并的类
+		 * @return	新的类
+		 */
+		public static function mergeStyles(...list:Array):Object {
+			var styles:Object = {};
+			var l:uint = list.length;
+			for (var i:uint=0; i<l; i++) {
+				var styleList:Object = list[i];
+				for (var n:String in styleList) {
+					if (styles[n] != null) { continue; }
+					styles[n] = list[i][n];
+				}
+			}
+			return styles;
+		}
+		
+		/**
+		 * 获取基本类
+		 * @return
+		 */
+		public static function getStyleDefinition():Object {			
+			return defaultStyles;
+		}
 		
 		
 		
@@ -96,24 +136,23 @@ package com.dinboy.controls
 		/**
 		 * 创建屏蔽背景
 		 */
-		private function createMasker():void 
+		protected function createMasker():void 
 		{
-			if (!_masker) _masker = new Shape();
+			if (!_masker) _masker = new Sprite();
 			_masker.graphics.clear();
 			_masker.graphics.beginFill(0xFFFFFF, 0);
 			_masker.graphics.drawRect(0, 0, _stage.stageWidth, _stage.stageHeight);
 			_masker.graphics.endFill();
-			_stage.addChild(_masker);
-			_masked = true;
+			if (!_masker.parent) _stage.addChild(_masker);
+			_stage.setChildIndex(_masker, _stage.getChildIndex(this));
 		}
 		
 		/**
 		 * 处置掉遮罩
 		 */
-		private function dispoMasker():void 
+		protected function dispoMasker():void 
 		{
-			_stage.removeChild(_masker);
-			_masked = false;
+			if(_masker.parent) _stage.removeChild(_masker);
 		}
 
 
