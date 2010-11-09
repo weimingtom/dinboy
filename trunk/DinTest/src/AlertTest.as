@@ -21,7 +21,7 @@ package
 			Alert.init(this);
 			_alert = Alert.message("钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽");
 			_alert.addEventListener(PromptEvent.PROMPT_ClOSE, promptCloseHandler, false, 0, true);
-			_alert.dragEnabled = true;
+			_alert.dragEnabled = false;
 			
 			//var bb:PromptButton = new PromptButton();
 		//	addChild(bb);
@@ -34,15 +34,15 @@ package
 			_alert.removeEventListener(PromptEvent.PROMPT_ClOSE, promptCloseHandler);
 			_alert2 = Alert.message("钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽");
 			_alert2.addEventListener(PromptEvent.PROMPT_ClOSE, promptCloseHandler2, false, 0, true);
-			_alert2.dragEnabled = true;
+			_alert2.dragEnabled = false;
 		}
 		
 		private function promptCloseHandler2(e:PromptEvent):void 
 		{
 			_alert2.removeEventListener(PromptEvent.PROMPT_ClOSE, promptCloseHandler2);
-			_alert = Alert.message("钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽");
+			_alert = Alert.message("钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽","钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽钉崽");
 			_alert.addEventListener(PromptEvent.PROMPT_ClOSE, promptCloseHandler, false, 0, true);
-			_alert.dragEnabled = true;
+			_alert.dragEnabled = false;
 		}
 
 

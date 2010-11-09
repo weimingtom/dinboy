@@ -23,7 +23,7 @@ package com.dinboy.controls
 		/**
 		 * 确定按钮
 		 */
-		private var _OKButton:DisplayObject;
+		private var _OKButton:Object;
 		
 		/**
 		 * 默认皮肤样式
@@ -59,7 +59,6 @@ package com.dinboy.controls
 			_maskEnabled= true;
 			_dragEnabled = true;
 			super.initUI();
-			
 		}
 		
 		/**
@@ -77,18 +76,18 @@ package com.dinboy.controls
 		 */
 		override protected function changeStyles():void 
 		{
-			var ob:DisplayObject = _OKButton;
+			var ob:Object = _OKButton;
 			_OKButton = getDisplayObjectInstance(getStyleValue("okButton"));
 			if (_OKButton == null) return
-			addChildAt(_OKButton, 0);
-			Object(_OKButton).label = "确认";
-			Object(_OKButton).buttonMode = true;
-			Object(_OKButton).tabEnabled = false;
+			addChildAt(_OKButton as DisplayObject, 0);
+			_OKButton.label = "确认";
+			_OKButton.buttonMode = true;
+			_OKButton.tabEnabled = false;
 			_OKButton.width = 60;
 			_OKButton.addEventListener(MouseEvent.CLICK, okbuttnClickHandler, false, 0, true);
-			if (ob != null&& ob!=_OKButton&&contains(ob) ) 
+			if (ob != null&& ob!=_OKButton&&contains(ob as DisplayObject) ) 
 			{
-				removeChild(ob);
+				removeChild(ob as DisplayObject);
 				ob.removeEventListener(MouseEvent.CLICK, okbuttnClickHandler);
 			}
 			super.changeStyles();

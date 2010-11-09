@@ -7,6 +7,7 @@ package com.dinboy.controls
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
+	import flash.geom.Rectangle;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import flash.utils.getDefinitionByName;
@@ -195,6 +196,7 @@ package com.dinboy.controls
 		 */
 		protected function  draw():void 
 		{
+			
 			_header.width = _containerWidth;
 			
 			_titleTextField.x = 5;
@@ -214,9 +216,9 @@ package com.dinboy.controls
 			x = _stage.stageWidth - width >> 1;
 			y = _stage.stageHeight - height >> 1;
 			
+			_titleTextField.scrollRect = new Rectangle(0, 0, _containerWidth-(_titleTextField.x)*2, _titleTextField.height);
+			
 			filters = [_dropShadowFilter];
-			
-			
 		}
 		
 		/**
