@@ -236,10 +236,6 @@ package com.dinboy.controls
 				removeChild(pb); 
 			}
 			
-	//	background = getDisplayObjectInstance(getStyleValue("background"));
-	//	underProgressBar =	getDisplayObjectInstance(getStyleValue("underProgressBar"));
-	//	progressBar = getDisplayObjectInstance(getStyleValue("progressBar"));
-			
  			var  uiStyles:Object = Loading.getStyleDefinition() ;
 			var defaultATF:TextFormat = uiStyles.defaultAnnotateTextFormat as TextFormat;
 			var defaultPTF:TextFormat = uiStyles.defaultProgressTextFormat as TextFormat;

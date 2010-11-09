@@ -18,7 +18,7 @@ package com.dinboy.controls.renders
 			graphics.beginFill(0xFFFFFF);
 			graphics.drawCircle(6, 6, 6);
 		//graphics.drawRect(0, 0, 14, 14);
-			graphics.beginFill(0x0A618F);
+			graphics.beginFill(0xB3B3B3);
 			graphics.drawCircle(6,6, 3);
 		//graphics.drawRect(3,3, 8, 8);
 			graphics.endFill();
@@ -61,10 +61,11 @@ package com.dinboy.controls.renders
 			graphics.clear();
 			graphics.beginFill(0xFFFFFF);
 			graphics.drawCircle(6, 6, 6);
-			graphics.beginFill(0x0A618F);
+			graphics.beginFill(0xB3B3B3);
 			graphics.drawCircle(6,6, 2);
 			graphics.endFill();
 		}
+		
 		
 		/**
 		 * 鼠标移出时
@@ -77,7 +78,7 @@ package com.dinboy.controls.renders
 			graphics.clear();
 			graphics.beginFill(0xFFFFFF);
 			graphics.drawCircle(6, 6, 6);
-			graphics.beginFill(0x0A618F);
+			graphics.beginFill(0xB3B3B3);
 			graphics.drawCircle(6,6, 3);
 			graphics.endFill();
 		}
