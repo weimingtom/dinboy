@@ -1,9 +1,13 @@
 package 
 {
+	import com.dinboy.game.astar.Astar;
+	import com.dinboy.game.astar.AstarGrid;
 	import com.dinboy.net.DinLoader;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
@@ -22,6 +26,21 @@ package
 	[SWF(width="800",height="600")]
 	public class Main extends Sprite 
 	{
+		/**
+		 * 单元格大小
+		 */
+		private static const SIDE:uint = 48;
+		
+		/**
+		 * 水平个数
+		 */
+		private static const HCOUNT:uint = 50;
+		
+		/**
+		 * 垂直个数
+		 */
+		private static const VCOUNT:uint = 50;
+		
 		/**
 		 * 游戏人物加载器
 		 */
@@ -103,9 +122,31 @@ package
 		private const STEPS:uint = 10;
 		
 		/**
-		 * 地图的数据数组
+		 * 地图的数据表格
 		 */
-		private var _mpaDataArray:Array;
+		private var _mapDataGrid:AstarGrid;
+		
+		/**
+		 * 地图背景
+		 */
+		private var _mapBackground:Sprite;
+		
+		/**
+		 * 寻找到的路径数组
+		 */
+		private var _mapPath:Array;
+		
+		/**
+		 * 路径索引值
+		 */
+		private var _pathIndex:uint;
+		
+		/**
+		 * 行走的速度
+		 */
+		private var _speed:Number;
+		
+		
 		
 		public function Main():void 
 		{
@@ -116,20 +157,60 @@ package
 			_keyCodeArray = [0, 0, 0, 0];
 			_rotationUint = 0;
 			_gotoPoint = new Point();
+			_mapPath = [];
+			_speed = 0.5;
 			
+			_mapDataGrid = new AstarGrid(HCOUNT, VCOUNT);
+			_mapBackground = new Sprite();
+			addChild(_mapBackground);
+			drawBackground();
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
 		}
 		
+		/**
+		 * 初始化
+		 * @param	e
+		 */
 		private function init(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
-			
+			stage.align = StageAlign.TOP_LEFT;
+			stage.scaleMode = StageScaleMode.NO_SCALE;
 			this._heroLoader = new DinLoader();
 			this._heroLoader.loadNormal("hero.png");
 			this._heroLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, this.heroLoadComplete, false, 0, true);
-			
+		}
+		
+		/**
+		 * 绘制背景表格
+		 */
+		private function  drawBackground():void 
+		{
+			_mapBackground.graphics.clear();
+			_mapBackground.graphics.lineStyle(1);
+			var i:int;
+			for (i = 0; i < HCOUNT ; i++) 
+			{
+				var j:int;
+				for (j = 0; j < VCOUNT; j++) 
+				{
+					_mapBackground.graphics.drawRect(i*SIDE, j*SIDE, SIDE, SIDE);
+				}
+			}
+			_mapBackground.graphics.endFill();
+			if (_mapPath.length>=0) 
+			{
+				_mapBackground.graphics.beginFill(0);
+				for ( i = 0; i< _mapPath.length ;i++ ) 
+				{
+			//		trace(_mapPath[i].x,_mapPath[i].y);
+					_mapBackground.graphics.drawRect(_mapPath[i].x*SIDE, _mapPath[i].y*SIDE, SIDE, SIDE);
+				}
+			}
+			_mapBackground.graphics.endFill();
+
 		}
 		
 		/**
@@ -186,29 +267,11 @@ package
 		 */
 		private function stageClickHandler(evt:MouseEvent):void
 		{
-			var __rectangle:Rectangle = _heroBitmap.getBounds(this.parent);
-			var __dx:Number , __dy:Number;
+			_mapDataGrid.setStartNode(_heroBitmap.x / SIDE >> 0, _heroBitmap.y / SIDE >> 0);
+			_mapDataGrid.setEndNode(evt.stageX / SIDE >> 0, evt.stageY / SIDE >> 0);
 			
-			_gotoPoint.x = stage.mouseX;
-			_gotoPoint.y = stage.mouseY;
-			if ((_gotoPoint.x>__rectangle.x && _gotoPoint.x<__rectangle.x+__rectangle.width) || (_gotoPoint.y>__rectangle.y && _gotoPoint.y<__rectangle.y+__rectangle.height))
-			{
-				_heroTimer.reset();
-				_heroTimer.stop();
-				return;
-			}
-			else 
-			{
-				if (!_heroTimer.running) 
-				{
-					_heroTimer.start();
-				}
-			}
-			
-			 __dx= stage.mouseX - __rectangle.x - (__rectangle.width >> 1);
-			 __dy= stage.mouseY - __rectangle.y - (__rectangle.height >> 1);
-			
-			_heroAngle = Math.atan2(__dy, __dx) * 180 / Math.PI;
+			//trace("start:", _mapDataGrid.startNode.x, _mapDataGrid.startNode.y);
+			//trace("end:",_mapDataGrid.endNode.x,_mapDataGrid.endNode.y);
 			
 			//	 1 	 1		 1	 	 1
 			//	上	下	左	右
@@ -244,78 +307,36 @@ package
 			{
 				_keyCodeString = "0110";
 			}
-			
-			if (!_heroTimer.running) 
-			{
-				_heroTimer.start();
-			}
-			
+			findPath();
+			/*
+			if (!_heroTimer.running) 	{_heroTimer.start();}
+			else{_heroTimer.reset();}
+			*/
 		}
 		
 		/**
-		 * 当鼠标移动时
-		 * @param	evt
+		 * 开始寻路
 		 */
-		private function stageMousemoveHandler(evt:MouseEvent):void
+		private function findPath():void
 		{
-			var __rectangle:Rectangle = _heroBitmap.getBounds(this.parent);
-			
-			if ((stage.mouseX>__rectangle.x && stage.mouseX<__rectangle.x+__rectangle.width) || (stage.mouseY>__rectangle.y && stage.mouseY<__rectangle.y+__rectangle.height))
-			{
-				_heroTimer.reset();
-				_heroTimer.stop();
-			}
-			else 
-			{
-				if (!_heroTimer.running) 
-				{
-					_heroTimer.start();
-				}
-			}
-			
-			var __dx:Number = stage.mouseX - __rectangle.x - (__rectangle.width >> 1);
-			var __dy:Number = stage.mouseY - __rectangle.y - (__rectangle.height >> 1);
-			
-			
-			_heroAngle = Math.atan2(__dy, __dx) * 180 / Math.PI;
-			
-			//	 1 	 1		 1	 	 1
-			//	上	下	左	右
-			if (_heroAngle>157.5 && _heroAngle<=180 || _heroAngle>-180&&_heroAngle<-157.5) 
-			{
-				_keyCodeString = "0010";
-			}
-			else if (_heroAngle>-157.5&&_heroAngle<=-112.5) 
-			{
-				_keyCodeString = "1010";
-			}
-			else if (_heroAngle>-112.5&&_heroAngle<=-67.5) 
-			{
-				_keyCodeString = "1000";
-			}
-			else if (_heroAngle>-67.5&&_heroAngle<=-22.5) 
-			{
-				_keyCodeString = "1001";
-			}
-			else if (_heroAngle>-22.5&& _heroAngle<=22.5) 
-			{
-				_keyCodeString = "0001";
-			}
-			else if (_heroAngle>22.5&&_heroAngle<=67.5) 
-			{
-				_keyCodeString = "0101";
-			}
-			else if (_heroAngle>67.5&&_heroAngle<=112.5)
-			{
-				_keyCodeString = "0100";
-				}
-			else if (_heroAngle>112.5&&_heroAngle<=157.5) 
-			{
-				_keyCodeString = "0110";
-			}
-			
-			_heroTimer.start();
-			
+			var __astar:Astar = new Astar();
+				//trace(__astar.findPath(_mapDataGrid));
+					if (__astar.findPath(_mapDataGrid)) 
+					{
+						_mapPath = __astar.path ;
+						
+						_pathIndex = 1;
+						_heroTimer.addEventListener(TimerEvent.TIMER, heroTimerHandler, false, 0, true);
+						_heroTimer.start();
+						drawBackground();
+					}else 
+					{
+						_heroTimer.removeEventListener(TimerEvent.TIMER, heroTimerHandler);
+						_heroTimer.reset();
+						_heroTimer.stop();
+						trace("Path Can't Found!");
+						//return ;
+					}
 		}
 		
 		/**
@@ -343,11 +364,14 @@ package
 				}
 				
 				_heroBitmap.bitmapData = _heroBitArray[3][0];
+			//	_heroBitmap.x = SIDE-_heroBitmap.width >> 1;
+			//	_heroBitmap.y = SIDE-_heroBitmap.height >> 0;
 				addChild(_heroBitmap);
 				
-				_heroTimer = new Timer(50);
-				_heroTimer.addEventListener(TimerEvent.TIMER, this.heroTimerHandler, false, 0, true);
-				 _heroTimer.start();
+				
+				_heroTimer = new Timer(100);
+			//	_heroTimer.addEventListener(TimerEvent.TIMER, this.heroTimerHandler, false, 0, true);
+			//	 _heroTimer.start();
 				
 				stage.addEventListener(KeyboardEvent.KEY_DOWN, this.keyDownHandler, false, 0, true);
 				stage.addEventListener(KeyboardEvent.KEY_UP, this.keyUpHandler, false, 0, true);
@@ -363,71 +387,48 @@ package
 		 */
 		private function heroTimerHandler(evt:TimerEvent):void
 		{
-			
+			_pathIndex++;
+						if (_pathIndex==_mapPath.length) 
+						{
+							_heroTimer.removeEventListener(TimerEvent.TIMER, heroTimerHandler);
+							_heroTimer.stop();
+						}
 			//	 1 	 1		 1	 	 1
 			//	上	下	左	右
-			_offsetX = 0;
-			_offsetY = 0;
+			//_offsetX = 0;
+			//_offsetY = 0;
 			
-			 _motionUint > 2?_motionUint = 0:_motionUint++;
+		//	 _motionUint > 2?_motionUint = 0:_motionUint++;
+			//var	 __array:Array = _heroBitArray[_rotationUint];
+					//
+					//_heroBitmap.x += _offsetX;
+					//_heroBitmap.y += _offsetY;
+					//
+					//if (Math.abs(_heroBitmap.x+(_heroBitmap.width>>1)-_gotoPoint.x)<=STEPS && Math.abs(_heroBitmap.y+(_heroBitmap.height>>1)-_gotoPoint.y)<=STEPS) 
+					//{
+						//_motionUint = 0;
+						//_keyCodeString = "0000";
+					//}
+					//_heroBitmap.bitmapData = __array[_motionUint];
+					
+					var __pathX:Number = _mapPath[_pathIndex].x  ;
+					var __pathY:Number = _mapPath[_pathIndex].y  ;
+					
+					var __dx:Number = (__pathX - (_heroBitmap.x/SIDE>>0))*SIDE;
+					var __dy:Number = (__pathY - (_heroBitmap.y/SIDE>>0))*SIDE;
+					
+				//	trace(__pathX,__dx);
+					var __temp:Number = Math.sqrt(__dx * __dx + __dy * __dy);
+				//	trace(__temp);
+	//				if (__temp<1) 
+	//				{
 
-			switch (_keyCodeString) 
-			{
-				case "1000":						//上
-					_rotationUint = 3;
-					_offsetY = -STEPS;
-				break;
-				case "1010":						//左上
-					_rotationUint = 6;
-					_offsetX = -STEPS;
-					_offsetY = -STEPS;
-				break;
-				case "1001":						//右上
-					_rotationUint = 7;
-					_offsetX = STEPS;
-					_offsetY = -STEPS;
-				break;
-				case "0100":						//下
-					_rotationUint = 0;
-					_offsetY = STEPS;
-				break;
-				case "0110":
-					_rotationUint = 4;			//左下
-					_offsetX = -STEPS;
-					_offsetY = STEPS;
-				break;
-				case "0101":
-					_rotationUint = 5;			//右下
-					_offsetX = STEPS;
-					_offsetY = STEPS;
-				break;
-				case "0010":
-					_rotationUint = 1;			//左
-					_offsetX = -STEPS;
-				break;
-				case "0001":
-					_rotationUint = 2;			//右
-					_offsetX = STEPS;
-				break;
-				case "0000":
-					_offsetX = 0;
-					_offsetY = 0;
-				break;
-				default:
-					_offsetX = 0;
-					_offsetY = 0;
-			}
-			var	 __array:Array = _heroBitArray[_rotationUint];
+						//	_heroBitmap.x += __dx;
+						//	_heroBitmap.y += __dy;
+							_heroBitmap.x += 2.4 * (__dx - __dy);
+							_heroBitmap.y +=  2.4 * (__dx + __dy);
 					
-					_heroBitmap.x += _offsetX;
-					_heroBitmap.y += _offsetY;
-					
-					if (Math.abs(_heroBitmap.x+(_heroBitmap.width>>1)-_gotoPoint.x)<=STEPS && Math.abs(_heroBitmap.y+(_heroBitmap.height>>1)-_gotoPoint.y)<=STEPS) 
-					{
-						_motionUint = 0;
-						_keyCodeString = "0000";
-					}
-					_heroBitmap.bitmapData = __array[_motionUint];
+//					}
 			
 		}
 		
