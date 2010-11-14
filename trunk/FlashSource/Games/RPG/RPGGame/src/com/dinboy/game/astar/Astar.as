@@ -116,6 +116,8 @@ package com.dinboy.game.astar
 			var __searchTimes:uint = 1;
 			var __node:AstarNode = _startNode;
 			
+			if (__node == _endNode) return false;
+			
 			//如果当前搜寻的节点不是结束节点,则继续搜寻
 			while (__node!=_endNode) 
 			{
@@ -181,7 +183,7 @@ package com.dinboy.game.astar
 				//从开放列表中删除代价最小的节点,同时把该节点赋值给__node,作为下次的中心点
 				__node = _openArray.shift() as AstarNode;
 				
-				trace("第" + __searchTimes + "轮的最佳节点:" + __node.x,__node.y);
+				//trace("第" + __searchTimes + "轮的最佳节点:" + __node.x,__node.y);
 				__searchTimes++;
 			}
 			
