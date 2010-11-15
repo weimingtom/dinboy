@@ -178,9 +178,9 @@ package
 			// entry point
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
-			this._heroLoader = new DinLoader();
-			this._heroLoader.loadNormal("hero.png");
-			this._heroLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, this.heroLoadComplete, false, 0, true);
+	//		this._heroLoader = new DinLoader();
+	//		this._heroLoader.loadNormal("hero.png");
+	//		this._heroLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, this.heroLoadComplete, false, 0, true);
 		}
 		
 		/**
@@ -395,12 +395,7 @@ package
 						}
 			//	 1 	 1		 1	 	 1
 			//	上	下	左	右
-			//_offsetX = 0;
-			//_offsetY = 0;
 			
-		//	 _motionUint > 2?_motionUint = 0:_motionUint++;
-			//var	 __array:Array = _heroBitArray[_rotationUint];
-					//
 					//_heroBitmap.x += _offsetX;
 					//_heroBitmap.y += _offsetY;
 					//
@@ -416,19 +411,11 @@ package
 					
 					var __dx:Number = (__pathX - (_heroBitmap.x/SIDE>>0))*SIDE;
 					var __dy:Number = (__pathY - (_heroBitmap.y/SIDE>>0))*SIDE;
-					
-				//	trace(__pathX,__dx);
-					var __temp:Number = Math.sqrt(__dx * __dx + __dy * __dy);
-				//	trace(__temp);
-	//				if (__temp<1) 
-	//				{
 
-						//	_heroBitmap.x += __dx;
-						//	_heroBitmap.y += __dy;
-							_heroBitmap.x += 2.4 * (__dx - __dy);
-							_heroBitmap.y +=  2.4 * (__dx + __dy);
-					
-//					}
+					var __temp:Number = Math.sqrt(__dx * __dx + __dy * __dy);
+
+							_heroBitmap.x += 2.4 * __dx;
+							_heroBitmap.y +=  2.4 * __dy;
 			
 		}
 		
