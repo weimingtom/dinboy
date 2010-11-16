@@ -24,7 +24,8 @@ package  com.dinboy.net {
 
 		public function CustomFileReferenceList(){
 			uploadURL = new URLRequest();
-			uploadURL.url = "http://www.wangjiwang.com/yourUploadHandlerScript.cfm";
+			uploadURL.url = "upload.php";
+			uploadURL.method = "POST";
 			initializeListListeners();
 		}
 
@@ -87,9 +88,8 @@ package  com.dinboy.net {
 		}
 
 		private function cancelHandler(event:Event):void {
-			trace(event.target);
-			var file:FileReference = FileReference(event.target);
-			trace("cancelHandler: name=" + file.name);
+			//var file:FileReference = FileReference(event.target);
+			//trace("cancelHandler: name=" + file.name);
 		}
 
 		private function openHandler(event:Event):void {
