@@ -59,7 +59,7 @@ package  com.dinboy.net {
 		/**
 		 *	正在上传的组件数组.
 		 */
-		private var _uploadingItems:Array;
+		private var _itemsLoading:Array;
 		
 		/**
 		 * 正在上传的组件数组
@@ -114,7 +114,7 @@ package  com.dinboy.net {
 			if (_url == null) return;
 			_uploadURL.url=_url
 			_pendingFiles = [];
-			_uploadingItems = [];
+			_itemsLoading = [];
 			_upLoadArray = [];
 			_itemsLoaded = 0;
 			var __file:FileReference;
@@ -125,10 +125,10 @@ package  com.dinboy.net {
 			
 			if (_multiProcess) 
 			{
-				togetherUpload();
+				multiProcessUpload();
 			}else 
 			{
-				queueUpload();
+				singleProcessUpload();
 			}
 		}
 		
@@ -148,11 +148,11 @@ package  com.dinboy.net {
 		/**
 		 * 所有选择的文件一起上传
 		 */
-		private function togetherUpload():void 
+		private function multiProcessUpload():void 
 		{
 			for (var i:uint = 0; i < _pendingFiles.length; i++) {
 				addPendingFile(_pendingFiles[i]);
-				_uploadingItems.push(_pendingFiles[i]);
+				_itemsLoading.push(_pendingFiles[i]);
 			}
 		}
 		
@@ -160,11 +160,11 @@ package  com.dinboy.net {
 		 * 队列上传
 		 * @param	file	上传的文件
 		 */
-		private function queueUpload():void 
+		private function singleProcessUpload():void 
 		{
 			if (_pendingFiles.length <= 0) return;
 			addPendingFile(_pendingFiles[0]);
-			_uploadingItems.push(_pendingFiles[0]);
+			_itemsLoading.push(_pendingFiles[0]);
 		}
 		/**
 		 * 返回所有可用格式
@@ -179,8 +179,8 @@ package  com.dinboy.net {
 		 * 所有上传完毕时调度
 		 */
 		private function doOnComplete():void {
-			var event:Event = new Event(LISTLOAD_COMPLETE);
-			dispatchEvent(event);
+			dispatchEvent(new Event(ITEM_UPLOADING));
+			dispatchEvent(new Event(LISTLOAD_COMPLETE));
 		}
 		
 		/**
@@ -203,6 +203,7 @@ package  com.dinboy.net {
 		 * @param	file
 		 */
 		private function removePendingFile(__file:FileReference):void {
+			_itemsLoading.splice(__file, 1);
 			for (var i:uint; i < _pendingFiles.length; i++){
 				if (_pendingFiles[i].name == __file.name){
 					_pendingFiles.splice(i, 1);
@@ -212,11 +213,16 @@ package  com.dinboy.net {
 					return;
 				}
 			}
-			var j:int;
-			for (j = 0; j < _uploadingItems.length; j++)
-			{
-				_uploadingItems.slice(__file, 1);
-			}
+			
+			//var j:int;
+			//for (j = 0; j < _itemsLoading.length; j++) 
+			//{
+				//if (_itemsLoading[j].name==__file.name) 
+				//{
+					//_itemsLoading.splice(j, 1);
+					//return;
+				//}
+			//}
 		}
 		
 		/**
@@ -243,6 +249,7 @@ package  com.dinboy.net {
 		 * @param	event
 		 */
 		private function completeHandler(event:Event):void {
+			_itemsLoaded+=1;
 			var __file:FileReference = FileReference(event.target);
 			//trace("completeHandler: name=" + file.name);
 			__file.removeEventListener(Event.OPEN, openHandler);
@@ -253,7 +260,7 @@ package  com.dinboy.net {
 			removePendingFile(__file);
 			
 			//如果不是一起上载,则陆续上载.
-			if (!_multiProcess) 	{ queueUpload(); }
+			if (!_multiProcess) 	{ singleProcessUpload(); }
 		}
 
 		/**
@@ -325,10 +332,7 @@ package  com.dinboy.net {
 			_upLoadArray[event.target.name] = event.bytesLoaded;
 			updataBytesLoaded();
 			
-			if (event.bytesLoaded==event.bytesTotal) 
-			{
-				_itemsLoaded+=1;
-			}
+
 			dispatchEvent(new Event(ITEM_UPLOADING));
 		}
 		
@@ -339,7 +343,7 @@ package  com.dinboy.net {
 		/**
 		 * [只读 readOnly] 选择的所有文件个数
 		 */
-		public function get itemLength():uint { return fileList.length; }
+		public function get itemsLength():uint { return fileList.length; }
 		
 		/**
 		 * 是否多线程加载
@@ -353,7 +357,7 @@ package  com.dinboy.net {
 		/**
 		 * [只读 readOnly] 正在加载的对象数组
 		 */
-		public function get uploadingItems():Array { return _uploadingItems; }
+		public function get itemsLoading():Array { return _itemsLoading; }
 		
 		/**
 		 * [只读 readOnly] 已经加载的总字节数

@@ -170,7 +170,14 @@ package
 		 */
 		private function itemsLoadingHandler(event:Event):void 
 		{
-			_progressTF.text = "已经上传:\n"+_customFileRef.itemsLoaded+"个文件 " +_customFileRef.kilobytesUploaded + "KB " + ((_customFileRef.percen) * 1000 >> 0) / 10 + "%";
+			_progressTF.text = _customFileRef.itemsLoaded+"个文件 " +_customFileRef.kilobytesUploaded + "KB " + ((_customFileRef.percen) * 1000 >> 0) / 10 + "%\n";
+			var i:int;
+			for (i = 0; i < _customFileRef.itemsLoading.length; i++) 
+			{
+					var __file:FileReference = FileReference(_customFileRef.itemsLoading[i]);
+					_progressTF.appendText("正在上传 " + __file.name+"\n");
+			}
+			
 		}
 		
 		/**
@@ -188,7 +195,7 @@ package
 		 */
 		private function listSelectHandler(event:Event):void 
 		{
-			if (event.currentTarget.itemLength>_maxCount)
+			if (event.currentTarget.itemsLength>_maxCount)
 			{
 				_inofTF.text = "您最多只能上传"+_maxCount+"个文件";
 				return;
@@ -198,7 +205,7 @@ package
 				_inofTF.text ="您最多只能上传"+(_maxBytes>>10>>10)+"M的文件";
 				return;
 			}
-			_inofTF.text = event.currentTarget.itemLength + "个文件,共" + event.currentTarget.kilobytesTotal + "KB";
+			_inofTF.text = event.currentTarget.itemsLength + "个文件,共" + event.currentTarget.kilobytesTotal + "KB";
 			_uploadButton.mouseEnabled = true;
 			_uploadButton.alpha = 1;
 		}
