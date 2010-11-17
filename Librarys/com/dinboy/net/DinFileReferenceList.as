@@ -18,6 +18,10 @@ package  com.dinboy.net {
 	public class DinFileReferenceList extends FileReferenceList {
 
 		/**
+		 * 版本
+		 */
+		private static const VERSION:String = "DinFileReferenceList  v1.0";
+		/**
 		 * 上传的地址的URLRequest
 		 */
 		private var _uploadURL:URLRequest;
@@ -72,6 +76,11 @@ package  com.dinboy.net {
 		public static const LIST_CANCEL:String = "listCancel";
 		public static const ITEM_UPLOADING:String = "item_Uploading";
 
+		/**
+		 * 多选上传组件
+		 * @param	__url	上传地址
+		 * @param	__fileFilters		可选择的文件列表
+		 */
 		public function DinFileReferenceList(__url:String = null,__fileFilters:Array = null) {
 			_uploadURL = new URLRequest();
 			_fileFilters = __fileFilters;
@@ -79,15 +88,11 @@ package  com.dinboy.net {
 			_togetherLoad = false;
 			initializeListListeners();
 		}
-
-		/**
-		 * 初始化列表监听
-		 */
-		private function initializeListListeners():void {
-			addEventListener(Event.SELECT, selectHandler);
-			addEventListener(Event.CANCEL, cancelHandler);
-		}
-
+		
+		
+		//========================================================================================
+		//===== Public Function ======
+		//========================================================================================
 		/**
 		 * 获取所有可以上传的类型
 		 * @return	类型数组
@@ -98,7 +103,69 @@ package  com.dinboy.net {
 			__allTypes.push(getAllTypeFilter());
 			return __allTypes;
 		}
+
+		/**
+		 * 开始上传
+		 * @param	_url	上传地址
+		 */
+		public function upload(__url:String=null):void 
+		{
+			if (__url != null) _url = __url;
+			if (_url == null) return;
+			_uploadURL.url=_url
+			_pendingFiles = [];
+			_uploadingItems = [];
+			_upLoadArray = [];
+			_itemsLoaded = 0;
+			var __file:FileReference;
+			for (var i:uint = 0; i < fileList.length; i++) {
+				__file = FileReference(fileList[i]);
+				_pendingFiles.push(__file);
+			}
+			
+			if (_togetherLoad) 
+			{
+				togetherUpload();
+			}else 
+			{
+				queueUpload();
+			}
+		}
 		
+		
+	
+		//========================================================================================
+		//===== Private Function ======
+		//========================================================================================
+		/**
+		 * 初始化列表监听
+		 */
+		private function initializeListListeners():void {
+			addEventListener(Event.SELECT, selectHandler);
+			addEventListener(Event.CANCEL, cancelHandler);
+		}
+		
+		/**
+		 * 所有选择的文件一起上传
+		 */
+		private function togetherUpload():void 
+		{
+			for (var i:uint = 0; i < _pendingFiles.length; i++) {
+				addPendingFile(_pendingFiles[i]);
+				_uploadingItems.push(_pendingFiles[i]);
+			}
+		}
+		
+		/**
+		 * 队列上传
+		 * @param	file	上传的文件
+		 */
+		private function queueUpload():void 
+		{
+			if (_pendingFiles.length <= 0) return;
+			addPendingFile(_pendingFiles[0]);
+			_uploadingItems.push(_pendingFiles[0]);
+		}
 		/**
 		 * 返回所有可用格式
 		 * @return
@@ -153,6 +220,70 @@ package  com.dinboy.net {
 		}
 		
 		/**
+		 * 更新已经下载完成的字节
+		 */
+		private function updataBytesLoaded():void 
+		{
+			_bytesUploaded=0;
+			for (var name:String in _upLoadArray) 
+			{
+				_bytesUploaded += _upLoadArray[name];
+			}
+		}
+		
+		
+		
+		
+		
+		//========================================================================================
+		//===== EventListener Function ======
+		//========================================================================================
+		/**
+		 * 当单个文件加载完成时调度
+		 * @param	event
+		 */
+		private function completeHandler(event:Event):void {
+			var __file:FileReference = FileReference(event.target);
+			//trace("completeHandler: name=" + file.name);
+			__file.removeEventListener(Event.OPEN, openHandler);
+			__file.removeEventListener(Event.COMPLETE, completeHandler);
+			__file.removeEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+			__file.removeEventListener(ProgressEvent.PROGRESS, progressHandler);
+			__file.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+			removePendingFile(__file);
+			
+			//如果不是一起上载,则陆续上载.
+			if (!_togetherLoad) 	{ queueUpload(); }
+		}
+
+		/**
+		 * 当出现http协议错误时调度
+		 * @param	event
+		 */
+		private function httpErrorHandler(event:Event):void {
+//			var file:FileReference = FileReference(event.target);
+//			trace("httpErrorHandler: name=" + file.name);
+		}
+
+		/**
+		 * 当出现IO错误时调度
+		 * @param	event
+		 */
+		private function ioErrorHandler(event:Event):void {
+//			var file:FileReference = FileReference(event.target);
+//			trace("ioErrorHandler: name=" + file.name);
+		}
+
+		/**
+		 * 当遇到安全沙箱问题时调度
+		 * @param	event
+		 */
+		private function securityErrorHandler(event:Event):void {
+//			var file:FileReference = FileReference(event.target);
+//			trace("securityErrorHandler: name=" + file.name + " event=" + event.toString());
+		}
+		
+		/**
 		 * 当完成选择时调度
 		 * @param	event
 		 */
@@ -201,115 +332,10 @@ package  com.dinboy.net {
 			dispatchEvent(new Event(ITEM_UPLOADING));
 		}
 		
-		/**
-		 * 更新已经下载完成的字节
-		 */
-		private function updataBytesLoaded():void 
-		{
-			_bytesUploaded=0;
-			for (var name:String in _upLoadArray) 
-			{
-				_bytesUploaded += _upLoadArray[name];
-			}
-		}
-		
-		/**
-		 * 当单个文件加载完成时调度
-		 * @param	event
-		 */
-		private function completeHandler(event:Event):void {
-			var __file:FileReference = FileReference(event.target);
-			//trace("completeHandler: name=" + file.name);
-			__file.removeEventListener(Event.OPEN, openHandler);
-			__file.removeEventListener(Event.COMPLETE, completeHandler);
-			__file.removeEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
-			__file.removeEventListener(ProgressEvent.PROGRESS, progressHandler);
-			__file.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-			removePendingFile(__file);
-			
-			//如果不是一起上载,则陆续上载.
-			if (!_togetherLoad) 	{ queueUpload(); }
-		}
 
-		/**
-		 * 当出现http协议错误时调度
-		 * @param	event
-		 */
-		private function httpErrorHandler(event:Event):void {
-//			var file:FileReference = FileReference(event.target);
-//			trace("httpErrorHandler: name=" + file.name);
-		}
-
-		/**
-		 * 当出现IO错误时调度
-		 * @param	event
-		 */
-		private function ioErrorHandler(event:Event):void {
-//			var file:FileReference = FileReference(event.target);
-//			trace("ioErrorHandler: name=" + file.name);
-		}
-
-		/**
-		 * 当遇到安全沙箱问题时调度
-		 * @param	event
-		 */
-		private function securityErrorHandler(event:Event):void {
-//			var file:FileReference = FileReference(event.target);
-//			trace("securityErrorHandler: name=" + file.name + " event=" + event.toString());
-		}
-		
-		/**
-		 * 开始上传
-		 * @param	_url	上传地址
-		 */
-		public function upload(__url:String=null):void 
-		{
-			if (__url != null) _url = __url;
-			if (_url == null) return;
-			_uploadURL.url=_url
-			_pendingFiles = [];
-			_uploadingItems = [];
-			_upLoadArray = [];
-			_itemsLoaded = 0;
-			var __file:FileReference;
-			for (var i:uint = 0; i < fileList.length; i++) {
-				__file = FileReference(fileList[i]);
-				_pendingFiles.push(__file);
-			}
-			
-			if (_togetherLoad) 
-			{
-				togetherUpload();
-			}else 
-			{
-				queueUpload();
-			}
-		}
-		
-		/**
-		 * 所有选择的文件一起上传
-		 */
-		private function togetherUpload():void 
-		{
-			for (var i:uint = 0; i < _pendingFiles.length; i++) {
-				addPendingFile(_pendingFiles[i]);
-				_uploadingItems.push(_pendingFiles[i]);
-			}
-		}
-		
-		/**
-		 * 队列上传
-		 * @param	file	上传的文件
-		 */
-		private function queueUpload():void 
-		{
-			if (_pendingFiles.length <= 0) return;
-			addPendingFile(_pendingFiles[0]);
-			_uploadingItems.push(_pendingFiles[0]);
-		}
-		
-
-		
+		//========================================================================================
+		//===== Getter&&Setter ======
+		//========================================================================================
 		/**
 		 * [只读 readOnly] 选择的所有文件个数
 		 */
@@ -360,8 +386,13 @@ package  com.dinboy.net {
 		public function get itemsLoaded():uint { return _itemsLoaded; }
 		
 		
-
-
+		/**
+		 * 以文本输出
+		 */
+		override public function toString():void 
+		{
+			return VERSION;
+		}
 
 
 		//============================================
