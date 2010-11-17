@@ -144,7 +144,8 @@ package
 			_customFileRef.addEventListener(DinFileReferenceList.LISTLOAD_COMPLETE, listLoadCompleteHandler, false, 0, true);
 			_customFileRef.addEventListener(DinFileReferenceList.LIST_SELECT, listSelectHandler, false, 0, true);
 			_customFileRef.addEventListener(DinFileReferenceList.ITEM_UPLOADING, itemsLoadingHandler, false, 0, true);
-			_customFileRef.togetherLoad =false	;
+			_customFileRef.togetherLoad = false	;
+			trace(_customFileRef)
 			
 			_uploadButton = new PromptButton();
 			_uploadButton.buttonMode = true;
