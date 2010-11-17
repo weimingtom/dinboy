@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<data>
+	<!-- 
+	uploadURL:上传的路径
+	maxCount:最大可上传文件个数
+	maxBytes:最大可上传的千字节
+	-->
+	<uploadURL>uploadTest.php</uploadURL>
+	<maxCount>100</maxCount>
+	<maxBytes>10485760000</maxBytes>
+	<fileFilters>
+		<item description="图片格式 (*.jpg, *.jpeg, *.gif, *.png)"  extension="*.jpg;*.jpeg;*.gif;*.png" />
+		<item description="所有格式 (*.*)" extension="*.*" />
+	</fileFilters>
+</data>
