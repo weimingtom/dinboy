@@ -2,11 +2,11 @@
 <data>
 	<!-- 
 	uploadURL:上传的路径
-	maxCount:最大可上传文件个数
-	maxBytes:最大可上传的千字节
+	maxCount:最大可上传文件个数 [最大只能751个]
+	maxBytes:最大可上传的字节数 [最大只能100M]
 	-->
 	<uploadURL>uploadTest.php</uploadURL>
-	<maxCount>100</maxCount>
+	<maxCount>10000</maxCount>
 	<maxBytes>10485760000</maxBytes>
 	<fileFilters>
 		<item description="图片格式 (*.jpg, *.jpeg, *.gif, *.png)"  extension="*.jpg;*.jpeg;*.gif;*.png" />
