@@ -389,9 +389,9 @@ package  com.dinboy.net {
 		/**
 		 * 以文本输出
 		 */
-		override public function toString():void 
+		override public function toString():String 
 		{
-			return VERSION;
+			return "钉崽 [dinboy.com] :: "+VERSION;
 		}
 
 
