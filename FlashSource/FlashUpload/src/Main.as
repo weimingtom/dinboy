@@ -144,8 +144,7 @@ package
 			_customFileRef.addEventListener(DinFileReferenceList.LISTLOAD_COMPLETE, listLoadCompleteHandler, false, 0, true);
 			_customFileRef.addEventListener(DinFileReferenceList.LIST_SELECT, listSelectHandler, false, 0, true);
 			_customFileRef.addEventListener(DinFileReferenceList.ITEM_UPLOADING, itemsLoadingHandler, false, 0, true);
-			_customFileRef.togetherLoad = false	;
-			trace(_customFileRef)
+			_customFileRef.multiProcess = false	;
 			
 			_uploadButton = new PromptButton();
 			_uploadButton.buttonMode = true;
@@ -171,7 +170,7 @@ package
 		 */
 		private function itemsLoadingHandler(event:Event):void 
 		{
-			_progressTF.text = "已经上传:"+_customFileRef.itemsLoaded+"个文件 " +_customFileRef.kilobytesUploaded + "KB " + ((_customFileRef.percen) * 1000 >> 0) / 10 + "%";
+			_progressTF.text = "已经上传:\n"+_customFileRef.itemsLoaded+"个文件 " +_customFileRef.kilobytesUploaded + "KB " + ((_customFileRef.percen) * 1000 >> 0) / 10 + "%";
 		}
 		
 		/**
@@ -226,7 +225,6 @@ package
 			{
 				_customFileRef.fileList[i] = null;
 			}
-			//	trace("Complete");
 		}
 		
 	}
