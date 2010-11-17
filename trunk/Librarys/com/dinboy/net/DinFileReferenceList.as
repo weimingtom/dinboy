@@ -39,7 +39,7 @@ package  com.dinboy.net {
 		/**
 		 * 是否一起加载
 		 */
-		private var	_togetherLoad:Boolean;
+		private var	_multiProcess:Boolean;
 		
 		/**
 		 * 所选择的总字节
@@ -85,7 +85,7 @@ package  com.dinboy.net {
 			_uploadURL = new URLRequest();
 			_fileFilters = __fileFilters;
 			_url = __url;
-			_togetherLoad = false;
+			_multiProcess = false;
 			initializeListListeners();
 		}
 		
@@ -123,7 +123,7 @@ package  com.dinboy.net {
 				_pendingFiles.push(__file);
 			}
 			
-			if (_togetherLoad) 
+			if (_multiProcess) 
 			{
 				togetherUpload();
 			}else 
@@ -253,7 +253,7 @@ package  com.dinboy.net {
 			removePendingFile(__file);
 			
 			//如果不是一起上载,则陆续上载.
-			if (!_togetherLoad) 	{ queueUpload(); }
+			if (!_multiProcess) 	{ queueUpload(); }
 		}
 
 		/**
@@ -342,12 +342,12 @@ package  com.dinboy.net {
 		public function get itemLength():uint { return fileList.length; }
 		
 		/**
-		 * 是否一起加载
+		 * 是否多线程加载
 		 */
-		public function get togetherLoad():Boolean { return _togetherLoad; }
-		public function set togetherLoad(value:Boolean):void 
+		public function get multiProcess():Boolean { return _multiProcess; }
+		public function set multiProcess(value:Boolean):void 
 		{
-			_togetherLoad = value;
+			_multiProcess = value;
 		}
 		
 		/**
