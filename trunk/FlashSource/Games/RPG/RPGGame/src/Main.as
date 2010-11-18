@@ -23,17 +23,17 @@ package
 		/**
 		 * 单元格大小
 		 */
-		private static const SIDE:uint = 50;
+		private static const SIDE:Number = 5;
 		
 		/**
 		 * 水平个数
 		 */
-		private static const HCOUNT:uint = 50;
+		private static const HCOUNT:uint = 500;
 		
 		/**
 		 * 垂直个数
 		 */
-		private static const VCOUNT:uint = 50;
+		private static const VCOUNT:uint = 500;
 		
 		/**
 		 * 游戏人物加载器
@@ -49,6 +49,11 @@ package
 		 * 地图背景
 		 */
 		private var _mapBackground:Sprite;
+		
+		/**
+		 * 显示路径的容器
+		 */
+		private var _pathContainer:Sprite;
 		
 		/**
 		 * 寻找到的路径数组
@@ -75,11 +80,16 @@ package
 		 */
 		private var _stepCount:uint;
 		
+		/**
+		 * A※算法实例
+		 */
+		private var _astarer:Astar;
+		
 		
 		
 		public function Main():void 
 		{
-			_stepCount = GameConfig.stepCount = 10;
+			_stepCount = GameConfig.stepCount = 1;
 			_cellWidth = GameConfig.cellWidth = SIDE;
 			_cellHeight = GameConfig.cellHeight = SIDE;
 			GameConfig.horizontalSpeed = SIDE /_stepCount;
@@ -98,20 +108,28 @@ package
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
+			stage.align = StageAlign.TOP_LEFT;
+			stage.scaleMode = StageScaleMode.NO_SCALE;
 			
 			_mapPath = [];
+			_astarer = new Astar();
 			
+		
 			_mapDataGrid = new AstarGrid(HCOUNT, VCOUNT);
 			_mapBackground = new Sprite();
 			addChild(_mapBackground);
-			drawBackground();
+			_pathContainer = new Sprite();	
+			_pathContainer.mouseEnabled = false;
+			addChild(_pathContainer);
+			if (drawBackground()) 
+			{
+				_player = new RPGPlayer(0, 0, 48, 96, "hero.png");
+				addChild(_player);
+				_player.addEventListener(PlayerEvent.PLAYER_INITED, playerInitedHandler, false, 0, true);
+			}
 			
-			_player = new RPGPlayer(0, 0, 48, 96, "hero.png");
-			addChild(_player);
-			_player.addEventListener(PlayerEvent.PLAYER_INITED, playerInitedHandler, false, 0, true);
 			
-			stage.align = StageAlign.TOP_LEFT;
-			stage.scaleMode = StageScaleMode.NO_SCALE;
+			
 			
 		}
 		
@@ -121,38 +139,50 @@ package
 		 */
 		private function playerInitedHandler(event:PlayerEvent):void 
 		{
-		//	event.currentTarget.x = event.standX * _cellWidth + (_cellWidth-event.currentTarget.width>>1);
-		//	event.currentTarget.y = event.standY * _cellHeight - event.currentTarget.height+(_cellHeight>>1);
 			_mapBackground.addEventListener(MouseEvent.CLICK, this.mapClickHandler, false, 0, true);
 		}
 		
 		/**
 		 * 绘制背景表格
 		 */
-		private function  drawBackground():void 
+		private function  drawBackground():Boolean 
 		{
 			_mapBackground.graphics.clear();
-			_mapBackground.graphics.lineStyle(1);
-			_mapBackground.graphics.beginFill(0xFFFFFF, 0);
-			var i:int;
-			for (i = 0; i < HCOUNT ; i++) 
-			{
-				var j:int;
-				for (j = 0; j < VCOUNT; j++) 
-				{
-					_mapBackground.graphics.drawRect(i*SIDE, j*SIDE, SIDE, SIDE);
-				}
-			}
+//			_mapBackground.graphics.lineStyle(1);
+			_mapBackground.graphics.beginFill(0xFFFFFF);
+			_mapBackground.graphics.drawRect(0, 0, HCOUNT * SIDE, VCOUNT * SIDE);
+			//var i:uint,__gridWidth:Number,__gridHeight:Number;
+			//__gridWidth = HCOUNT * SIDE;
+			//__gridHeight = VCOUNT * SIDE;
+			//for (i = 0; i <= HCOUNT ; i++) 
+			//{
+					//_mapBackground.graphics.moveTo(0, i*SIDE);
+					//_mapBackground.graphics.lineTo(__gridWidth,i*SIDE);
+			//}
+			//for (i = 0; i <= VCOUNT; i++) 
+			//{
+				//_mapBackground.graphics.moveTo(i * SIDE, 0);
+				//_mapBackground.graphics.lineTo(i * SIDE, __gridHeight);
+				//}
 			_mapBackground.graphics.endFill();
-			if (_mapPath.length>=0) 
-			{
-				_mapBackground.graphics.beginFill(0);
+
+			return true;
+		}
+		
+		/**
+		 * 更新路径
+		 */
+		private function updataPath():void 
+		{
+			if (_mapPath.length <= 0)  return;
+			_pathContainer.graphics.clear();
+			_pathContainer.graphics.beginFill(0);
+				var i:int;
 				for ( i = 0; i< _mapPath.length ;i++ ) 
 				{
-					_mapBackground.graphics.drawRect(_mapPath[i].x*SIDE, _mapPath[i].y*SIDE, SIDE, SIDE);
+					_pathContainer.graphics.drawRect(_mapPath[i].x*SIDE, _mapPath[i].y*SIDE, SIDE, SIDE);
 				}
-			}
-			_mapBackground.graphics.endFill();
+				_pathContainer.graphics.endFill();
 		}
 		
 		/**
@@ -207,12 +237,11 @@ package
 		 */
 		private function findPath():void
 		{
-			var __astar:Astar = new Astar();
-					if (__astar.findPath(_mapDataGrid)) 
+					if (_astarer.findPath(_mapDataGrid)) 
 					{
-						_mapPath = __astar.path ;
+						_mapPath = _astarer.path ;
 						_player.walking(_mapPath);
-						drawBackground();
+					//	updataPath();
 					}else 
 					{
 						trace("Path Can't Found!");
