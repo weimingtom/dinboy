@@ -21,7 +21,7 @@ package com.dinboy.game.astar
 		/**
 		 * 节点数组
 		 */
-		private var _nodesArray:Array;
+		private var _nodesArray:Vector.<Vector>;
 		
 		/**
 		 * 节点列数
@@ -43,15 +43,15 @@ package com.dinboy.game.astar
 			_numCols = __numCols;
 			_numRows = __numRows;
 			
-			_nodesArray = new Array();				//实例初始化 节点数组
+			_nodesArray = new Vector.<Vector>();				//实例初始化 节点数组
 			
 			var	__i:int,__j:int;
 			for (__i = 0; __i < _numCols ; __i++) 
 			{
-				_nodesArray[__i] = new Array();
+				_nodesArray[__i] = new Vector.<AstarNode>();
 				for (__j = 0; __j <_numRows ; __j++) 
 				{
-					_nodesArray[__i][__j] = new AstarNode(__i, __j);				//开始遍历数组并添加节点
+					_nodesArray[__i][__j].push(new AstarNode(__i, __j));				//开始遍历数组并添加节点
 				}
 			}
 		}
