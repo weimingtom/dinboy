@@ -23,7 +23,7 @@ package
 		/**
 		 * 单元格大小
 		 */
-		private static const SIDE:Number = 10;
+		private static const SIDE:Number = 40;
 		
 		/**
 		 * 水平个数
@@ -75,19 +75,12 @@ package
 		 */
 		private var _stepCount:uint;
 		
-		/**
-		 * A※算法实例
-		 */
-		private var _astarer:Astar;
-		
-		
 		
 		public function Main():void 
 		{
-			_stepCount = GameConfig.stepCount = 2;
+			GameConfig.speed = 100;
+			GameConfig.distance = 10;
 			_cellSide = GameConfig.cellSide = SIDE;
-			GameConfig.speed = SIDE /_stepCount>>0;
-			
 			
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
@@ -105,7 +98,6 @@ package
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			
 			_mapPath = [];
-			_astarer = new Astar();
 			
 		
 			_mapDataGrid = new AstarGrid(HCOUNT, VCOUNT);
@@ -120,8 +112,6 @@ package
 				addChild(_player);
 				_player.addEventListener(PlayerEvent.PLAYER_INITED, playerInitedHandler, false, 0, true);
 			}
-			
-			
 			
 			
 		}
@@ -230,9 +220,9 @@ package
 		 */
 		private function findPath():void
 		{
-					if (_astarer.findPath(_mapDataGrid)) 
+					if (Astar.findPath(_mapDataGrid)) 
 					{
-						_mapPath = _astarer.path ;
+						_mapPath = Astar.path ;
 						_player.walking(_mapPath);
 					//	updataPath();
 					}else 

@@ -7,8 +7,10 @@ package com.dinboy.game.astar.ui
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.TimerEvent;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
+	import flash.utils.Timer;
 	
 
 	/**
@@ -80,6 +82,11 @@ package com.dinboy.game.astar.ui
 		private var _cellSide:Number;
 		
 		/**
+		 * 每布行走的距离
+		 */
+		private var _distance:Number;
+		
+		/**
 		 * 已经移动的次数
 		 */
 		private var _flag:Number;
@@ -94,6 +101,15 @@ package com.dinboy.game.astar.ui
 		 */
 		private var _stepCount:uint;
 		
+		/**
+		 * 行走的时基
+		 */
+		private var _walkTimer:Timer;
+		
+		/**
+		 * 
+		 */
+		private var _playStepIndex:uint;
 		
 		/**
 		 * RPG人物
@@ -111,8 +127,11 @@ package com.dinboy.game.astar.ui
 			_playerH = __pH;
 			_speed = GameConfig.speed;
 			_cellSide = GameConfig.cellSide;
-			_stepCount = GameConfig.stepCount;
+			_distance = GameConfig.distance;
+			_stepCount = _cellSide/_distance>>0;
 			_walking = false;
+			_flag = 0;
+			_walkTimer = new Timer(_speed);
 			
 			_playerLoader = new DinLoader();
 			_playerLoader.url = __imgURL;
@@ -133,10 +152,17 @@ package com.dinboy.game.astar.ui
 		{
 			_walkWays = __ways;
 			_stepIndex = 1;
-			_flag = 0;
-			x = _nowX * _cellSide + (_cellSide-_playerW>>1);
-			y = _nowY * _cellSide - _playerH + (_cellSide >> 1);
-			if (!_walking) addEventListener(Event.ENTER_FRAME, playerMoveEnterFrame, false, 0, true);
+			_walkTimer.stop();
+			_walkTimer.removeEventListener(TimerEvent.TIMER, playerMoveHandler);
+			//_flag = 0;
+			if (_flag==0) 
+			{
+				x = _nowX* _cellSide + (_cellSide-_playerW>>1);
+				y = _nowY * _cellSide - _playerH + (_cellSide >> 1);
+			}
+			
+			_walkTimer.addEventListener(TimerEvent.TIMER, playerMoveHandler, false, 0, true);
+			if(!_walkTimer.running)_walkTimer.start();
 		}
 		
 		
@@ -168,6 +194,7 @@ package com.dinboy.game.astar.ui
 				}
 				_playerBitArray[i] = __playHSteps;
 			}
+			_playStepIndex = 0;
 			_playerBitmap = new Bitmap();
 			_playerBitmap.bitmapData = _playerBitArray[0][0];
 			addChild(_playerBitmap);
@@ -185,15 +212,78 @@ package com.dinboy.game.astar.ui
 		 * 当开始行走时调度
 		 * @param	event
 		 */
-		private function playerMoveEnterFrame(event:Event):void 
+		private function playerMoveHandler(event:TimerEvent):void 
 		{
-			_flag++;
+			var __direct:uint;
 			var __dirX:int = _walkWays[_stepIndex].x - _nowX;
 			var __dirY:int = _walkWays[_stepIndex].y - _nowY;
-			x += _speed * __dirX;
-			y += _speed * __dirY;
+			x += _distance * __dirX;
+			y += _distance * __dirY;
+
 			
-			if (_flag==_stepCount)
+				if (__dirX == 1 && __dirY == 1) {//右下
+					__direct=5;
+				} else if (__dirX==1&&__dirY==0) {//右
+					__direct=2;
+				} else if (__dirX==1&&__dirY==-1) {//右上
+					__direct=7;
+				} else if (__dirX==0&&__dirY==-1) {//上
+					__direct=3;
+				} else if (__dirX==-1&&__dirY==-1) {//左上
+					__direct=6;
+				} else if (__dirX==-1&&__dirY==0) {//左
+					__direct = 1;
+				} else if (__dirX==-1&&__dirY==1) {//左下
+					__direct=4;
+				} else if (__dirX==0&&__dirY==1) {//下
+					__direct=0;
+				}
+			
+			//	 1 	 1		 1	 	 1
+			//	上	下	左	右
+			//if (_heroAngle>157.5 && _heroAngle<=180 || _heroAngle>-180&&_heroAngle<-157.5) 
+			//{
+				//_keyCodeString = "0010";
+			//}
+			//else if (_heroAngle>-157.5&&_heroAngle<=-112.5) 
+			//{
+				//_keyCodeString = "1010";
+			//}
+			//else if (_heroAngle>-112.5&&_heroAngle<=-67.5) 
+			//{
+				//_keyCodeString = "1000";
+			//}
+			//else if (_heroAngle>-67.5&&_heroAngle<=-22.5) 
+			//{
+				//_keyCodeString = "1001";
+			//}
+			//else if (_heroAngle>-22.5&& _heroAngle<=22.5) 
+			//{
+				//_keyCodeString = "0001";
+			//}
+			//else if (_heroAngle>22.5&&_heroAngle<=67.5) 
+			//{
+				//_keyCodeString = "0101";
+			//}
+			//else if (_heroAngle>67.5&&_heroAngle<=112.5)
+			//{
+				//_keyCodeString = "0100";
+				//}
+			//else if (_heroAngle>112.5&&_heroAngle<=157.5) 
+			//{
+				//_keyCodeString = "0110";
+			//}
+			
+			
+			
+			_flag++;
+			_playStepIndex++;
+			if (_playStepIndex>=4) 
+			{
+				_playStepIndex = 0;
+			}
+			_playerBitmap.bitmapData = _playerBitArray[__direct][_playStepIndex];
+			if (_flag>=_stepCount)
 			{
 				_nowX = _walkWays[_stepIndex].x;
 				_nowY = _walkWays[_stepIndex].y;
@@ -202,9 +292,13 @@ package com.dinboy.game.astar.ui
 				_stepIndex++;
 				_flag = 0;
 			}
+			
 			if (_stepIndex==_walkWays.length) 
 			{
-				removeEventListener(Event.ENTER_FRAME, playerMoveEnterFrame);
+				_walkTimer.reset();
+				_walkTimer.stop();
+				_walkTimer.removeEventListener(TimerEvent.TIMER, playerMoveHandler);
+				_playerBitmap.bitmapData = _playerBitArray[__direct][0];
 			}
 		}
 		

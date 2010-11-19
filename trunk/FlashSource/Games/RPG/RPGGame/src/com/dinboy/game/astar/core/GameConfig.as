@@ -15,14 +15,15 @@ package com.dinboy.game.astar.core
 		public static var speed:Number;
 		
 		/**
+		 * 行走的距离
+		 */
+		public static var distance:Number;
+		
+		/**
 		 * 单元格大小
 		 */
 		public static var cellSide:Number;
 		
-		/**
-		 * 走动的次数
-		 */
-		public static var stepCount:uint;
 
 
 
