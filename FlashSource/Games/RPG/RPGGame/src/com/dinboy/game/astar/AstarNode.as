@@ -47,7 +47,7 @@ package com.dinboy.game.astar
 		/**
 		 * 代价因子  
 		 */
-		public var costMultiplier:Number = 0;
+		public var costMultiplier:Number=0;
 		
 		/**
 		 * 实例化一个节点

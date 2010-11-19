@@ -12,47 +12,47 @@ package com.dinboy.game.astar
 		/**
 		 * 开放列表
 		 */
-		private var _openArray:Vector.<AstarNode>;
+		private static var _openArray:Vector.<AstarNode>;
 		
 		/**
 		 * 关闭列表
 		 */
-		private var _closedArray:Vector.<AstarNode>;
+		private static var _closedArray:Vector.<AstarNode>;
 		
 		/**
 		 * 地图表格
 		 */
-		private var _mapGrid:AstarGrid;
+		private static var _mapGrid:AstarGrid;
 		
 		/**
 		 * 开始节点
 		 */
-		private var _startNode:AstarNode;
+		private static var _startNode:AstarNode;
 		
 		/**
 		 * 结束节点
 		 */
-		private var _endNode:AstarNode;
+		private static var _endNode:AstarNode;
 		
 		/**
 		 * 路径数组
 		 */
-		private var _astarPath:Array;
+		private static var _astarPath:Array;
 		
 		/**
 		 * 估价公式
 		 */
-		private const _heuristic:Function = CostsUtil.euclidian;
+		private static const _heuristic:Function = CostsUtil.euclidian;
 		
 		/**
 		 * 直线代价
 		 */
-		private var _straightCost:Number = CostsUtil.straightCost;
+		private static var _straightCost:Number = CostsUtil.straightCost;
 		
 		/**
 		 * 对角线代价
 		 */
-		private var _diagCost:Number = CostsUtil.diagCost;
+		private static var _diagCost:Number = CostsUtil.diagCost;
 		public function Astar() 
 		{
 			
@@ -63,7 +63,7 @@ package com.dinboy.game.astar
 		 * @param	__node	被检测的节点
 		 * @return	节点是否开启
 		 */
-		private function isOpen(__node:AstarNode):Boolean
+		private static function isOpen(__node:AstarNode):Boolean
 		{
 			var i:int;
 			for (i = 0; i < _openArray.length; i++) 
@@ -78,7 +78,7 @@ package com.dinboy.game.astar
 		 * @param	__node	需要被检测的节点
 		 * @return	节点是否在关闭队列里面
 		 */
-		private function  isClosed(__node:AstarNode):Boolean
+		private static function  isClosed(__node:AstarNode):Boolean
 		{
 			var i:int;
 			for (i = 0; i < _closedArray.length; i++) 
@@ -93,7 +93,7 @@ package com.dinboy.game.astar
 		 * @param	__grid	地图表格
 		 * @return	是否找到路径
 		 */
-		public function findPath(__grid:AstarGrid):Boolean 
+		public static function findPath(__grid:AstarGrid):Boolean 
 		{
 			_mapGrid = __grid;
 			_openArray = new Vector.<AstarNode>();
@@ -110,7 +110,7 @@ package com.dinboy.game.astar
 		 * 开始寻找路径,找到以后进行路径绘制,并返回是否找到路径
 		 * @return	是否找到路径
 		 */
-		private function searchPath():Boolean
+		private static function searchPath():Boolean
 		{
 			var __node:AstarNode = _startNode;
 			
@@ -190,7 +190,7 @@ package com.dinboy.game.astar
 			return true;
 		}
 		
-		private function sortOnFunction(x:AstarNode,y:AstarNode):Number 
+		private static function sortOnFunction(x:AstarNode,y:AstarNode):Number 
 		{
 			if (x.f>y.f) 
 			{
@@ -202,7 +202,7 @@ package com.dinboy.game.astar
 		/**
 		 * 根据父节点指向,从终点反向链接到开始点
 		 */
-		private function buildPath():void
+		private static function buildPath():void
 		{
 			_astarPath = [];
 			var __Node:AstarNode = _endNode;
@@ -217,17 +217,17 @@ package com.dinboy.game.astar
 		/**
 		 * 开放列表
 		 */
-		public function get openArray():Vector.<AstarNode> { return _openArray ; }
+		public static function get openArray():Vector.<AstarNode> { return _openArray ; }
 		
 		/**
 		 * 关闭列表
 		 */
-		public function get closedArray():Vector.<AstarNode> { return _closedArray ; }
+		public static function get closedArray():Vector.<AstarNode> { return _closedArray ; }
 		
 		/**
 		 * 路径列表
 		 */
-		public function get path():Array { return _astarPath ; }
+		public static function get path():Array { return _astarPath ; }
 
 
 
