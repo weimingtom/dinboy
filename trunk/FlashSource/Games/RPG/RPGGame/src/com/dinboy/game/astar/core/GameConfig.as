@@ -10,24 +10,14 @@ package com.dinboy.game.astar.core
 	{
 		
 		/**
-		 * 人物行走水平方向速度
+		 * 人物行走速度
 		 */
-		public static var horizontalSpeed:Number;
+		public static var speed:Number;
 		
 		/**
-		 * 人物行走垂直方向速度
+		 * 单元格大小
 		 */
-		public static var verticalSpeed:Number;
-		
-		/**
-		 * 单元格宽度
-		 */
-		public static var cellWidth:Number;
-		
-		/**
-		 * 单元格高度
-		 */
-		public static var cellHeight:Number;
+		public static var cellSide:Number;
 		
 		/**
 		 * 走动的次数

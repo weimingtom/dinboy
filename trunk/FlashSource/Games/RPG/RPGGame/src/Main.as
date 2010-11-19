@@ -23,17 +23,17 @@ package
 		/**
 		 * 单元格大小
 		 */
-		private static const SIDE:Number = 5;
+		private static const SIDE:Number = 10;
 		
 		/**
 		 * 水平个数
 		 */
-		private static const HCOUNT:uint = 500;
+		private static const HCOUNT:uint = 100;
 		
 		/**
 		 * 垂直个数
 		 */
-		private static const VCOUNT:uint = 500;
+		private static const VCOUNT:uint = 100;
 		
 		/**
 		 * 游戏人物加载器
@@ -64,16 +64,11 @@ package
 		 * 行走的速度
 		 */
 		private var _speed:Number;
-		
+
 		/**
-		 * 单元格宽度
+		 * 单元格大小
 		 */
-		private var _cellWidth:Number;
-		
-		/**
-		 * 单元格高度
-		 */
-		private var _cellHeight:Number;
+		private var _cellSide:Number;
 		
 		/**
 		 * 走动的次数
@@ -89,11 +84,9 @@ package
 		
 		public function Main():void 
 		{
-			_stepCount = GameConfig.stepCount = 1;
-			_cellWidth = GameConfig.cellWidth = SIDE;
-			_cellHeight = GameConfig.cellHeight = SIDE;
-			GameConfig.horizontalSpeed = SIDE /_stepCount;
-			GameConfig.verticalSpeed = SIDE / _stepCount;
+			_stepCount = GameConfig.stepCount = 2;
+			_cellSide = GameConfig.cellSide = SIDE;
+			GameConfig.speed = SIDE /_stepCount>>0;
 			
 			
 			if (stage) init();
@@ -148,22 +141,22 @@ package
 		private function  drawBackground():Boolean 
 		{
 			_mapBackground.graphics.clear();
-//			_mapBackground.graphics.lineStyle(1);
+			_mapBackground.graphics.lineStyle(1);
 			_mapBackground.graphics.beginFill(0xFFFFFF);
 			_mapBackground.graphics.drawRect(0, 0, HCOUNT * SIDE, VCOUNT * SIDE);
-			//var i:uint,__gridWidth:Number,__gridHeight:Number;
-			//__gridWidth = HCOUNT * SIDE;
-			//__gridHeight = VCOUNT * SIDE;
-			//for (i = 0; i <= HCOUNT ; i++) 
-			//{
-					//_mapBackground.graphics.moveTo(0, i*SIDE);
-					//_mapBackground.graphics.lineTo(__gridWidth,i*SIDE);
-			//}
-			//for (i = 0; i <= VCOUNT; i++) 
-			//{
-				//_mapBackground.graphics.moveTo(i * SIDE, 0);
-				//_mapBackground.graphics.lineTo(i * SIDE, __gridHeight);
-				//}
+			var i:uint,__gridWidth:Number,__gridHeight:Number;
+			__gridWidth = HCOUNT * SIDE;
+			__gridHeight = VCOUNT * SIDE;
+			for (i = 0; i <= HCOUNT ; i++) 
+			{
+					_mapBackground.graphics.moveTo(0, i*SIDE);
+					_mapBackground.graphics.lineTo(__gridWidth,i*SIDE);
+			}
+			for (i = 0; i <= VCOUNT; i++) 
+			{
+				_mapBackground.graphics.moveTo(i * SIDE, 0);
+				_mapBackground.graphics.lineTo(i * SIDE, __gridHeight);
+				}
 			_mapBackground.graphics.endFill();
 
 			return true;
