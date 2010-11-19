@@ -12,12 +12,12 @@ package com.dinboy.game.astar
 		/**
 		 * 开放列表
 		 */
-		private var _openArray:Array;
+		private var _openArray:Vector.<AstarNode>;
 		
 		/**
 		 * 关闭列表
 		 */
-		private var _closedArray:Array;
+		private var _closedArray:Vector.<AstarNode>;
 		
 		/**
 		 * 地图表格
@@ -42,7 +42,7 @@ package com.dinboy.game.astar
 		/**
 		 * 估价公式
 		 */
-		private const _heuristic:Function = CostsUtil.diagonal;
+		private const _heuristic:Function = CostsUtil.euclidian;
 		
 		/**
 		 * 直线代价
@@ -96,8 +96,8 @@ package com.dinboy.game.astar
 		public function findPath(__grid:AstarGrid):Boolean 
 		{
 			_mapGrid = __grid;
-			_openArray = [];
-			_closedArray = [];
+			_openArray = new Vector.<AstarNode>();
+			_closedArray = new Vector.<AstarNode>();
 			_startNode = _mapGrid.startNode;
 			_endNode = _mapGrid.endNode;
 			_startNode.g = 0;
@@ -112,8 +112,6 @@ package com.dinboy.game.astar
 		 */
 		private function searchPath():Boolean
 		{
-			//路径搜寻的次数
-			var __searchTimes:uint = 1;
 			var __node:AstarNode = _startNode;
 			
 			if (__node == _endNode) return false;
@@ -179,18 +177,26 @@ package com.dinboy.game.astar
 				if (_openArray.length <= 0) return false; 
 				
 				//按总代价从小到大排列
-				_openArray.sortOn("f", Array.NUMERIC);
+				//_openArray.sortOn("f", Array.NUMERIC);
+				_openArray.sort(sortOnFunction);
 				//从开放列表中删除代价最小的节点,同时把该节点赋值给__node,作为下次的中心点
 				__node = _openArray.shift() as AstarNode;
 				
-				//trace("第" + __searchTimes + "轮的最佳节点:" + __node.x,__node.y);
-				__searchTimes++;
 			}
 			
 			//循环过后进行路径创建
 			buildPath();
 			
 			return true;
+		}
+		
+		private function sortOnFunction(x:AstarNode,y:AstarNode):Number 
+		{
+			if (x.f>y.f) 
+			{
+				return 1;
+			}
+			return -1;
 		}
 		
 		/**
@@ -211,12 +217,12 @@ package com.dinboy.game.astar
 		/**
 		 * 开放列表
 		 */
-		public function get openArray():Array { return _openArray ; }
+		public function get openArray():Vector.<AstarNode> { return _openArray ; }
 		
 		/**
 		 * 关闭列表
 		 */
-		public function get closedArray():Array { return _closedArray ; }
+		public function get closedArray():Vector.<AstarNode> { return _closedArray ; }
 		
 		/**
 		 * 路径列表

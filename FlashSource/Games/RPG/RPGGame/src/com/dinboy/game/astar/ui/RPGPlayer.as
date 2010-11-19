@@ -70,24 +70,14 @@ package com.dinboy.game.astar.ui
 		private var _stepIndex:uint;
 		
 		/**
-		 * 水平方向的速度
+		 * 人物行走速度
 		 */
-		private var _horizontalSpeed:Number;
+		private var _speed:Number;
 		
 		/**
-		 * 垂直方向的速度
+		 * 单元格大小
 		 */
-		private var _verticalSpeed:Number;
-		
-		/**
-		 * 单元格宽度
-		 */
-		private var _cellWidth:Number;
-		
-		/**
-		 * 单元格高度
-		 */
-		private var _cellHeight:Number;
+		private var _cellSide:Number;
 		
 		/**
 		 * 已经移动的次数
@@ -119,10 +109,8 @@ package com.dinboy.game.astar.ui
 			_nowY = __nY;
 			_playerW = __pW;
 			_playerH = __pH;
-			_horizontalSpeed = GameConfig.horizontalSpeed;
-			_verticalSpeed = GameConfig.verticalSpeed;
-			_cellWidth = GameConfig.cellWidth;
-			_cellHeight = GameConfig.cellHeight;
+			_speed = GameConfig.speed;
+			_cellSide = GameConfig.cellSide;
 			_stepCount = GameConfig.stepCount;
 			_walking = false;
 			
@@ -146,8 +134,8 @@ package com.dinboy.game.astar.ui
 			_walkWays = __ways;
 			_stepIndex = 1;
 			_flag = 0;
-			x = _nowX * _cellWidth + (_cellWidth-_playerW>>1);
-			y = _nowY * _cellHeight - _playerH + (_cellHeight >> 1);
+			x = _nowX * _cellSide + (_cellSide-_playerW>>1);
+			y = _nowY * _cellSide - _playerH + (_cellSide >> 1);
 			if (!_walking) addEventListener(Event.ENTER_FRAME, playerMoveEnterFrame, false, 0, true);
 		}
 		
@@ -184,8 +172,8 @@ package com.dinboy.game.astar.ui
 			_playerBitmap.bitmapData = _playerBitArray[0][0];
 			addChild(_playerBitmap);
 			
-			x = _nowX * _cellWidth + (_cellWidth-_playerW>>1);
-			y = _nowY * _cellHeight - _playerH + (_cellHeight >> 1);
+			x = _nowX * _cellSide + (_cellSide-_playerW>>1);
+			y = _nowY * _cellSide - _playerH + (_cellSide >> 1);
 			
 			var __initedEvent:PlayerEvent = new PlayerEvent(PlayerEvent.PLAYER_INITED);
 				//__initedEvent.standX = _nowX;
@@ -199,17 +187,18 @@ package com.dinboy.game.astar.ui
 		 */
 		private function playerMoveEnterFrame(event:Event):void 
 		{
+			_flag++;
 			var __dirX:int = _walkWays[_stepIndex].x - _nowX;
 			var __dirY:int = _walkWays[_stepIndex].y - _nowY;
-			x += _horizontalSpeed * __dirX;
-			y += _verticalSpeed * __dirY;
-			_flag++;
+			x += _speed * __dirX;
+			y += _speed * __dirY;
+			
 			if (_flag==_stepCount)
 			{
 				_nowX = _walkWays[_stepIndex].x;
 				_nowY = _walkWays[_stepIndex].y;
-				x = _nowX * _cellWidth + (_cellWidth-_playerW>>1);
-				y = _nowY * _cellHeight - _playerH + (_cellHeight >> 1);
+				x = _nowX * _cellSide + (_cellSide-_playerW>>1);
+				y = _nowY * _cellSide - _playerH + (_cellSide >> 1);
 				_stepIndex++;
 				_flag = 0;
 			}
