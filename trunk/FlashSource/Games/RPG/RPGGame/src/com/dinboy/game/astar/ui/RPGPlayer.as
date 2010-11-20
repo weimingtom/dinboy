@@ -199,7 +199,7 @@ package com.dinboy.game.astar.ui
 			_playerBitmap.bitmapData = _playerBitArray[0][0];
 			addChild(_playerBitmap);
 			
-			x = _nowX * _cellSide + (_cellSide-_playerW>>1);
+			x = _nowX * _cellSide + (_cellSide-_playerW>>1)*1.4;
 			y = _nowY * _cellSide - _playerH + (_cellSide >> 1);
 			
 			var __initedEvent:PlayerEvent = new PlayerEvent(PlayerEvent.PLAYER_INITED);
@@ -217,8 +217,8 @@ package com.dinboy.game.astar.ui
 			var __direct:uint;
 			var __dirX:int = _walkWays[_stepIndex].x - _nowX;
 			var __dirY:int = _walkWays[_stepIndex].y - _nowY;
-			x += _distance * __dirX;
-			y += _distance * __dirY;
+			x += _distance * __dirX*0.7;
+			y += _distance * __dirY*0.5;
 
 			
 				if (__dirX == 1 && __dirY == 1) {//右下
@@ -287,7 +287,7 @@ package com.dinboy.game.astar.ui
 			{
 				_nowX = _walkWays[_stepIndex].x;
 				_nowY = _walkWays[_stepIndex].y;
-				x = _nowX * _cellSide + (_cellSide-_playerW>>1);
+				x = _nowX * _cellSide + (_cellSide-_playerW>>1)*1.4;
 				y = _nowY * _cellSide - _playerH + (_cellSide >> 1);
 				_stepIndex++;
 				_flag = 0;

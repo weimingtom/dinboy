@@ -28,12 +28,12 @@ package
 		/**
 		 * 水平个数
 		 */
-		private static const HCOUNT:uint = 100;
+		private static const HCOUNT:uint = 10;
 		
 		/**
 		 * 垂直个数
 		 */
-		private static const VCOUNT:uint = 100;
+		private static const VCOUNT:uint = 10;
 		
 		/**
 		 * 游戏人物加载器
@@ -133,19 +133,19 @@ package
 			_mapBackground.graphics.clear();
 			_mapBackground.graphics.lineStyle(1);
 			_mapBackground.graphics.beginFill(0xFFFFFF);
-			_mapBackground.graphics.drawRect(0, 0, HCOUNT * SIDE, VCOUNT * SIDE);
+			_mapBackground.graphics.drawRect(0, 0, HCOUNT * SIDE*1.4, VCOUNT * SIDE);
 			var i:uint,__gridWidth:Number,__gridHeight:Number;
 			__gridWidth = HCOUNT * SIDE;
 			__gridHeight = VCOUNT * SIDE;
 			for (i = 0; i <= HCOUNT ; i++) 
 			{
-					_mapBackground.graphics.moveTo(0, i*SIDE);
-					_mapBackground.graphics.lineTo(__gridWidth,i*SIDE);
+					_mapBackground.graphics.moveTo(i*SIDE*0.7, (HCOUNT-i)*SIDE*0.5);
+					_mapBackground.graphics.lineTo((HCOUNT+i)*SIDE*0.7,HCOUNT*SIDE-i*SIDE*0.5);
 			}
 			for (i = 0; i <= VCOUNT; i++) 
 			{
-				_mapBackground.graphics.moveTo(i * SIDE, 0);
-				_mapBackground.graphics.lineTo(i * SIDE, __gridHeight);
+				_mapBackground.graphics.moveTo(i*SIDE*0.7, (VCOUNT+i)*SIDE*0.5);
+				_mapBackground.graphics.lineTo((VCOUNT+i)*SIDE*0.7, i*SIDE*0.5);
 				}
 			_mapBackground.graphics.endFill();
 
@@ -175,7 +175,7 @@ package
 		private function mapClickHandler(event:MouseEvent):void
 		{
 			_mapDataGrid.setStartNode(_player.nowX,_player._nowY);
-			_mapDataGrid.setEndNode(event.localX / SIDE >> 0, event.localY / SIDE >> 0);
+			_mapDataGrid.setEndNode(event.localX / (SIDE*1.4) >> 0, event.localY /SIDE >> 0);
 			
 			//	 1 	 1		 1	 	 1
 			//	上	下	左	右
