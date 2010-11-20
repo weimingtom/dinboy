@@ -24,6 +24,16 @@ package com.dinboy.game.astar.core
 		 */
 		public static var cellSide:Number;
 		
+		/**
+		 * 单元格宽度(用在45°地图上)
+		 */
+		public static var cellWidth:Number;
+		
+		/**
+		 * 单元格高度(用在45°地图上)
+		 */
+		public static var cellHeight:Number;
+		
 
 
 

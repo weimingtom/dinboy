@@ -82,6 +82,16 @@ package com.dinboy.game.astar.ui
 		private var _cellSide:Number;
 		
 		/**
+		 * 单元格宽度
+		 */
+		private var _cellWidth:Number;
+		
+		/**
+		 * 单元格高度
+		 */
+		private var _cellHeight:Number;
+		
+		/**
 		 * 每布行走的距离
 		 */
 		private var _distance:Number;
@@ -128,7 +138,11 @@ package com.dinboy.game.astar.ui
 			_speed = GameConfig.speed;
 			_cellSide = GameConfig.cellSide;
 			_distance = GameConfig.distance;
-			_stepCount = _cellSide/_distance>>0;
+			_stepCount = _cellSide / _distance >> 0;
+			
+			_cellWidth = _cellSide * 1.4;
+			_cellHeight = _cellSide;
+			
 			_walking = false;
 			_flag = 0;
 			_walkTimer = new Timer(_speed);
@@ -199,8 +213,10 @@ package com.dinboy.game.astar.ui
 			_playerBitmap.bitmapData = _playerBitArray[0][0];
 			addChild(_playerBitmap);
 			
-			x = _nowX * _cellSide + (_cellSide-_playerW>>1)*1.4;
-			y = _nowY * _cellSide - _playerH + (_cellSide >> 1);
+			//x = _nowX * _cellSide *1.4+ (_cellSide-_playerW >> 1) * 1.4;
+			//y = _nowY * _cellSide - _playerH + (_cellSide >> 1);
+				x = _cellWidth*_nowX + (_cellWidth-_playerW>>1);
+				y = _cellHeight * _nowY - _playerH + (_cellHeight >> 1);
 			
 			var __initedEvent:PlayerEvent = new PlayerEvent(PlayerEvent.PLAYER_INITED);
 				//__initedEvent.standX = _nowX;
@@ -217,9 +233,8 @@ package com.dinboy.game.astar.ui
 			var __direct:uint;
 			var __dirX:int = _walkWays[_stepIndex].x - _nowX;
 			var __dirY:int = _walkWays[_stepIndex].y - _nowY;
-			x += _distance * __dirX*0.7;
-			y += _distance * __dirY*0.5;
-
+			x += _distance * __dirX*1.4;
+			y += _distance * __dirY;
 			
 				if (__dirX == 1 && __dirY == 1) {//右下
 					__direct=5;
@@ -287,8 +302,10 @@ package com.dinboy.game.astar.ui
 			{
 				_nowX = _walkWays[_stepIndex].x;
 				_nowY = _walkWays[_stepIndex].y;
-				x = _nowX * _cellSide + (_cellSide-_playerW>>1)*1.4;
-				y = _nowY * _cellSide - _playerH + (_cellSide >> 1);
+				//x = _nowX * _cellSide + (_cellSide-_playerW>>1);
+				//y = _nowY * _cellSide - _playerH + (_cellSide >> 1);
+				x = _cellWidth*_nowX + (_cellWidth-_playerW>>1);
+				y = _cellHeight * _nowY - _playerH + (_cellHeight >> 1);
 				_stepIndex++;
 				_flag = 0;
 			}

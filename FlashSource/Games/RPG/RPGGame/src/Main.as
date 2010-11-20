@@ -4,6 +4,7 @@ package
 	import com.dinboy.game.astar.AstarGrid;
 	import com.dinboy.game.astar.core.GameConfig;
 	import com.dinboy.game.astar.events.PlayerEvent;
+	import com.dinboy.game.astar.ui.MapContainer;
 	import com.dinboy.game.astar.ui.RPGPlayer;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -48,12 +49,12 @@ package
 		/**
 		 * 地图背景
 		 */
-		private var _mapBackground:Sprite;
+		private var _mapContainer:MapContainer;
 		
 		/**
 		 * 显示路径的容器
 		 */
-		private var _pathContainer:Sprite;
+		//private var _pathContainer:Sprite;
 		
 		/**
 		 * 寻找到的路径数组
@@ -71,6 +72,16 @@ package
 		private var _cellSide:Number;
 		
 		/**
+		 * 单元格宽度
+		 */
+		private var _cellWidth:Number;
+		
+		/**
+		 * 单元格高度
+		 */
+		private var _cellHeight:Number;
+		
+		/**
 		 * 走动的次数
 		 */
 		private var _stepCount:uint;
@@ -80,7 +91,8 @@ package
 		{
 			GameConfig.speed = 100;
 			GameConfig.distance = 10;
-			_cellSide = GameConfig.cellSide = SIDE;
+			GameConfig.cellWidth = SIDE * 1.4;
+			GameConfig.cellHeight = SIDE;
 			
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
@@ -101,11 +113,12 @@ package
 			
 		
 			_mapDataGrid = new AstarGrid(HCOUNT, VCOUNT);
-			_mapBackground = new Sprite();
-			addChild(_mapBackground);
-			_pathContainer = new Sprite();	
-			_pathContainer.mouseEnabled = false;
-			addChild(_pathContainer);
+			_mapContainer = new MapContainer(_mapDataGrid);
+			addChild(_mapContainer);
+			//_pathContainer = new Sprite();	
+			//_pathContainer.mouseEnabled = false;
+			//addChild(_pathContainer);
+			_mapContainer.addEventListener(
 			if (drawBackground()) 
 			{
 				_player = new RPGPlayer(0, 0, 48, 96, "hero.png");
@@ -122,51 +135,24 @@ package
 		 */
 		private function playerInitedHandler(event:PlayerEvent):void 
 		{
-			_mapBackground.addEventListener(MouseEvent.CLICK, this.mapClickHandler, false, 0, true);
+			_mapContainer.addEventListener(MouseEvent.CLICK, this.mapClickHandler, false, 0, true);
 		}
 		
 		/**
-		 * 绘制背景表格
-		 */
-		private function  drawBackground():Boolean 
-		{
-			_mapBackground.graphics.clear();
-			_mapBackground.graphics.lineStyle(1);
-			_mapBackground.graphics.beginFill(0xFFFFFF);
-			_mapBackground.graphics.drawRect(0, 0, HCOUNT * SIDE*1.4, VCOUNT * SIDE);
-			var i:uint,__gridWidth:Number,__gridHeight:Number;
-			__gridWidth = HCOUNT * SIDE;
-			__gridHeight = VCOUNT * SIDE;
-			for (i = 0; i <= HCOUNT ; i++) 
-			{
-					_mapBackground.graphics.moveTo(i*SIDE*0.7, (HCOUNT-i)*SIDE*0.5);
-					_mapBackground.graphics.lineTo((HCOUNT+i)*SIDE*0.7,HCOUNT*SIDE-i*SIDE*0.5);
-			}
-			for (i = 0; i <= VCOUNT; i++) 
-			{
-				_mapBackground.graphics.moveTo(i*SIDE*0.7, (VCOUNT+i)*SIDE*0.5);
-				_mapBackground.graphics.lineTo((VCOUNT+i)*SIDE*0.7, i*SIDE*0.5);
-				}
-			_mapBackground.graphics.endFill();
-
-			return true;
-		}
-		
-		/**
-		 * 更新路径
-		 */
-		private function updataPath():void 
-		{
-			if (_mapPath.length <= 0)  return;
-			_pathContainer.graphics.clear();
-			_pathContainer.graphics.beginFill(0);
-				var i:int;
-				for ( i = 0; i< _mapPath.length ;i++ ) 
-				{
-					_pathContainer.graphics.drawRect(_mapPath[i].x*SIDE, _mapPath[i].y*SIDE, SIDE, SIDE);
-				}
-				_pathContainer.graphics.endFill();
-		}
+		 //* 更新路径
+		 //*/
+		//private function updataPath():void 
+		//{
+			//if (_mapPath.length <= 0)  return;
+			//_pathContainer.graphics.clear();
+			//_pathContainer.graphics.beginFill(0);
+				//var i:int;
+				//for ( i = 0; i< _mapPath.length ;i++ ) 
+				//{
+					//_pathContainer.graphics.drawRect(_mapPath[i].x*SIDE, _mapPath[i].y*SIDE, SIDE, SIDE);
+				//}
+				//_pathContainer.graphics.endFill();
+		//}
 		
 		/**
 		 * 当鼠标点击时
@@ -174,45 +160,10 @@ package
 		 */
 		private function mapClickHandler(event:MouseEvent):void
 		{
-			_mapDataGrid.setStartNode(_player.nowX,_player._nowY);
-			_mapDataGrid.setEndNode(event.localX / (SIDE*1.4) >> 0, event.localY /SIDE >> 0);
+			_mapDataGrid.setStartNode(_player.nowX, _player._nowY);
+			_mapDataGrid.setEndNode(event.stageX / _cellWidth+event.stageY/_cellHeight >> 0, event.stageY /_cellHeight-event.stageX/_cellWidth >> 0);
 			
-			//	 1 	 1		 1	 	 1
-			//	上	下	左	右
-			//if (_heroAngle>157.5 && _heroAngle<=180 || _heroAngle>-180&&_heroAngle<-157.5) 
-			//{
-				//_keyCodeString = "0010";
-			//}
-			//else if (_heroAngle>-157.5&&_heroAngle<=-112.5) 
-			//{
-				//_keyCodeString = "1010";
-			//}
-			//else if (_heroAngle>-112.5&&_heroAngle<=-67.5) 
-			//{
-				//_keyCodeString = "1000";
-			//}
-			//else if (_heroAngle>-67.5&&_heroAngle<=-22.5) 
-			//{
-				//_keyCodeString = "1001";
-			//}
-			//else if (_heroAngle>-22.5&& _heroAngle<=22.5) 
-			//{
-				//_keyCodeString = "0001";
-			//}
-			//else if (_heroAngle>22.5&&_heroAngle<=67.5) 
-			//{
-				//_keyCodeString = "0101";
-			//}
-			//else if (_heroAngle>67.5&&_heroAngle<=112.5)
-			//{
-				//_keyCodeString = "0100";
-				//}
-			//else if (_heroAngle>112.5&&_heroAngle<=157.5) 
-			//{
-				//_keyCodeString = "0110";
-			//}
 			findPath();
-
 		}
 		
 		/**
