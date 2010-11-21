@@ -77,16 +77,24 @@ package com.dinboy.game.astar.ui
 		{
 			event.stopImmediatePropagation();
 			event.stopPropagation();
-			var cx:uint, cy:uint, rx:uint, ry:uint,clickX:Number,clickY:Number,endX:uint,endY:uint;
+			var cx:int, cy:int, rx:int, ry:int,clickX:Number,clickY:Number,endX:uint,endY:uint;
 			var	__searchPathEvent:MapEvent = new MapEvent(MapEvent.MAP_SEARCHPATH);
 					__searchPathEvent.startX = _player.nowX;
 					__searchPathEvent.startY = _player.nowY;
 					clickX = event.localX;
 					clickY = event.localY;
+					
+				//	trace("clickX:",clickX,"clickY:",clickY);
+					//endX = (clickX / _cellWidth - clickY / _cellHeight)>>0;
+					//endY = (clickY / _cellHeight + clickX / _cellWidth)>>0;
+					
+					
 					cx = (clickX / _cellWidth>>0) * _cellWidth + _cellWidth * 0.5;
 					cy = (clickY / _cellHeight >> 0) * _cellHeight + _cellHeight * 0.5;
 					rx = (clickX - cx) * _cellHeight * 0.5;
-					rx = (clickY - cy) * _cellWidth * 0.5;
+					ry = (clickY - cy) * _cellWidth * 0.5;
+					
+					
 					
 					if (Math.abs(rx)+Math.abs(ry)<=_cellWidth*_cellHeight*0.25) 
 					{
@@ -97,16 +105,22 @@ package com.dinboy.game.astar.ui
 						clickX = clickX - _cellWidth * 0.5;
 						endX = (clickX / _cellWidth >> 0) + 1;
 						
-						
 						clickY = clickY - _cellHeight * 0.5;
 						endY = (clickY / _cellHeight >> 0) *2+ 1;
 					}
 					
+
+					
+
 					__searchPathEvent.endX = endX - (endY & 1);
 					__searchPathEvent.endY = endY;
 					
-					trace(__searchPathEvent.endX,__searchPathEvent.endY);
+					
+					
+				trace(__searchPathEvent.endX,__searchPathEvent.endY);
 			//		trace(__searchPathEvent.endX ,__searchPathEvent.endY);
+		
+			
 					dispatchEvent(__searchPathEvent);
 		}
 		
@@ -125,12 +139,14 @@ package com.dinboy.game.astar.ui
 			//__player.x = (_hcount  +__playerNx - __playerNy) * _cellWidth-__playerWidth>>1;
 			//__player.y = (__playerNy+1) * _cellHeight / 2-__playerHeight;
 		//	trace(_cellWidth-__playerWidth);
-			__player.x = __playerNx*_cellWidth+(_cellWidth-__playerWidth)*0.5;
-			__player.y = __playerNy*_cellHeight-__playerHeight+_cellHeight*0.5;
+			//__player.x = __playerNx*_cellWidth+(_cellWidth-__playerWidth)*0.5;
+			//__player.y = __playerNy * _cellHeight - __playerHeight + _cellHeight * 0.5;
+			__player.x = __playerNx*_cellWidth+(__playerNy&1)*_cellWidth*0.5+(_cellWidth-__playerWidth)*0.5;
+			__player.y = __playerNy*_cellHeight*0.5-__playerHeight+_cellHeight*0.5;
 			//__player.x = _cellWidth * 0.5 * (__playerNx - __playerNy) + (_cellWidth-__playerWidth) * 0.5;
 			//__player.y = _cellHeight * 0.5 * (__playerNx + __playerNy)-__playerHeight+_cellHeight*0.5;
-			x = GameConfig.GameScrollRect.width * 0.5 - __player.x;
-			y = GameConfig.GameScrollRect.height * 0.5 - __player.y;
+			//x = GameConfig.GameScrollRect.width * 0.5 - __player.x;
+			//y = GameConfig.GameScrollRect.height * 0.5 - __player.y;
 			addChild(_player);
 		}
 		
@@ -181,7 +197,8 @@ package com.dinboy.game.astar.ui
 				{
 					var __diamond:Diamond = new Diamond(_cellWidth, _cellHeight);
 							__diamond.x = _cellWidth*i+(j%2)*_cellWidth*0.5;
-							__diamond.y = j*_cellHeight*0.5
+							__diamond.y = j * _cellHeight * 0.5;
+							__diamond.text = "("+i+","+j+")";
 							_mapBackground.addChild(__diamond);
 				}
 			}

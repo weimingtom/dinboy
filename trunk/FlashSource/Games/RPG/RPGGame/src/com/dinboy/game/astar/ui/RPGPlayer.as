@@ -232,13 +232,16 @@ package com.dinboy.game.astar.ui
 			var __direct:uint;
 			var __dirX:int = _walkWays[_stepIndex].x - _nowX;
 			var __dirY:int = _walkWays[_stepIndex].y - _nowY;
+			
+			
 			var __radians:Number = Math.atan2(__dirY, __dirX);
 			var __xSpeed:Number=_distance * Math.cos(__radians);
-			var __ySpeed:Number=_distance * Math.sin(__radians);
+			var __ySpeed:Number = _distance * Math.sin(__radians);
+
 			x += __xSpeed;
 			y += __ySpeed;
 			
-			trace(__xSpeed,__ySpeed);
+
 			
 			//parent.x-=_distance * __dirX;
 			//parent.y-=_distance * __dirY*0.5;
@@ -314,8 +317,8 @@ package com.dinboy.game.astar.ui
 				//y = _cellHeight * 0.5 * (_nowX + _nowY)-_playerHeight+_cellHeight*0.5;
 				//x = _nowX * _cellWidth + (_cellWidth-_playerWidth >> 1);
 				//y = _nowY*_cellHeight-_playerHeight+_cellHeight*0.5;
-				x = _nowX*_cellWidth+(_cellWidth-_playerWidth)*0.5;
-				y = _nowY*_cellHeight-_playerHeight+_cellHeight*0.5;
+				//x = _nowX*_cellWidth+(_cellWidth-_playerWidth)*0.5;
+				//y = _nowY*_cellHeight-_playerHeight+_cellHeight*0.5;
 				//y = _nowY * _cellSide - _playerHeight + (_cellSide >> 1);
 				//x = _cellWidth*_nowX + (_cellWidth-_playerWidth>>1);
 				//y = _cellHeight * _nowY - _playerHeight + (_cellHeight >> 1);
