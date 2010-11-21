@@ -9,11 +9,27 @@ package com.dinboy.game.astar.events
 	 */
 	public class MapEvent extends Event 
 	{
+		/**
+		 * 开始位置
+		 */
+		public var startX:uint;
+		public var startY:uint;
+		
+		/**
+		 * 人物的结束位置
+		 */
+		public var endX:uint;
+		public var endY:uint;
 		
 		/**
 		 * 地图数据准备完成
 		 */
 		public static const MAP_READY:String = "mapReady";
+		
+		/**
+		 * 当点击地图并开始搜索路径时调度
+		 */
+		public static const MAP_SEARCHPATH:String="mapSearchPath"
 		
 		public function MapEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false) 
 		{ 

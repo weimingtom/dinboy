@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" addedToStage="main()" backgroundColor="#000000" height="480" width="832" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	<mx:Script>
+		<![CDATA[
+			import rpg.map.Tiles;
+			import rpg.MainScene;
+			
+			private var fps_base:int ; 
+			private var fps_ms:int = 0; 
+			private function main():void
+			{
+				var startTime:int = getTimer(); //时间
+				
+				var mainScene:MainScene = new MainScene();
+				addChild(mainScene);
+//				mainScene.x = 100;
+//				mainScene.y = 100;
+				mainScene.create("test");
+				
+				stage.addEventListener(Event.ENTER_FRAME, displayFps);
+				
+				var endTime:int = getTimer(); //时间
+				displayText(endTime-startTime);
+			}
+			
+			private function displayFps(e:Event):void
+			{
+				fps_base = stage.frameRate;
+//				var fps:String =  Number( (1000/fps_base) / (getTimer() - fps_ms) * fps_base ).toFixed(2); 
+				var fps:String =  Number( 1000 / (getTimer() - fps_ms) ).toFixed(2);    			
+    			fps_ms = getTimer();//this is the dalay between each render operation 
+				fpsText.text = fps + "fps";
+			}
+			
+			// Event handler function to change the lableTest text.
+            private function displayText(time:int):void {
+                lableTest.text = String(time);
+            } 
+            
+            private function heroWalk():void {
+                //hero.walkTo(0, 18);
+            }  
+
+		]]>
+	</mx:Script>
+	
+	<mx:Label id="lableTest" x="784.5" y="594" text="Label" color="#000000" width="84" fontSize="16"/>
+	<mx:Label x="849.5" y="594" text="ms" color="#000000" fontSize="16"/>
+	<mx:Button x="688.5" y="597" label="Button" click="heroWalk()"/>
+	<mx:Label x="480" y="596" text="Label" width="132" height="20" id="fpsText" fontSize="13" color="#024E7A"/>
+	
+</mx:Application>

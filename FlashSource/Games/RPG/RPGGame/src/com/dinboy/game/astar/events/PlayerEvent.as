@@ -15,14 +15,21 @@ package com.dinboy.game.astar.events
 		public static const  PLAYER_INITED:String = "playerInited";
 		
 		/**
-		 * 人物站立的横坐标
+		 * 人物开始行走
 		 */
-		public var standX:uint;
+		public static const  PLAYER_STARTWALK:String = "playerStartWalk";
 		
 		/**
-		 * 人物站立的纵坐标
+		 * 人物站立的结束位置
 		 */
-		public var standY:uint;
+		public var startX:uint;
+		public var startY:uint;
+		
+		/**
+		 * 任务的结束位置
+		 */
+		public var endX:uint;
+		public var endY:uint;
 		
 		public function PlayerEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false) 
 		{ 
