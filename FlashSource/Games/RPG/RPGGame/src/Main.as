@@ -120,7 +120,7 @@ package
 			_mapContainer.addEventListener(MapEvent.MAP_SEARCHPATH, mapContainerSearchPathHandler, false, 0, true);
 			addChild(_mapContainer);
 			
-			_player = new RPGPlayer(0, 0, 48, 96, "hero.png");
+			_player = new RPGPlayer(0, 1, 48, 96, "hero.png");
 			_mapContainer.addPlayer(_player);
 		}
 		
