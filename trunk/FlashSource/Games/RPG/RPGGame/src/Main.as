@@ -3,6 +3,7 @@ package
 	import com.dinboy.game.astar.Astar;
 	import com.dinboy.game.astar.AstarGrid;
 	import com.dinboy.game.astar.core.GameConfig;
+	import com.dinboy.game.astar.events.MapEvent;
 	import com.dinboy.game.astar.events.PlayerEvent;
 	import com.dinboy.game.astar.ui.MapContainer;
 	import com.dinboy.game.astar.ui.RPGPlayer;
@@ -11,6 +12,7 @@ package
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.geom.Rectangle;
 	import flash.utils.Timer;
 	
 	
@@ -91,8 +93,9 @@ package
 		{
 			GameConfig.speed = 100;
 			GameConfig.distance = 10;
-			GameConfig.cellWidth = SIDE * 1.4;
+			GameConfig.cellWidth = SIDE*2 ;
 			GameConfig.cellHeight = SIDE;
+			GameConfig.GameScrollRect = new Rectangle(0, 0, 800, 600);
 			
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
@@ -106,37 +109,32 @@ package
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
+			
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
-			
+			//scrollRect = GameConfig.GameScrollRect;
 			_mapPath = [];
 			
-		
 			_mapDataGrid = new AstarGrid(HCOUNT, VCOUNT);
 			_mapContainer = new MapContainer(_mapDataGrid);
+			_mapContainer.addEventListener(MapEvent.MAP_SEARCHPATH, mapContainerSearchPathHandler, false, 0, true);
 			addChild(_mapContainer);
-			//_pathContainer = new Sprite();	
-			//_pathContainer.mouseEnabled = false;
-			//addChild(_pathContainer);
-			_mapContainer.addEventListener(
-			if (drawBackground()) 
-			{
-				_player = new RPGPlayer(0, 0, 48, 96, "hero.png");
-				addChild(_player);
-				_player.addEventListener(PlayerEvent.PLAYER_INITED, playerInitedHandler, false, 0, true);
-			}
 			
-			
+			_player = new RPGPlayer(0, 0, 48, 96, "hero.png");
+			_mapContainer.addPlayer(_player);
 		}
 		
 		/**
-		 * 当人物初始化完成时调度
+		 * 当人物开始行走时调度
 		 * @param	event
 		 */
-		private function playerInitedHandler(event:PlayerEvent):void 
+		private function mapContainerSearchPathHandler(event:MapEvent):void 
 		{
-			_mapContainer.addEventListener(MouseEvent.CLICK, this.mapClickHandler, false, 0, true);
+			_mapDataGrid.setStartNode(event.startX, event.startY);
+			_mapDataGrid.setEndNode(event.endX, event.endY);
+			findPath();
 		}
+		
 		
 		/**
 		 //* 更新路径
@@ -153,18 +151,6 @@ package
 				//}
 				//_pathContainer.graphics.endFill();
 		//}
-		
-		/**
-		 * 当鼠标点击时
-		 * @param	evt
-		 */
-		private function mapClickHandler(event:MouseEvent):void
-		{
-			_mapDataGrid.setStartNode(_player.nowX, _player._nowY);
-			_mapDataGrid.setEndNode(event.stageX / _cellWidth+event.stageY/_cellHeight >> 0, event.stageY /_cellHeight-event.stageX/_cellWidth >> 0);
-			
-			findPath();
-		}
 		
 		/**
 		 * 开始寻路

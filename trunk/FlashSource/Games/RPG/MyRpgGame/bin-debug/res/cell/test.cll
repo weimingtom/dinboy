@@ -1,0 +1,13 @@
+<scene>
+  <buliding id="0" xp="300" yp="200">
+    <img xpOffset="0" ypOffset="0">10</img>
+    <shadow x="6" y="18" />
+    <shadow x="6" y="19" />
+    <shadow x="7" y="18" />
+    <shadow x="7" y="19" />
+    <shadow x="8" y="20" />
+  </buliding>
+  <buliding id="1" xp="200" yp="250">
+    <img xpOffset="0" ypOffset="0">11</img>
+  </buliding>
+</scene>

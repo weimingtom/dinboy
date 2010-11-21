@@ -1,5 +1,6 @@
 package com.dinboy.game.astar.core 
 {
+	import flash.geom.Rectangle;
 
 	/**
 	 * @author		DinBoy
@@ -33,6 +34,11 @@ package com.dinboy.game.astar.core
 		 * 单元格高度(用在45°地图上)
 		 */
 		public static var cellHeight:Number;
+		
+		/**
+		 * 屏幕的滚动区域
+		 */
+		public static var GameScrollRect:Rectangle;
 		
 
 
