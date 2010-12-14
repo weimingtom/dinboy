@@ -72,8 +72,11 @@ package  com.dinboy.net {
 		private var _itemsLoaded:uint;
 		
 		public static const LISTLOAD_COMPLETE:String = "listloadComplete";
+		
 		public static const LIST_SELECT:String = "listSelect";
+		
 		public static const LIST_CANCEL:String = "listCancel";
+		
 		public static const ITEM_UPLOADING:String = "item_Uploading";
 
 		/**
