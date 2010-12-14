@@ -1,7 +1,6 @@
 package 
 {
-	import com.dinboy.controls.PromptButton;
-	import com.dinboy.net.DinURLLoader;
+	import fl.controls.Button;
 	import fl.controls.UIScrollBar;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -11,15 +10,39 @@ package
 	import flash.events.MouseEvent;
 	import flash.events.ProgressEvent;
 	import flash.net.FileFilter;
-	import flash.net.FileReference;
+	import flash.net.FileReference;	
 	import com.dinboy.net.DinFileReferenceList;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
 	import flash.text.TextField;
-	
+		
+		
+		
+		
+	/**
+	 * DinFileReferenceList	组件使用方法:
+	 * DinFileReferenceList(url=null,array=null)	实例化一个多文件上载组件,url:上载的路径地址,array:可用的选择器数组(每个数组元素都是FileFilter对象)
+	 * multiProcess				获取/设置 是否使用多进程上载(Boolean)
+	 * percen						百分比,小数点(Number)
+	 * upload(url)				开始上载,url:上载的地址(void)
+	 * bytesTotal					所有已经选择的总字节大小(uint)
+	 * bytesUploaded			已经上载的字节大小(uint)
+	 * itemsLength				所有选择的文件个数(uint)
+	 * itemsLoaded				已经上载完成的文件个数(uint)
+	 * itemsLoading			正在上载的文件(Array)
+	 * kilobytesTotal			准备上载的大小,千字节(uint)
+	 * kilobytesUploaded	完成上载的大小,千字节(uint)
+	 * getTypes()					返回可用的选择器数组(Array)
+	 * /
+	 
+	 
+	 
+	 
 	/**
 	 * ...
 	 * @author 钉崽[dinboy]
 	 */
-	public class Main extends Sprite 
+	public class FlashUpload extends Sprite 
 	{
 		/**
 		 * 自定义多选上传
@@ -29,12 +52,12 @@ package
 		/**
 		 * 上传按钮
 		 */
-		private var _uploadButton:PromptButton;
+		private var _uploadButton:Button;
 		
 		/**
 		 * 选择按钮
 		 */
-		private var _selectButton:PromptButton;
+		private var _selectButton:Button;
 		
 		/**
 		 * 进度文本
@@ -49,7 +72,7 @@ package
 		/**
 		 * 配置文件加载器
 		 */
-		private var _initURLLoad:DinURLLoader;
+		private var _initURLLoad:URLLoader;
 		
 		/**
 		 * 可上传的扩展名列表
@@ -76,7 +99,12 @@ package
 		 */
 		private var _filesStates:Array;
 		
-		public function Main():void 
+		/**
+		 * 缓存字符串
+		 */
+		private var _tempStr:String;
+		
+		public function FlashUpload():void 
 		{
 			if (stage) initStage();
 			else addEventListener(Event.ADDED_TO_STAGE, initStage);
@@ -98,8 +126,13 @@ package
 		 */
 		private function initLoad(__url:String):void 
 		{
-			_initURLLoad = new DinURLLoader();
-			_initURLLoad.loadNormal(__url);
+			if (__url == null) 
+			{
+				trace("配置文件错误...");
+				return; 
+			}
+			_initURLLoad = new URLLoader();
+			_initURLLoad.load(new URLRequest(__url));
 			_initURLLoad.addEventListener(Event.COMPLETE, initLoaderComplete, false, 0, true);
 			_initURLLoad.addEventListener(IOErrorEvent.IO_ERROR, initLoaderIOError, false, 0, true);
 		}
@@ -127,6 +160,7 @@ package
 		 */
 		private function init(__xml:XML):void 
 		{
+			_tempStr = "";
 			_filesStates = [];
 			
 			_detailTF = new TextField();
@@ -136,6 +170,7 @@ package
 			_detailTF.height = 160;
 			_detailTF.y = 40;
 			_detailTF.text = "没有文件上传.";
+			_detailTF.wordWrap = true;
 			addChild(_detailTF);
 			
 			_scrollBar = new UIScrollBar();
@@ -166,21 +201,23 @@ package
 			_customFileRef = new DinFileReferenceList(__xml.uploadURL);
 			_customFileRef.addEventListener(DinFileReferenceList.LISTLOAD_COMPLETE, listLoadCompleteHandler, false, 0, true);
 			_customFileRef.addEventListener(DinFileReferenceList.LIST_SELECT, listSelectHandler, false, 0, true);
-			_customFileRef.addEventListener(DinFileReferenceList.ITEM_UPLOADING, itemsLoadingHandler, false, 0, true);
 			_customFileRef.multiProcess = false	;
 			
-			_uploadButton = new PromptButton();
+			_uploadButton = new Button();
 			_uploadButton.buttonMode = true;
+			_uploadButton.useHandCursor = true;
 			_uploadButton.tabEnabled = false;
 			_uploadButton.mouseEnabled = false;
 			_uploadButton.label = "上传";
-			_uploadButton.x = 100;
-			_uploadButton.alpha = 0.5;
+			_uploadButton.x = 160;
+			_uploadButton.width = 40;
+			_uploadButton.enabled = false;
 			addChild(_uploadButton);
 			_uploadButton.addEventListener(MouseEvent.CLICK, uploadButtonClickHandler, false, 0, true);
 			
-			_selectButton = new PromptButton();
+			_selectButton = new Button();
 			_selectButton.buttonMode = true; 
+			_selectButton.useHandCursor = true;
 			_selectButton.tabEnabled = false;
 			_selectButton.label = "选择上传文件";
 			addChild(_selectButton);
@@ -193,9 +230,15 @@ package
 		 */
 		private function itemsLoadingHandler(event:Event):void 
 		{
-			_detailTF.text = _customFileRef.itemsLoaded + "个文件 " +_customFileRef.kilobytesUploaded + "KB " + ((_customFileRef.percen) * 1000 >> 0) / 10 + "%\n";
-			_detailTF.appendText(updataDetail());
+			_detailTF.text = _tempStr;
+		//	_detailTF.text = _customFileRef.itemsLoaded + "个文件 " +_customFileRef.kilobytesUploaded + "KB " + ((_customFileRef.percen) * 1000 >> 0) / 10 + "%\n";
+			if (_customFileRef.itemsLoading.length<=0) 
+			{
+				return;
+			}
+			_detailTF.appendText(_filesStates[_customFileRef.itemsLoading[0].name]);
 			_scrollBar.update();
+			_scrollBar.scrollPosition = _scrollBar.maxScrollPosition;
 		}
 		
 		/**
@@ -238,8 +281,11 @@ package
 				return;
 			}
 			_inofTF.text = event.currentTarget.itemsLength + "个文件,共" + event.currentTarget.kilobytesTotal + "KB";
+			_detailTF.text = "点击[上传]按钮开始上传...";
 			_uploadButton.mouseEnabled = true;
-			_uploadButton.alpha = 1;
+			_uploadButton.enabled = true;
+			
+			_tempStr = "";
 			
 			var i:int;
 			for (i = 0; i < _customFileRef.fileList.length; i++) 
@@ -257,7 +303,9 @@ package
 		 */
 		private function filesCompleteHandler(event:Event):void 
 		{
-			_filesStates[event.currentTarget.name] = event.currentTarget.name + "上传完成!\n";
+			_tempStr += _filesStates[event.currentTarget.name] = "[" + event.currentTarget.name + " ]-> 完成!\n";
+			event.currentTarget.removeEventListener(Event.COMPLETE, filesCompleteHandler);
+			event.currentTarget.removeEventListener(ProgressEvent.PROGRESS, filesProgressHandler);
 		}
 		
 		/**
@@ -266,7 +314,7 @@ package
 		 */
 		private function filesProgressHandler(event:ProgressEvent):void 
 		{
-			_filesStates[event.currentTarget.name] = "正在上传：" + event.currentTarget.name + ((event.bytesLoaded / event.bytesTotal) * 1000 >> 0) / 10 + "%\n";
+			_filesStates[event.currentTarget.name] ="["+ event.currentTarget.name + "-> "+((event.bytesLoaded / event.bytesTotal) * 1000 >> 0) / 10 + "%\n";
 		}
 		
 		/**
@@ -276,8 +324,10 @@ package
 		private function uploadButtonClickHandler(event:MouseEvent):void 
 		{
 			_uploadButton.mouseEnabled = false;
-			_uploadButton.alpha = 0.5;
+			_uploadButton.enabled = false;
+			_selectButton.enabled = false;
 			_customFileRef.upload();
+			_customFileRef.addEventListener(DinFileReferenceList.ITEM_UPLOADING, itemsLoadingHandler, false, 0, true);
 		}
 		
 		/**
@@ -286,11 +336,14 @@ package
 		 */
 		private function listLoadCompleteHandler(event:Event):void 
 		{
+			_detailTF.appendText( "所有文件已经上载完成...");
+			_customFileRef.removeEventListener(DinFileReferenceList.ITEM_UPLOADING, itemsLoadingHandler);
 			var i:int;
 			for (i = 0; i < _customFileRef.fileList.length; i++) 
 			{
-				_customFileRef.fileList[i] = null;
+				//_customFileRef.fileList[i] = null;
 			}
+			_selectButton.enabled = true;
 		}
 		
 	}
