@@ -3,11 +3,12 @@ package com.dinboy.controls
 	import com.dinboy.controls.renders.CloseButton;
 	import com.dinboy.controls.renders.PromptContainer;
 	import com.dinboy.controls.renders.PromptHeader;
+	import com.dinboy.events.dinFunction;
 	import com.dinboy.events.PromptEvent;
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
+	import flash.events.Event;
 	import flash.events.MouseEvent;
-	import flash.geom.Rectangle;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import flash.utils.getDefinitionByName;
@@ -66,6 +67,11 @@ package com.dinboy.controls
 		 * 是否可以拖动
 		 */
 		protected var _dragEnabled:Boolean;
+		
+		/**
+		 * 回调的参数
+		 */
+		private var _callBackFunction:Function;
 		
 		/**
 		 * 默认皮肤样式
@@ -167,27 +173,25 @@ package com.dinboy.controls
 			_contantTextField.selectable = false;
 			addChild(_contantTextField);
 			
+			//addEventListener(Event.RENDER, renderHandler, false, 0, true);
+			//addEventListener(Event.CHANGE, changeHandler, false, 0, true);
+			//addEventListener(Event.ADDED, addedHandler, false, 0, true);
 			super.initUI();
 		}
 		
-
 		/**
 		 * [重写 override] 添加提示信息
 		 * @param	__message	需要添加的提示信息
 		 */
-		override protected  function setMessage(__message:String,...rest):void 
+		override protected  function setMessage(__message:*,...rest):void 
 		{
 			_contantTextField.wordWrap = false;
 			super.setMessage(__message, rest);
-			_titleTextField.text = rest.toString();
-			_containerWidth =  (_contantTextField.width > 120?Math.min(200,_contantTextField.width):120)+20 ;
-			if (_contantTextField.width>=200)
-			{
-				_contantTextField.wordWrap = true;
-				_contantTextField.width = 200;
-			}
-			_containerHeight = _contantTextField.height + 40 + _header.height;
-			
+			_titleTextField.text = rest[0].toString();
+			if (rest[1] is Function) _callBackFunction=rest[1];
+			if (!hasEventListener(Event.ENTER_FRAME)) addEventListener(Event.ENTER_FRAME, enterFrameHandler, false, 0, true);
+			//addEventListener(Event.ENTER_FRAME, enterFrameHandler, false, 0, true);
+		//	if (!hasEventListener(Event.ADDED)) addEventListener(Event.ADDED, addedHandler, false, 0, true);
 			draw();
 		}
 		
@@ -196,29 +200,42 @@ package com.dinboy.controls
 		 */
 		protected function  draw():void 
 		{
+			//设置位置
+			setPosition();
+			
+			x = _stage.stageWidth - width >> 1;
+			y = _stage.stageHeight - height >> 1;
+			filters = [_dropShadowFilter];
+		}
+		
+		
+		/**
+		 * 设置位置
+		 */
+		protected function setPosition():void 
+		{
+			_containerWidth =  (_contantTextField.width > 120?Math.min(200, _contantTextField.width):120) + 20 ;
+			if (_contantTextField.width>=200)
+			{
+				_contantTextField.wordWrap = true;
+				_contantTextField.width = 200;
+			}
+			_containerHeight = _contantTextField.height + 40 + _header.height;
 			
 			_header.width = _containerWidth;
+			_container.width = _containerWidth;
+			_container.height = _containerHeight - _header.height;
 			
 			_titleTextField.x = 5;
 			_titleTextField.y = _header.height -_titleTextField.height >> 1;
 			
 			_container.y = _header.height;
 			
-			_container.width = _containerWidth;
-			_container.height = _containerHeight - _header.height;
-			
 			_contantTextField.x = _containerWidth - _contantTextField.width >> 1;
 			_contantTextField.y = _container.y + 6;
 			
 			_closeButton.x = _containerWidth -_closeButton.width - 3;
 			_closeButton.y = _header.height - _closeButton.height >> 1;
-			
-			x = _stage.stageWidth - width >> 1;
-			y = _stage.stageHeight - height >> 1;
-			
-			_titleTextField.scrollRect = new Rectangle(0, 0, _containerWidth-(_titleTextField.x)*2, _titleTextField.height);
-			
-			filters = [_dropShadowFilter];
 		}
 		
 		/**
@@ -282,6 +299,9 @@ package com.dinboy.controls
 		override protected function dispo():void 
 		{
 			super.dispo();
+			removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
+	//		removeEventListener(Event.ADDED,addedHandler);
+//			if (_callBackFunction!=null) _callBackApply(_callBackFunction,...rest);
 			dispatchEvent(new PromptEvent(PromptEvent.PROMPT_ClOSE));
 		}
 		
@@ -297,6 +317,16 @@ package com.dinboy.controls
 			else  _header.removeEventListener(MouseEvent.MOUSE_DOWN, headerMouseDownHandler);
 		}
 		
+		/**
+		 * 回调函数
+		 * @param	f
+		 * @param	...rest
+		 */
+		private function _callBackApply(f:Function,...rest):void 
+		{
+			
+			f.apply(null,rest);
+		}
 		
 		
 		
@@ -307,7 +337,7 @@ package com.dinboy.controls
 		 * 关闭按钮时调度
 		 * @param	event
 		 */
-		private function closeHandler(event:MouseEvent):void 
+		protected function closeHandler(event:MouseEvent):void 
 		{
 			event.stopPropagation();
 			dispo();
@@ -334,6 +364,45 @@ package com.dinboy.controls
 			if(!_dragEnabled)	_header.removeEventListener(MouseEvent.MOUSE_DOWN, headerMouseDownHandler);
 			_header.removeEventListener(MouseEvent.MOUSE_UP, headerMouseUpHandler);
 		}
+		
+		/**
+		 * 当有更新时调度
+		 * @param	event
+		 */
+		protected function renderHandler(event:Event):void 
+		{
+			trace(this,event.type);
+			setPosition();
+		}
+		
+		/**
+		 * 当有改变时调度
+		 * @param	event
+		 */
+		protected function changeHandler(event:Event):void 
+		{
+			trace(this,event.type);
+			setPosition();
+		}		
+		
+		/**
+		 * 将显示对象添加到显示列表中时调度。
+		 * @param	event
+		 */
+		protected	function addedHandler(event:Event):void 
+		{
+			trace(this,event.type);
+			setPosition();
+		}
+		/**
+		 * 实时调度根性
+		 * @param	event
+		 */
+		protected function enterFrameHandler(event:Event):void 
+		{
+				setPosition();
+		}
+
 		
 		//============================================
 		//===== Getter && Setter ======

@@ -325,7 +325,7 @@ package com.dinboy.net
 		 * 使用一般加载,好处就是不用新添加URLRequest
 		 * @param	$url 需要加载的地址
 		 */
-		public function loadNormal($url:String):void 
+		public function loadNormal($url:String=null):void 
 		{
 			this.loaderMethod($url);
 			this.urlloaderAddEvent(super);

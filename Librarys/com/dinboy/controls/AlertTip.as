@@ -611,7 +611,7 @@ package com.dinboy.controls
 /**
  * 测试是否为空 (包外类 CS3 版本,如果是CS4就直接将这个新建一个新的类文件);
  */
-import com.dinboy.display.AlertTip;
+import com.dinboy.controls.AlertTip;
 class testAlertTipInit {
 	public static function testInit():void 
 	{

@@ -48,7 +48,7 @@ package com.dinboy.external
 		 * 调用Js的alert
 		 * @param	message alert的信息
 		 */
-		public static function alert(message:String):void 
+		public static function alert(message:String):* 
 		{
 			if (ExternalInterface.available)
 			{

@@ -57,15 +57,18 @@ package com.dinboy.controls
 		protected function initUI():void 
 		{
 			_dropShadowFilter = new DropShadowFilter(2, 45, 0, 0.5, 6, 6, 1, 3);
+			_masker = new Sprite();
 		}
 		
 		/**
 		 * 添加提示信息
 		 * @param	__message	需要添加的提示信息
 		 */
-		protected  function setMessage(__message:String,...rest):void 
+		protected  function setMessage(__message:*,...rest):void 
 		{
-			_contantTextField.htmlText = __message;
+			_contantTextField.htmlText = __message.toString();
+			
+	//		trace(this,_contantTextField.htmlText);
 		}
 		
 		/**
@@ -138,13 +141,19 @@ package com.dinboy.controls
 		 */
 		protected function createMasker():void 
 		{
-			if (!_masker) _masker = new Sprite();
 			_masker.graphics.clear();
 			_masker.graphics.beginFill(0xFFFFFF, 0);
 			_masker.graphics.drawRect(0, 0, _stage.stageWidth, _stage.stageHeight);
 			_masker.graphics.endFill();
-			if (!_masker.parent) _stage.addChild(_masker);
+			
+			_stage.addChild(_masker);
 			_stage.setChildIndex(_masker, _stage.getChildIndex(this));
+			//var i:int;
+			//for (i = 0; i < _stage.numChildren; i++) 
+			//{
+				//trace(this,'第'+i+'个',_stage.getChildAt(i));
+			//}
+			//trace(this,_stage.getChildIndex(this),_stage.getChildIndex(_masker),"masker:",_masker.width,_masker.height);
 		}
 		
 		/**

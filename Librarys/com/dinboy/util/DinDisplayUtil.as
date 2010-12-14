@@ -171,18 +171,19 @@
 	
 	/**
 	 * 缩放显示对象
-	 * @param	$displayObject 要被显示对象;
-	 * @param	$width 要缩放的参数 width:最大宽度;
-	 * @param	$height 要缩放的参数 height:最大宽度;
+	 * @param	object 对象;
+	 * @param	_width 要缩放的参数 width:最大宽度;
+	 * @param	_height 要缩放的参数 height:最大宽度;
 	 */
-	public static function  directRatio($displayObject:DisplayObject,$width:Number,$height:Number):void 
+	public static function  directRatio(object:Object,_width:Number,_height:Number):Object 
 	{
-			var $Dwidth:Number = $displayObject.width;
-			var $Dheight:Number = $displayObject.height;
-			var $ratio:Number = Math.max($Dwidth / $width, $Dheight / $height, 1);
+			var _Dwidth:Number = object.width;
+			var _Dheight:Number = object.height;
+			var _ratio:Number = Math.max(_Dwidth / _width, _Dheight / _height, 1);
 			
-			$displayObject.width = $Dwidth / $ratio;
-			$displayObject.height = $Dheight / $ratio;
+			object.width = _Dwidth / _ratio;
+			object.height = _Dheight / _ratio;
+			return object;
 	}
 	
 	/**
@@ -259,49 +260,79 @@
 		return $duplicate;
 	}
 	
-	/**
-	 * 去除影片剪辑透明区域鼠标事件
-	 * @param	$displayObject 需要被设置的剪辑
-	 */
-	public static function ClearPNGTransparent($displayObject:*):* 
-	{
-		
-		/**
-		 * 需要被作为撞击的精灵
-		 */
-		var $hitSprite:Sprite = new Sprite();
-			  $hitSprite.visible = false;
-			  $hitSprite.mouseEnabled = false;
-			  $displayObject.hitArea = $hitSprite;
-			  try 
-			  {
-				  $displayObject.addChild($hitSprite);
-			  }
-			  catch (err:Error)
-			  {
-				  trace("对不起,您需要转变的对象不是一个容器");
-			  }
-				
-			  var $bit:BitmapData = new BitmapData($displayObject.width,$displayObject.height,true,0x00000000); 
-					
-				$bit.draw($displayObject); 
-				if ($bit!=null)
-				{
+	///**
+	 //* 去除影片剪辑透明区域鼠标事件
+	 //* @param	$displayObject 需要被设置的剪辑
+	 //*/
+	//public static function ClearPNGTransparent($displayObject:*):* 
+	//{
+		//
+		///**
+		 //* 需要被作为撞击的精灵
+		 //*/
+		//var $hitSprite:Sprite = new Sprite();
+			  //$hitSprite.visible = false;
+			  //$hitSprite.mouseEnabled = false;
+			  //$displayObject.hitArea = $hitSprite;
+			  //try 
+			  //{
+				  //$displayObject.addChild($hitSprite);
+			  //}
+			  //catch (err:Error)
+			  //{
+				  //trace("对不起,您需要转变的对象不是一个容器");
+			  //}
+				//
+			  //var $bit:BitmapData = new BitmapData($displayObject.width,$displayObject.height,true,0x00000000); 
+					//
+				//$bit.draw($displayObject); 
+				//if ($bit!=null)
+				//{
 						//重绘图象到bit 
-						$hitSprite.graphics.clear(); 
-						$hitSprite.graphics.beginFill(0xFFFFFF,0); 
-						for(var x:uint=0;x<$bit.width;x++) 
-						{
-							for(var y:uint=0;y<$bit.height;y++) 
-							{
-								if($bit.getPixel32(x,y))$hitSprite.graphics.drawRect(x,y,1,1);
-							} 
-						} 
+						//$hitSprite.graphics.clear(); 
+						//$hitSprite.graphics.beginFill(0xFFFFFF,0); 
+						//for(var x:uint=0;x<$bit.width;x++) 
+						//{
+							//for(var y:uint=0;y<$bit.height;y++) 
+							//{
+								//if($bit.getPixel32(x,y))$hitSprite.graphics.drawRect(x,y,1,1);
+							//} 
+						//} 
 						//以graphics画出bit的无透明区域 
-						$hitSprite.graphics.endFill();					
-				}
-			return $displayObject;
-	}
+						//$hitSprite.graphics.endFill();					
+				//}
+			//return $displayObject;
+	//}
+	
+		/**
+		 * 删除掉透明区域
+		 */
+		public static function clearTransparentArea(object:*):* 
+		{
+			var _hitArea:Sprite = new Sprite();
+					_hitArea.visible = false;
+					_hitArea.mouseEnabled = false;
+					//mouseChildren = false;
+					object.hitArea = _hitArea;
+			var	_bitMapdata:BitmapData = new BitmapData(object.width, object.height, true, 0x00000000);
+					_bitMapdata.draw(object);
+
+					//重绘图象到bit
+						_hitArea.graphics.clear();
+						_hitArea.graphics.beginFill(0xFFFFFF);
+						
+						var x:uint, y:uint;
+						for(x=0;x <_bitMapdata.width;x++)
+						{
+							for(y=0;y<_bitMapdata.height;y++)
+							{
+								if (_bitMapdata.getPixel32(x, y)) {_hitArea.graphics.drawRect(x, y, 1, 1);}
+							}
+						}
+						//以graphics画出bit的无透明区域 
+						_hitArea.graphics.endFill();
+						object.addChild(_hitArea);
+		}
 	
 	/**
 	 * 将显示对象复制到新的精灵上
