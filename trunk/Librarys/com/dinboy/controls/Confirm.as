@@ -13,12 +13,12 @@ package com.dinboy.controls
 	 * @copy		dinboy © 2010
 	 * @version		v1.0 [2010-11-5 13:50]
 	 */
-	public class Alert extends PromptBase
+	public class Confirm extends PromptBase
 	{
 		/**
 		 * 实例本身
 		 */
-		private static var _instance:Alert = null;
+		private static var _instance:Confirm = null;
 		
 		/**
 		 * 确定按钮
@@ -26,10 +26,21 @@ package com.dinboy.controls
 		private var _OKButton:DisplayObject;
 		
 		/**
+		 * 取消按钮
+		 */
+		private var _CancelButton:DisplayObject;
+		
+		/**
+		 * 返回结果
+		 */
+		private var _result:Boolean;
+		
+		/**
 		 * 默认皮肤样式
 		 */
 		public static var defaultStyles:Object = {
-						okButton:PromptButton
+						okButton:PromptButton,
+						cancelButton:PromptButton
 		}
 
 		/**
@@ -40,7 +51,7 @@ package com.dinboy.controls
 			return mergeStyles(defaultStyles, PromptBase.getStyleDefinition());
 		}
 		
-		public function Alert()
+		public function Confirm()
 		{
 			super();
 		}
@@ -69,7 +80,30 @@ package com.dinboy.controls
 		private function okbuttnClickHandler(event:MouseEvent):void 
 		{
 			event.stopPropagation();
+			_result = true;
 			dispo();
+			
+		}
+		
+		/**
+		 * 取消按钮点击时
+		 * @param	event
+		 */
+		private function cancelbuttnClickHandler(event:MouseEvent):void 
+		{
+			event.stopPropagation();
+			_result = false;
+			dispo();
+		}
+		
+		/**
+		 * [override 重写]	关闭按钮时调度
+		 * @param	event
+		 */
+		override protected function closeHandler(event:MouseEvent):void 
+		{
+			_result = false;
+			super.closeHandler(event);
 		}
 		
 		/**
@@ -91,8 +125,23 @@ package com.dinboy.controls
 				removeChild(ob);
 				ob.removeEventListener(MouseEvent.CLICK, okbuttnClickHandler);
 			}
-			super.changeStyles();
 			
+			var cb:DisplayObject = _CancelButton;
+			_CancelButton = getDisplayObjectInstance(getStyleValue("okButton"));
+			if (_CancelButton == null) return
+			addChildAt(_CancelButton, 0);
+			Object(_CancelButton).label = "取消";
+			Object(_CancelButton).buttonMode = true;
+			Object(_CancelButton).tabEnabled = false;
+			_CancelButton.width = 60;
+			_CancelButton.addEventListener(MouseEvent.CLICK, cancelbuttnClickHandler, false, 0, true);
+			if (cb != null&& cb!=_CancelButton&&contains(cb) )
+			{
+				removeChild(cb);
+				cb.removeEventListener(MouseEvent.CLICK, cancelbuttnClickHandler);
+			}
+			
+			super.changeStyles();
 		}
 		
 		/**
@@ -110,8 +159,11 @@ package com.dinboy.controls
 		override protected function setPosition():void 
 		{
 			super.setPosition();
-						_OKButton.x =  _containerWidth - _OKButton.width >> 1;
+			_OKButton.x =  _containerWidth/2 - _OKButton.width-5;
 			_OKButton.y =  _containerHeight - _OKButton.height - 4;
+			
+			_CancelButton.x = _containerWidth / 2 + 5;
+			_CancelButton.y =  _containerHeight - _CancelButton.height - 4;
 		}
 		
 		
@@ -124,7 +176,7 @@ package com.dinboy.controls
 		 */
 		public static function init(__stage:DisplayObjectContainer):void 
 		{
-			if (!_instance) _instance = new Alert();
+			if (!_instance) _instance = new Confirm();
 			_instance._stage = (__stage is Stage)?__stage as Stage : __stage.stage;
 		}
 		
@@ -133,9 +185,9 @@ package com.dinboy.controls
 		 * @param	__message
 		 * @param	..rest
 		 */
-		public static function message(__message:*,__title:String="提示",callBack:Function=null):Alert 
+		public static function message(__message:*, __title:String = "提示", __callBack:Function=null):Confirm 
 		{
-			_instance.setMessage(__message, __title,callBack);
+			_instance.setMessage(__message, __title,__callBack);
 			_instance.show();
 			return _instance;
 		}
@@ -161,6 +213,7 @@ package com.dinboy.controls
 		{
 			return _instance._maskEnabled;
 		}
+		
 		/**
 		 * 设置是否可以拖动.(默认:true)
 		 */
@@ -173,6 +226,11 @@ package com.dinboy.controls
 			return _instance._dragEnabled;
 		}
 		
+		/**
+		 * 返回结果
+		 */
+		public function get result():Boolean { return _result; }
+		
 		
 
 		
@@ -183,7 +241,7 @@ package com.dinboy.controls
 
 
 	//============================================
-	//===== Class[Alert] Has Finish ======
+	//===== Class[Confirm] Has Finish ======
 	//============================================
 	}
 

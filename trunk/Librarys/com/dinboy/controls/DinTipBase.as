@@ -18,7 +18,7 @@ package com.dinboy.controls
 	 * public(公有属性)            定义名称无前缀,并使用驼峰写法;
 	 * private(私有属性)           函数名称无前缀,并使用驼峰写法; 变量名称使用下划线前缀"_",并使用驼峰写法;
 	 * const(定义常量)             函数名称无前缀,并使用驼峰写法; 常量名称使用大写字母,必要时使用下划线"_";
-	 * function(函数内部定义)  函数内部变量使用美元符号前缀"$",并使用驼峰写法;
+	 * function(函数内部定义)  函数内部变量使用美元符号前缀"_",并使用驼峰写法;
 	 */
   
 		//==============================
@@ -81,17 +81,17 @@ package com.dinboy.controls
 		
 		/**
 		 * 显示提示框
-		 * @param	$message			提示文本
-		 * @param	$areaWidth		提示框的显示区域宽度
-		 * @param	$areaHeight		提示框的显示区域高度
-		 * @param	$iconSrc				提示框图标地址
+		 * @param	_message			提示文本
+		 * @param	_areaWidth		提示框的显示区域宽度
+		 * @param	_areaHeight		提示框的显示区域高度
+		 * @param	_iconSrc				提示框图标地址
 		 */
-		public function DinTipBase($message:String = "Message", $areaWidth:Number = 0, $areaHeight:Number=0,$iconSrc:String = null) 
+		public function DinTipBase(_message:String = "Message", _areaWidth:Number = 0, _areaHeight:Number=0,_iconSrc:String = null) 
 		{
-			this._message = $message;
-			this._areaWidth = $areaWidth;
-			this._areaHeight = $areaHeight;
-			this._iconSrc = $iconSrc;
+			this._message = _message;
+			this._areaWidth = _areaWidth;
+			this._areaHeight = _areaHeight;
+			this._iconSrc = _iconSrc;
 			
 			this.addEventListener(Event.ADDED, this.addedHandler, false, 0, true);
 		}
@@ -102,12 +102,12 @@ package com.dinboy.controls
 		//==============================
 		/**
 		 * 显示本提示框
-		 * @param	$container 本提示框需要添加到的容器
+		 * @param	_container 本提示框需要添加到的容器
 		 */
-		public function show($container:DisplayObjectContainer):void 
+		public function show(_container:DisplayObjectContainer):void 
 		{
-			$container.addChild(this);
-			this._container = $container;
+			_container.addChild(this);
+			this._container = _container;
 		}
 		
 		/**
@@ -129,7 +129,6 @@ package com.dinboy.controls
 		private function iconCompleteHandler(evt:Event):void 
 		{
 			this._icon.removeEventListener(Event.COMPLETE, this.iconCompleteHandler);
-		//	var $ratio:Number=this._msgTextField.height>64?64:this._msgTextField.height;
 			DinDisplayUtil.directRatio(this._icon, 64, 64);
 		}
 		
@@ -194,8 +193,8 @@ package com.dinboy.controls
 			
 			this.alpha = 0;
 			
-			var $glowFiter:GlowFilter = new GlowFilter(0x000000, .6, 12, 12,1,3);	
-			this.filters = [$glowFiter];
+			var _glowFiter:GlowFilter = new GlowFilter(0x000000, .6, 12, 12,1,3);	
+			this.filters = [_glowFiter];
 		}
 		
 		/**
@@ -206,9 +205,9 @@ package com.dinboy.controls
 				this._offsetY = (this._areaHeight - this.height >> 1) - 60;
 				this.alpha = 1;
 				this.removeEventListener(Event.ENTER_FRAME, this.enterFrameHandler);
-		var 	$timer:Timer = new Timer(3000,1);
-				$timer.start();
-				$timer.addEventListener(TimerEvent.TIMER_COMPLETE, this.timerCompleteHandler, false, 0, true);
+		var 	_timer:Timer = new Timer(3000,1);
+				_timer.start();
+				_timer.addEventListener(TimerEvent.TIMER_COMPLETE, this.timerCompleteHandler, false, 0, true);
 		}
 		
 		/**
@@ -243,36 +242,36 @@ package com.dinboy.controls
 		* 提示框的文本
 		 */
 		public function get message():String { return this._message; }
-		public function set message($value:String):void 
+		public function set message(_value:String):void 
 		{
-			this._message = $value;
+			this._message = _value;
 		}
 		
 		/**
 		 * 显示区域宽度
 		 */
 		public function get areaWidth():Number { return this._areaWidth; }
-		public function set areaWidth($value:Number):void 
+		public function set areaWidth(_value:Number):void 
 		{
-			this._areaWidth = $value;
+			this._areaWidth = _value;
 		}
 		
 		/**
 		 * 显示区域高度
 		 */
 		public function get areaHeight():Number { return this._areaHeight; }
-		public function set areaHeight($value:Number):void 
+		public function set areaHeight(_value:Number):void 
 		{
-			this._areaHeight = $value;
+			this._areaHeight = _value;
 		}
 		
 		/**
 		 * 图标地址
 		 */
 		public function get iconSrc():String { return this._iconSrc; }
-		public function set iconSrc($value:String):void 
+		public function set iconSrc(_value:String):void 
 		{
-			this._iconSrc = $value;
+			this._iconSrc = _value;
 		}
 		
 		
