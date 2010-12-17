@@ -137,9 +137,9 @@ package com.dinboy.game.astar.ui
 			_playerHeight = __pH;
 			_speed = GameConfig.speed;
 			_cellSide = GameConfig.cellSide;
-			_distance = GameConfig.distance;
 			_cellWidth = GameConfig.cellWidth;
 			_cellHeight = GameConfig.cellHeight;
+			_distance = _cellWidth/4;
 			_stepCount = _cellWidth / _distance >> 0;
 			
 			_walking = false;
@@ -171,9 +171,6 @@ package com.dinboy.game.astar.ui
 			_walkTimer.stop();
 			_walkTimer.removeEventListener(TimerEvent.TIMER, playerMoveHandler);
 			_flag = 0;
-			
-			//x = _nowX*_cellWidth+(_cellWidth-_playerWidth)*0.5;
-			//y = _nowY*_cellHeight-_playerHeight+_cellHeight*0.5;
 			
 			_walkTimer.addEventListener(TimerEvent.TIMER, playerMoveHandler, false, 0, true);
 			if(!_walkTimer.running)_walkTimer.start();
@@ -221,6 +218,36 @@ package com.dinboy.game.astar.ui
 				//__initedEvent.standX = _nowX;
 				//__initedEvent.standY = _nowY;
 			dispatchEvent(__initedEvent);
+			
+			addEventListener(Event.ENTER_FRAME, enterFrameHandler, false, 0, true);
+		}
+		
+		/**
+		 * 实时监听
+		 * @param	event
+		 */
+		private function enterFrameHandler(event:Event):void 
+		{
+			var cx:int, cy:int, rx:int, ry:int, rpgX:Number, rpgY:Number;
+					rpgX = x+(width>>1);
+					rpgY = y + height;
+					cx = (rpgX / _cellWidth>>0) * _cellWidth + _cellWidth * 0.5;
+					cy = (rpgY / _cellHeight >> 0) * _cellHeight + _cellHeight * 0.5;
+					rx = (rpgX - cx) * _cellHeight * 0.5;
+					ry = (rpgY - cy) * _cellWidth * 0.5;
+					
+					if (Math.abs(rx)+Math.abs(ry)<=_cellWidth*_cellHeight*0.25) 
+					{
+						_nowX = rpgX / _cellWidth >> 0;
+						_nowY = (rpgY / _cellHeight >> 0)*2;
+					}else 
+					{
+						rpgX = rpgX - _cellWidth * 0.5;
+						_nowX = (rpgX / _cellWidth >> 0) + 1;
+						rpgY = rpgY - _cellHeight * 0.5;
+						_nowY = (rpgY / _cellHeight >> 0) *2+ 1;
+					}
+					_nowX = _nowX - (_nowY & 1);
 		}
 		
 		/**
@@ -230,16 +257,19 @@ package com.dinboy.game.astar.ui
 		private function playerMoveHandler(event:TimerEvent):void 
 		{
 			var __direct:uint;
-			var __dirX:int = _walkWays[_stepIndex].x - _nowX;
-			var __dirY:int = _walkWays[_stepIndex].y - _nowY;
+			var __dirX:int = _walkWays[1].x - _nowX;
+			var __dirY:int = _walkWays[1].y - _nowY;
+			trace(this,__dirX,__dirY);
+					if (__dirX==0&&__dirY==0)
+					{
+						_walkWays.shift();
+					}
+			//var __radians:Number = Math.atan2(__dirY, __dirX);
+			//var __xSpeed:Number=_distance * Math.cos(__radians);
+			//var __ySpeed:Number = _distance * Math.sin(__radians);
 			
-			
-			var __radians:Number = Math.atan2(__dirY, __dirX);
-			var __xSpeed:Number=_distance * Math.cos(__radians);
-			var __ySpeed:Number = _distance * Math.sin(__radians);
-
-			x += __xSpeed;
-			y += __ySpeed;
+			x += _distance * __dirX;
+			y += _distance * __dirY * 0.5;
 			
 
 			
@@ -301,7 +331,7 @@ package com.dinboy.game.astar.ui
 			
 			
 			
-			_flag++;
+		//	_flag++;
 			_playStepIndex++;
 			if (_playStepIndex>=4) 
 			{
@@ -309,10 +339,10 @@ package com.dinboy.game.astar.ui
 			}
 			_playerBitmap.bitmapData = _playerBitArray[__direct][_playStepIndex];
 			
-			if (_flag>=_stepCount)
-			{
-				_nowX = _walkWays[_stepIndex].x;
-				_nowY = _walkWays[_stepIndex].y;
+			//if (_flag>=_stepCount)
+			//{
+				//_nowX = _walkWays[_stepIndex].x;
+				//_nowY = _walkWays[_stepIndex].y;
 				//x = _cellWidth * 0.5 * (_nowX - _nowY) + (_cellWidth-_playerWidth) * 0.5;
 				//y = _cellHeight * 0.5 * (_nowX + _nowY)-_playerHeight+_cellHeight*0.5;
 				//x = _nowX * _cellWidth + (_cellWidth-_playerWidth >> 1);
@@ -322,9 +352,9 @@ package com.dinboy.game.astar.ui
 				//y = _nowY * _cellSide - _playerHeight + (_cellSide >> 1);
 				//x = _cellWidth*_nowX + (_cellWidth-_playerWidth>>1);
 				//y = _cellHeight * _nowY - _playerHeight + (_cellHeight >> 1);
-				_stepIndex++;
-				_flag = 0;
-			}
+				//_stepIndex++;
+				//_flag = 0;
+			//}
 
 			if (_stepIndex==_walkWays.length) 
 			{
