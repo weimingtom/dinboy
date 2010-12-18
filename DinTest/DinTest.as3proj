@@ -69,7 +69,11 @@
   </library>
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>
+<<<<<<< .mine
+    <compile path="src\PointExample.as" />
+=======
     <compile path="src\TextlayoutExample.as" />
+>>>>>>> .r130
   </compileTargets>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>
