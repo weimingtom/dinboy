@@ -48,7 +48,8 @@
   </includeLibraries>
   <!-- SWC Libraries -->
   <libraryPaths>
-    <element path="lib\FlSWC.swc" />
+    <element path="..\Librarys\SWC\FlSWC.swc" />
+    <element path="..\Librarys\SWC\textLayout.swc" />
   </libraryPaths>
   <!-- External Libraries -->
   <externalLibraryPaths>
@@ -60,7 +61,7 @@
   </rslPaths>
   <!-- Intrinsic Libraries -->
   <intrinsics>
-    <!-- example: <element path="..." /> -->
+    <element path="..\Librarys\SWC\textLayout.swc" />
   </intrinsics>
   <!-- Assets to embed into the output SWF -->
   <library>
@@ -68,7 +69,7 @@
   </library>
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>
-    <compile path="src\XMLSocketExample.as" />
+    <compile path="src\TextlayoutExample.as" />
   </compileTargets>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>
