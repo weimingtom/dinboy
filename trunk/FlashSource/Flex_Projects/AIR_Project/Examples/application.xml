@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<application xmlns="http://ns.adobe.com/air/application/1.5"> 
+	
+	<id>Examples</id> 
+	<version>1.0</version> 
+	<filename>Examples</filename> 
+	
+	<name>Examples</name> 
+	<description></description> 
+	<copyright></copyright> 
+	
+	<initialWindow> 
+		<title>Examples</title> 
+		<content>Examples.swf</content> 
+		<![CDATA[
+		<systemChrome>standard</systemChrome> 
+		<transparent>false</transparent> 
+		]]>
+		<systemChrome>none</systemChrome> 
+		<transparent>true</transparent> 
+		<visible>true</visible> 
+		<minimizable>true</minimizable> 
+		<maximizable>true</maximizable> 
+		<resizable>true</resizable> 
+	</initialWindow> 
+	
+	<!-- 
+	More options:
+	http://livedocs.adobe.com/flex/3/html/File_formats_1.html#1043413
+	-->
+</application>

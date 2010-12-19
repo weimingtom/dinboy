@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+               xmlns:s="library://ns.adobe.com/flex/spark" 
+               xmlns:mx="library://ns.adobe.com/flex/mx">
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+			<fx:XMLList id="treeDataProvider">
+                <fx:menuitem label="Products">
+                    <fx:menuitem label="Posters" isBranch="true"/>
+                    <fx:menuitem label="CDs">
+                        <fx:menuitem label="Pavement"/>
+                        <fx:menuitem label="Pavarotti"/>
+                        <fx:menuitem label="Phish"/>
+                    </fx:menuitem>
+                    <fx:menuitem label="T-shirts" isBranch="true"/>
+                    <fx:menuitem label="Tickets" isBranch="true"/>
+                </fx:menuitem>
+            </fx:XMLList>
+	</fx:Declarations>
+
+	<s:Group width="100%" height="100%">
+			<mx:VDividedBox width="100%" height="100%">
+				<mx:HDividedBox width="100%" height="50%" minHeight="30">
+					<mx:Tree dataProvider="{treeDataProvider}" labelField="@label" showRoot="true"  dragEnabled="true" height="100%" minWidth="30" minHeight="30" ></mx:Tree>
+					<mx:DataGrid width="70%" height="100%" minWidth="30" minHeight="30"></mx:DataGrid>
+				</mx:HDividedBox>
+				<mx:DataGrid width="100%" height="50%" minHeight="30"></mx:DataGrid>
+			</mx:VDividedBox>
+	</s:Group>
+</s:Application>
