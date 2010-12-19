@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="creationCompleteHandler(event)" initialize="initializeHandler(event)" name="HelloWorld" maxWidth="320" maxHeight="240" width="320" height="240">
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+			<mx:ArrayCollection id="buttonBarData">
+				<fx:Object>
+					<fx:label>测试一</fx:label>
+					<fx:data>0</fx:data>
+				</fx:Object>
+				<fx:Object>
+					<fx:label>测试二</fx:label>
+					<fx:data>1</fx:data>
+				</fx:Object>
+				<fx:Object>
+					<fx:label>测试三</fx:label>
+					<fx:data>2</fx:data>
+				</fx:Object>
+				<fx:Object>
+					<fx:label>测试四</fx:label>
+					<fx:data>3</fx:data>
+				</fx:Object>
+			</mx:ArrayCollection>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+		import flash.events.Event;
+		import spark.events.IndexChangeEvent;
+		private function initializeHandler(event:Event):void 
+		{
+			trace("正在初始化中...");
+		}
+		
+		private function creationCompleteHandler(event:Event):void{
+			trace("初始化完成...");
+			}
+			
+		 private function buttonBarChangeHandler(event:IndexChangeEvent):void{
+			 trace(event.currentTarget);
+			 }
+		]]>
+	</fx:Script>
+	<s:ButtonBar x="10" y="10" width="100%" height="20" dataProvider="{buttonBarData}" change="buttonBarChangeHandler(event)">
+	</s:ButtonBar>
+</s:Application>

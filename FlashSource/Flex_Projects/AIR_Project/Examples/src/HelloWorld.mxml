@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+                       xmlns:s="library://ns.adobe.com/flex/spark"
+                       xmlns:mx="library://ns.adobe.com/flex/mx" name="HelloWrld" showStatusBar="false" minWidth="320" minHeight="240" maxWidth="320" maxHeight="240" width="320" height="240" creationComplete="creationCompleteHandler(event)">
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import flash.display.NativeMenu;
+		import flash.display.NativeMenuItem;
+		import flash.events.Event;
+		import flash.events.MouseEvent;
+		import mx.controls.Alert;
+		import mx.events.CloseEvent;
+
+		private function creationCompleteHandler(event:Event):void {
+				_nativeMenu = new NativeMenu();
+				var	_closeMenu:NativeMenuItem = new NativeMenuItem("关闭");
+						_nativeMenu.addItem(_closeMenu);
+				_closeMenu.addEventListener(Event.SELECT, closeMenuSelectHandler, false, 0, true);
+				contextMenu = _nativeMenu;
+				addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler, false, 0, true);
+//				addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler, false, 0, true);
+			}
+			
+			override protected function mouseDownHandler(event:MouseEvent):void 
+			{
+				super.mouseDownHandler(event);
+				stage.nativeWindow.startMove();
+			}
+			
+			//private function mouseDownHandler(event:MouseEvent):void 
+			//{
+				//
+				//addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler, false, 0, true);
+			//}
+			
+			//private function mouseMoveHandler(event:MouseEvent):void 
+			//{
+				//stage.nativeWindow.startMove();
+			//}
+			//
+			///**
+			 //* 
+			 //* @param	event
+			 //*/
+			//private function mouseUpHandler(event:MouseEvent):void 
+			//{
+				//removeEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
+			//}
+			
+			/**
+			 * 当选择关闭时调度
+			 * @param	event
+			 */
+			private function closeMenuSelectHandler(event:Event):void 
+			{
+				_alert = Alert.show("是否关闭本程序?", "注意", Alert.YES | Alert.NO  , null, alertClosedHandler);
+			}
+			
+			/**
+			 * 当确认窗口关闭时执行
+			 */
+			private function alertClosedHandler(event:CloseEvent):void {
+				if (event.detail ==Alert.YES)
+					{
+						stage.nativeWindow.close();
+					}
+				}
+		   
+			private var _alert:Alert;
+			private var _nativeMenu:NativeMenu
+	]]>
+</fx:Script>
+</s:WindowedApplication>
