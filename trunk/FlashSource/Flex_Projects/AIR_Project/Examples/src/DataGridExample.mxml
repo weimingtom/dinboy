@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication
+				xmlns:fx="http://ns.adobe.com/mxml/2009" 
+               xmlns:s="library://ns.adobe.com/flex/spark" 
+               xmlns:mx="library://ns.adobe.com/flex/mx"  width="320" height="240" minWidth="320" minHeight="240" maxWidth="640" maxHeight="480" showStatusBar="false">
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+			<fx:Array id="dataProvider">
+				<fx:Object>
+					<fx:name>Dinboy</fx:name>
+					<fx:qq>344829874</fx:qq>
+					<fx:phone>18750209178</fx:phone>
+				</fx:Object>
+				<fx:Object>
+					<fx:name>Qin</fx:name>
+					<fx:qq>461627644</fx:qq>
+					<fx:phone>13859249161</fx:phone>
+				</fx:Object>
+				<fx:Object>
+					<fx:name>Qin</fx:name>
+					<fx:qq>461627644</fx:qq>
+					<fx:phone>13859249161</fx:phone>
+				</fx:Object>
+				<fx:Object>
+					<fx:name>Qin</fx:name>
+					<fx:qq>461627644</fx:qq>
+					<fx:phone>13859249161</fx:phone>
+				</fx:Object>
+				<fx:Object>
+					<fx:name>Qin</fx:name>
+					<fx:qq>461627644</fx:qq>
+					<fx:phone>13859249161</fx:phone>
+				</fx:Object>
+				<fx:Object>
+					<fx:name>Qin</fx:name>
+					<fx:qq>461627644</fx:qq>
+					<fx:phone>13859249161</fx:phone>
+				</fx:Object>
+				<fx:Object>
+					<fx:name>Qin</fx:name>
+					<fx:qq>461627644</fx:qq>
+					<fx:phone>13859249161</fx:phone>
+				</fx:Object>
+				<fx:Object>
+					<fx:name>Qin</fx:name>
+					<fx:qq>461627644</fx:qq>
+					<fx:phone>13859249161</fx:phone>
+				</fx:Object>
+				<fx:Object>
+					<fx:name>Qin</fx:name>
+					<fx:qq>461627644</fx:qq>
+					<fx:phone>13859249161</fx:phone>
+				</fx:Object>
+				<fx:Object>
+					<fx:name>Qin</fx:name>
+					<fx:qq>461627644</fx:qq>
+					<fx:phone>13859249161</fx:phone>
+				</fx:Object>
+			</fx:Array>
+			<mx:ArrayList id="buttonBarData">
+				<fx:String>Delete</fx:String>
+				<fx:String>Updata</fx:String>
+			</mx:ArrayList>
+			
+	</fx:Declarations>
+		<fx:Script>
+			<![CDATA[
+			import flash.events.Event;
+			import flash.events.MouseEvent;
+				
+			
+			private function drageEnterHandler(event:Event):void 
+			{
+				
+			}
+			
+			private function deleteButtonClickHandler(event:MouseEvent):void 
+			{
+				dataProvider.splice(dataGrid.selectedIndex, 1);
+				dataGrid.dataProvider = dataProvider;
+			}
+			
+			private function drageCompleteHandler(event:Event):void 
+			{
+				
+			}
+			
+			private function drageOverHandler(event:Event):void 
+			{
+				
+			}
+			
+			private function dragDropHandler(event:Event):void 
+			{
+				dataProvider.splice(dataGrid.selectedIndex, 1);
+				dataGrid.dataProvider = dataProvider;
+			}
+				
+			]]>
+		</fx:Script>
+	
+	<mx:VDividedBox width="100%">
+		<s:Group minHeight="30" width="100%" height="100%">
+		<mx:DataGrid id="dataGrid" dragEnabled="true" draggableColumns="false" dragMoveEnabled="true" dropEnabled="true" dataProvider="{dataProvider}"  width="100%" height="100%" minHeight="30" dragDrop="dragDropHandler(event)" >
+			<mx:columns>
+				<mx:DataGridColumn dataField="name" headerText="name" />
+				<mx:DataGridColumn dataField="qq" headerText="QQ" />
+				<mx:DataGridColumn dataField="phone" headerText="phone" />
+			</mx:columns>
+		</mx:DataGrid>
+		</s:Group>
+		<s:Group width="100%" height="100%">
+			<s:Button id="deleteButton" label="Delete" dragDrop="dragDropHandler(event)" dragOver="drageOverHandler(event)" dragEnter="drageEnterHandler(event)" click="deleteButtonClickHandler(event)" dragComplete="drageCompleteHandler(event)" />
+		</s:Group>
+	</mx:VDividedBox>
+</s:WindowedApplication>
