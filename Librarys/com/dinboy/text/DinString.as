@@ -97,6 +97,7 @@ package com.dinboy.text
 					_wrapString = _wrapArray.join("\r");
 				break;
 				default:
+					_wrapString = _wrapArray.join("\n");
 				break;
 			}
 			return _wrapString;
@@ -122,6 +123,7 @@ package com.dinboy.text
 					_wrapString = _wrapArray.join("\r");
 				break;
 				default:
+					_wrapString = _wrapArray.join("\n");
 				break;
 			}
 			return _wrapString;
@@ -150,6 +152,8 @@ package com.dinboy.text
 					value=value.replace(_regr, "");
 				break;
 				default:
+					value=value.replace(_regn, "");
+					value=value.replace(_regr, "");
 				break;
 			}
 			return value;

@@ -26,6 +26,11 @@ package com.dinboy.controls
 		private var _OKButton:DisplayObject;
 		
 		/**
+		 * 点击确认按钮
+		 */
+		public static const OK:uint = 0x0004;
+		
+		/**
 		 * 默认皮肤样式
 		 */
 		public static var defaultStyles:Object = {
