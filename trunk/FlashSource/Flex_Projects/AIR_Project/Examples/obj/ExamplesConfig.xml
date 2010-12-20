@@ -14,7 +14,7 @@
     </define>
     <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'2010-12-19'</value>
+      <value>'2010-12-21'</value>
     </define>
     <source-path append="true">
       <path-element>F:\DINBOY\GoogleCode_DinBoy\FlashSource\Flex_Projects\AIR_Project\Examples\src</path-element>
@@ -22,7 +22,7 @@
     </source-path>
   </compiler>
   <file-specs>
-    <path-element>F:\DINBOY\GoogleCode_DinBoy\FlashSource\Flex_Projects\AIR_Project\Examples\src\HelloWorld.mxml</path-element>
+    <path-element>F:\DINBOY\GoogleCode_DinBoy\FlashSource\Flex_Projects\AIR_Project\Examples\src\DataGridExample.mxml</path-element>
   </file-specs>
   <default-background-color>#FFFFFF</default-background-color>
   <default-frame-rate>30</default-frame-rate>
