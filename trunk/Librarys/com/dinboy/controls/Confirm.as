@@ -31,9 +31,14 @@ package com.dinboy.controls
 		private var _CancelButton:DisplayObject;
 		
 		/**
-		 * 返回结果
+		 * 点击确认按钮
 		 */
-		private var _result:Boolean;
+		public static const OK:uint = 0x0004;
+		
+		/**
+		 * 点击取消按钮
+		 */
+		public static const CANCEL:uint = 0x0008;
 		
 		/**
 		 * 默认皮肤样式
@@ -80,7 +85,7 @@ package com.dinboy.controls
 		private function okbuttnClickHandler(event:MouseEvent):void 
 		{
 			event.stopPropagation();
-			_result = true;
+			_detail = Confirm.OK;
 			dispo();
 			
 		}
@@ -92,7 +97,7 @@ package com.dinboy.controls
 		private function cancelbuttnClickHandler(event:MouseEvent):void 
 		{
 			event.stopPropagation();
-			_result = false;
+			_detail = Confirm.CANCEL;
 			dispo();
 		}
 		
@@ -102,7 +107,6 @@ package com.dinboy.controls
 		 */
 		override protected function closeHandler(event:MouseEvent):void 
 		{
-			_result = false;
 			super.closeHandler(event);
 		}
 		
@@ -225,11 +229,6 @@ package com.dinboy.controls
 		{
 			return _instance._dragEnabled;
 		}
-		
-		/**
-		 * 返回结果
-		 */
-		public function get result():Boolean { return _result; }
 		
 		
 

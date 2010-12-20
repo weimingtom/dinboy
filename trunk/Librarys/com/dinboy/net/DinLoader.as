@@ -29,52 +29,52 @@ package com.dinboy.net
 		/**
 		 * 
 		 */
-		private var $URLRequest:URLRequest;
+		private var _URLRequest:URLRequest;
 		
 		/**
 		 * 需发送的参数 对象
 		 */
-		private var $URLVariables:URLVariables;
+		private var _URLVariables:URLVariables;
 		
 		/**
 		 * 使用二进制加载
 		 */
-		private var $URLStream:URLStream;
+		private var _URLStream:URLStream;
 		
 		/**
 		 * 加载文件的地址
 		 */
-		private var $url:String;	
+		private var _url:String;	
 		
 		/**
 		 * 加载的变量参数 
 		 */
-		private var $object:Object;
+		private var _object:Object;
 		
 		/**
 		 * 加载的二进制数据
 		 */
-		private var $ByteArray:ByteArray;
+		private var _ByteArray:ByteArray;
 		
 		/**
 		 * 存放域
 		 */
-		private var $context:LoaderContext;
+		private var _context:LoaderContext;
 		
 		/**
 		 * 已加载的字节数  用在URLStream
 		 */
-		private var $bytesLoaded:uint = 0;
+		private var _bytesLoaded:uint = 0;
 		
 		/**
 		 * 总字节数 用在URLStream
 		 */
-		private var $bytesToal:uint = 0;
+		private var _bytesToal:uint = 0;
 		
 		/**
 		 * 加载数据的方法
 		 */
-		private var $method:String = URLRequestMethod.GET;
+		private var _method:String = URLRequestMethod.GET;
 		
 		
 		
@@ -85,17 +85,17 @@ package com.dinboy.net
 		/**
 		 * 是否忽略错误
 		 */
-		private var $ignoreError:Boolean = false;
+		private var _ignoreError:Boolean = false;
 		
 		/**
 		 * 是否已经加载完成
 		 */
-		private var $streamComplete:Boolean;
+		private var _streamComplete:Boolean;
 		
 		/**
 		 * 数据是否有改变
 		 */
-		private var $dataChange:Boolean;
+		private var _dataChange:Boolean;
 		
 
 		
@@ -107,24 +107,24 @@ package com.dinboy.net
 		
 		/**
 		 * 判断并设置 加载的方式
-		 * @param	$url
+		 * @param	_url
 		 */
-		private function  loaderMethod($url:String=null):void 
+		private function  loaderMethod(_url:String=null):void 
 		{
-			if (!this.$URLRequest) this.$URLRequest = new URLRequest();
-			if ($url) { this.$url = $url; }
-			this.$URLRequest.url = this.$url;
-			this.$URLRequest.data = null;
-			this.$URLRequest.method =this.$method;
+			if (!_URLRequest) _URLRequest = new URLRequest();
+			if (_url) { this._url = _url; }
+			_URLRequest.url = this._url;
+			_URLRequest.data = null;
+			_URLRequest.method =_method;
 												 
-			if ($object!=null) 
+			if (_object!=null) 
 			{
-				 this.$URLVariables = new URLVariables();
-				for (var $item:String in  this.$object) 
+				 _URLVariables = new URLVariables();
+				for (var _item:String in  _object) 
 				{
-					this.$URLVariables[$item] = this.$object[$item];
+					_URLVariables[_item] = _object[_item];
 				}
-				this.$URLRequest.data = this.$URLVariables
+				_URLRequest.data = _URLVariables
 			}
 		}
 		
@@ -134,26 +134,26 @@ package com.dinboy.net
 		
 		/**
 		 * 添加侦听
-		 * @param	$loaderinfo
+		 * @param	_loaderinfo
 		 */
-		private function LoaderAddEvent($loaderinfo:LoaderInfo):void 
+		private function LoaderAddEvent(_loaderinfo:LoaderInfo):void 
 		{
-			$loaderinfo.addEventListener(IOErrorEvent.IO_ERROR, this.loaderIOError, false, int.MAX_VALUE,true);
-			$loaderinfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.loaderSecurityError, false, int.MAX_VALUE,true);
-			$loaderinfo.addEventListener(Event.COMPLETE, this.loaderComplete, false, int.MAX_VALUE, true);
-			$loaderinfo.addEventListener(ProgressEvent.PROGRESS, this.loaderProgress, false, int.MAX_VALUE, true);
+			_loaderinfo.addEventListener(IOErrorEvent.IO_ERROR, loaderIOError, false, int.MAX_VALUE,true);
+			_loaderinfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR, loaderSecurityError, false, int.MAX_VALUE,true);
+			_loaderinfo.addEventListener(Event.COMPLETE, loaderComplete, false, int.MAX_VALUE, true);
+			_loaderinfo.addEventListener(ProgressEvent.PROGRESS, loaderProgress, false, int.MAX_VALUE, true);
 		}
 		
 		/**
 		 * 删除侦听
-		 * @param	$loaderinfo
+		 * @param	_loaderinfo
 		 */
-		private function LoaderRemoveEvent($loaderinfo:LoaderInfo):void 
+		private function LoaderRemoveEvent(_loaderinfo:LoaderInfo):void 
 		{
-			$loaderinfo.removeEventListener(IOErrorEvent.IO_ERROR, this.loaderIOError);
-			$loaderinfo.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.loaderSecurityError);
-			$loaderinfo.removeEventListener(Event.COMPLETE, this.loaderComplete);
-			$loaderinfo.removeEventListener(ProgressEvent.PROGRESS, this.loaderProgress);
+			_loaderinfo.removeEventListener(IOErrorEvent.IO_ERROR, loaderIOError);
+			_loaderinfo.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, loaderSecurityError);
+			_loaderinfo.removeEventListener(Event.COMPLETE, loaderComplete);
+			_loaderinfo.removeEventListener(ProgressEvent.PROGRESS, loaderProgress);
 		}
 		
 		/**
@@ -162,17 +162,17 @@ package com.dinboy.net
 		 */
 		private function  loaderComplete(evt:Event):void 
 		{
-			if (this.$URLStream)
+			if (_URLStream)
 			{
-				if (this.$streamComplete) {
-						this.$streamComplete=false;
-						this.LoaderRemoveEvent(super.contentLoaderInfo);
+				if (_streamComplete) {
+						_streamComplete=false;
+						LoaderRemoveEvent(super.contentLoaderInfo);
 				} else {
 					evt.stopImmediatePropagation();
 				}
 			}
-			else this.LoaderRemoveEvent(super.contentLoaderInfo);
-			this.dispatchEvent(evt);
+			else LoaderRemoveEvent(super.contentLoaderInfo);
+			dispatchEvent(evt);
 		}
 		
 		/**
@@ -181,9 +181,9 @@ package com.dinboy.net
 		 */
 		private function  loaderProgress(evt:ProgressEvent):void 
 		{
-			if (this.$URLStream) {
-				evt.bytesLoaded=this.$bytesLoaded;
-				evt.bytesTotal = this.$bytesToal;
+			if (_URLStream) {
+				evt.bytesLoaded=_bytesLoaded;
+				evt.bytesTotal = _bytesToal;
 			}
 			dispatchEvent(evt);
 		}
@@ -195,10 +195,10 @@ package com.dinboy.net
 		 */
 		private function loaderIOError(evt:IOErrorEvent):void 
 		{				
-			evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.loaderIOError);
-			evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.loaderSecurityError);
-			if (this.$ignoreError)  {
-				trace("[DinLoader] 对不起,您[正常模式]加载的文件[" +this.$url+ "]不存在,请检查路径是否正确.");
+			evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, loaderIOError);
+			evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, loaderSecurityError);
+			if (_ignoreError)  {
+				trace("[DinLoader] 对不起,您[正常模式]加载的文件[" +_url+ "]不存在,请检查路径是否正确.");
 			}else dispatchEvent(evt);
 			
 		}
@@ -208,10 +208,10 @@ package com.dinboy.net
 		 */
 		private function loaderSecurityError(evt:SecurityErrorEvent):void 
 		{
-				evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, this.loaderIOError);
-				evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.loaderSecurityError);
-			if (this.$ignoreError) {
-				trace("[DinLoader] 对不起,您以[正常模式]加载的文件[" +this.$url+ "]受到安全保护,对方禁止让您加载使用!请与管理员联系.");
+				evt.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, loaderIOError);
+				evt.currentTarget.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, loaderSecurityError);
+			if (_ignoreError) {
+				trace("[DinLoader] 对不起,您以[正常模式]加载的文件[" +_url+ "]受到安全保护,对方禁止让您加载使用!请与管理员联系.");
 			}else dispatchEvent(evt);
 		}
 		
@@ -224,10 +224,10 @@ package com.dinboy.net
 		 */
 		private function streamAddEvent():void 
 		{
-			this.$URLStream.addEventListener(Event.COMPLETE, this.URlStreamCompleteHandler, false, 0, true);
-			this.$URLStream.addEventListener(ProgressEvent.PROGRESS, this.URlStreamProgressHandler, false, 0, true);
-			this.$URLStream.addEventListener(IOErrorEvent.IO_ERROR, this.URlStreamIOErrorHandler, false, 0, true);
-			this.$URLStream.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.URlStreamSecurityErrorHandler, false, 0, true);
+			_URLStream.addEventListener(Event.COMPLETE, URlStreamCompleteHandler, false, 0, true);
+			_URLStream.addEventListener(ProgressEvent.PROGRESS, URlStreamProgressHandler, false, 0, true);
+			_URLStream.addEventListener(IOErrorEvent.IO_ERROR, URlStreamIOErrorHandler, false, 0, true);
+			_URLStream.addEventListener(SecurityErrorEvent.SECURITY_ERROR, URlStreamSecurityErrorHandler, false, 0, true);
 		}
 		
 		/**
@@ -235,10 +235,10 @@ package com.dinboy.net
 		 */
 		private function streamRemoveEvent():void 
 		{
-			this.$URLStream.removeEventListener(Event.COMPLETE, this.URlStreamCompleteHandler);
-			this.$URLStream.removeEventListener(ProgressEvent.PROGRESS, this.URlStreamProgressHandler);
-			this.$URLStream.removeEventListener(IOErrorEvent.IO_ERROR, this.URlStreamIOErrorHandler);
-			this.$URLStream.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.URlStreamSecurityErrorHandler);
+			_URLStream.removeEventListener(Event.COMPLETE, URlStreamCompleteHandler);
+			_URLStream.removeEventListener(ProgressEvent.PROGRESS, URlStreamProgressHandler);
+			_URLStream.removeEventListener(IOErrorEvent.IO_ERROR, URlStreamIOErrorHandler);
+			_URLStream.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, URlStreamSecurityErrorHandler);
 		}
 		
 		/**
@@ -247,14 +247,14 @@ package com.dinboy.net
 		 */
 		private function URlStreamCompleteHandler(evt:Event):void 
 		{
-			this.streamRemoveEvent();
+			streamRemoveEvent();
 			
 			// 这里不删除EnterFrame事件,最后一段总是不会显示.
 			// 并且complete事件里showData也不行.
 			// 所以最后延时显示一次.
 			
-			this.$streamComplete = true;
-			this.$dataChange = true;
+			_streamComplete = true;
+			_dataChange = true;
 		}
 		
 		/**
@@ -262,8 +262,8 @@ package com.dinboy.net
 		 */
 		private function URlStreamProgressHandler(evt:ProgressEvent):void 
 		{
-				this.$bytesLoaded = evt.bytesLoaded;
-				this.$bytesToal = evt.bytesTotal;
+				_bytesLoaded = evt.bytesLoaded;
+				_bytesToal = evt.bytesTotal;
 		}
 		
 		/**
@@ -271,11 +271,11 @@ package com.dinboy.net
 		 */
 		private function URlStreamIOErrorHandler(evt:IOErrorEvent):void 
 		{
-			this.$URLStream.removeEventListener(IOErrorEvent.IO_ERROR, this.URlStreamIOErrorHandler);
-			if (this.$ignoreError) 
+			_URLStream.removeEventListener(IOErrorEvent.IO_ERROR, URlStreamIOErrorHandler);
+			if (_ignoreError) 
 			{
-				trace("[DinLoader] 对不起,您以[渐进式]加载的文件[" +this.$url+ "]不存在,请检查路径是否正确.");
-			}else this.dispatchEvent(evt);
+				trace("[DinLoader] 对不起,您以[渐进式]加载的文件[" +_url+ "]不存在,请检查路径是否正确.");
+			}else dispatchEvent(evt);
 			
 		}
 		
@@ -285,11 +285,11 @@ package com.dinboy.net
 		 */
 		private function URlStreamSecurityErrorHandler(evt:SecurityErrorEvent):void 
 		{				
-			this.$URLStream.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.URlStreamSecurityErrorHandler);
-			if (this.$ignoreError) 
+			_URLStream.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, URlStreamSecurityErrorHandler);
+			if (_ignoreError) 
 			{
-				trace("[DinLoader] 对不起,您以[渐进式]加载的文件[" +this.$url+ "]存在安全沙箱问题.");
-			}else this.dispatchEvent(evt);
+				trace("[DinLoader] 对不起,您以[渐进式]加载的文件[" +_url+ "]存在安全沙箱问题.");
+			}else dispatchEvent(evt);
 		}
 		
 		//=============================================
@@ -303,19 +303,19 @@ package com.dinboy.net
 		 */
 		private function  enterFrameHandler(evt:Event):void 
 		{
-			if (! this.$dataChange||! this.$URLStream.connected) return;
+			if (! _dataChange||! _URLStream.connected) return;
 			
-			this.$dataChange=false;
-			if (this.$URLStream.bytesAvailable > 0) this.$URLStream.readBytes(this.$ByteArray, this.$ByteArray.length, this.$URLStream.bytesAvailable);
+			_dataChange=false;
+			if (_URLStream.bytesAvailable > 0) _URLStream.readBytes(_ByteArray, _ByteArray.length, _URLStream.bytesAvailable);
 			
-			if (this.$ByteArray.length>0) {
+			if (_ByteArray.length>0) {
 				super.unload();
-				super.loadBytes(this.$ByteArray, this.$context);
+				super.loadBytes(_ByteArray, _context);
 			}
 			// 加载完成 
-			if (this.$streamComplete) {
+			if (_streamComplete) {
 				close();
-				this.$streamComplete=false;
+				_streamComplete=false;
 			}
 		}
 		
@@ -330,71 +330,71 @@ package com.dinboy.net
 		override public function close():void 
 		{
 			// 清除流相关 
-			if (this.$URLStream) {
-				if (this.$URLStream.connected) {
-					this.$URLStream.close();
+			if (_URLStream) {
+				if (_URLStream.connected) {
+					_URLStream.close();
 				}
-				this.streamRemoveEvent();
+				streamRemoveEvent();
 			}
 			// 清除conentLoaderInfo相关的事件 
-			if (this.contentLoaderInfo.hasEventListener(Event.COMPLETE))	this.LoaderRemoveEvent(super.contentLoaderInfo);
+			if (contentLoaderInfo.hasEventListener(Event.COMPLETE))	LoaderRemoveEvent(super.contentLoaderInfo);
 
 			// 清除显示数据事件 
-			if (this.hasEventListener(Event.ENTER_FRAME)) {
-				this.removeEventListener(Event.ENTER_FRAME, this.enterFrameHandler);
+			if (hasEventListener(Event.ENTER_FRAME)) {
+				removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
 			}
 //			super.close();
-			this.$ByteArray=null;
+			_ByteArray=null;
 		}
 
 		/**
 		 * 非渐进式加载 
-		 * @param	$url 					需要加载的路径
-		 * @param	$context			存放的域
+		 * @param	_url 					需要加载的路径
+		 * @param	_context			存放的域
 		 */		
-		public function loadNormal($url:String=null,$context:LoaderContext=null):void 
+		public function loadNormal(_url:String=null,_context:LoaderContext=null):void 
 		{
-			this.loaderMethod($url);
+			loaderMethod(_url);
 			super.unload();
 			super.unloadAndStop();
 			
-			this.LoaderAddEvent(super.contentLoaderInfo);
+			LoaderAddEvent(super.contentLoaderInfo);
 			try 
 			{
-				super.load(this.$URLRequest, $context);
+				super.load(_URLRequest, _context);
 			}
 			catch (err:TypeError)
 			{
-				trace("[DinLoader] 尝试加载["+this.$url+"]失败");
+				trace("[DinLoader] 尝试加载["+_url+"]失败");
 			}
 		}
 		
 		/**
 		 * 使用渐进式加载
-		 * @param	$url
-		 * @param	$context
+		 * @param	_url
+		 * @param	_context
 		 */
-		public function loadStream($url:String=null,$context:LoaderContext=null):void 
+		public function loadStream(_url:String=null,_context:LoaderContext=null):void 
 		{
-			this.loaderMethod($url);
-			if (!this.$URLStream) this.$URLStream = new URLStream();
-			if (this.$URLStream.connected) this.$URLStream.close();
+			loaderMethod(_url);
+			if (!_URLStream) _URLStream = new URLStream();
+			if (_URLStream.connected) _URLStream.close();
 			
-			this.$context = $context;
-			this.$ByteArray = new ByteArray();
+			_context = _context;
+			_ByteArray = new ByteArray();
 			
 			super.unload();
 			
-			this.addEventListener(Event.ENTER_FRAME, this.enterFrameHandler, false, 0, true);
-			this.LoaderAddEvent(super.contentLoaderInfo);
-			this.streamAddEvent();
+			addEventListener(Event.ENTER_FRAME, enterFrameHandler, false, 0, true);
+			LoaderAddEvent(super.contentLoaderInfo);
+			streamAddEvent();
 			try 
 			{
-				this.$URLStream.load(this.$URLRequest);
+				_URLStream.load(_URLRequest);
 			}
 			catch (err:Error)
 			{
-				trace("[DinLoader] 尝试加载["+this.$url+"]失败");
+				trace("[DinLoader] 尝试加载["+_url+"]失败");
 			}
 			
 		}
@@ -404,10 +404,10 @@ package com.dinboy.net
 		* @param bytes 
 		* @param context 
 		*/
-		override public function loadBytes($bytes:ByteArray, $context:LoaderContext = null):void {
-			this.close();
+		override public function loadBytes(_bytes:ByteArray, _context:LoaderContext = null):void {
+			close();
 			super.unload();
-			super.loadBytes($bytes, $context);
+			super.loadBytes(_bytes, _context);
 		}
 		
 		
@@ -420,39 +420,39 @@ package com.dinboy.net
 		/**
 		 * 设置/获取 是否要忽略错误 默认:false
 		 */
-		public function get ignoreError():Boolean { return this.$ignoreError; }
-		public function set ignoreError($value:Boolean):void 
+		public function get ignoreError():Boolean { return _ignoreError; }
+		public function set ignoreError(_value:Boolean):void 
 		{
-			this.$ignoreError = $value;
+			_ignoreError = _value;
 		}
 		
 		
 		/**
 		 * 设置/获取 加载的地址
 		 */
-		public function get url():String { return this.$url; }
-		public function set url($value:String):void 
+		public function get url():String { return _url; }
+		public function set url(_value:String):void 
 		{
-			this.$url = $value;
+			_url = _value;
 		}
 		
 		/**
 		 * 设置/获取 加载的变量参数 默认:null  
 		 */
-		public function get object():Object { return this.$object; }
-		public function set object($value:Object):void 
+		public function get object():Object { return _object; }
+		public function set object(_value:Object):void 
 		{
-			this.$object = $value;
+			_object = _value;
 		}
 		
 		/**
 		 * 设置/获取 加载数据的方法 默认为:get
 		 */
-		public function get method():String { return this.$method; }
+		public function get method():String { return _method; }
 		
-		public function set method($value:String):void 
+		public function set method(_value:String):void 
 		{
-			this.$method = $value;
+			_method = _value;
 		}
 		
 		/**

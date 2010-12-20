@@ -144,7 +144,7 @@ package com.dinboy.net{
 		// 数据流错误, 但是也会加载400K左右的数据, 
 		// 然后由contentLoaderInfo抛出IOError或者IOErrorEvent 
 		// 但不会是流错误,而是未知文件类型 
-		private function streamErrorHandler(e:IOError):void {
+		private function streamErrorHandler(e:IOErrorEvent):void {
 			close();
 		}
 

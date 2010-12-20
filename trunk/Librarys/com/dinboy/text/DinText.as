@@ -16,25 +16,50 @@ package com.dinboy.text
 				
 		/**
 		 * 设置文本样式
-		 * @param	$TextField 被设置的文本
-		 * @param	$object      设置文本的样式属性 使用 textFormat的所有属性 align,bold,color...
+		 * @param	_TextField 被设置的文本
+		 * @param	_object      设置文本的样式属性 使用 textFormat的所有属性 align,bold,color...
 		 */
-		public static function  setTextFormat($TextField:TextField,$object:Object,$beginIndex:int = -1, $endIndex:int = -1):void 
+		public static function  setTextFormat(_TextField:TextField,_object:Object,_beginIndex:int = -1, _endIndex:int = -1):void 
 		{
-			var $textFormat:TextFormat = new TextFormat();
-
+			if (_TextField == null) return;
+			var _textFormat:TextFormat = new TextFormat();
 				  try 
 				  {
-					  for  (var $Obj:String in $object) 
+					  for  (var _Obj:String in _object) 
 					  {
-						  $textFormat[$Obj] = $object[$Obj];
+						  _textFormat[_Obj] = _object[_Obj];
 					  }
-					  $TextField.setTextFormat($textFormat);
 				  }
 				  catch (err:Error)
 				  {
-					  trace("文本样式属性有误!");
+					  trace(DinText,"文本样式属性有误!");
 				  }
+				   _TextField.setTextFormat(_textFormat, _beginIndex, _endIndex);
+				   _textFormat = null;
+		}
+		
+		/**
+		 *	设置文本默认样式
+		 * @param	_textField			文本框
+		 * @param	_object				文本样式
+		 */
+		public static function setDefaultTextFormat(_textField:TextField,_object:Object):void 
+		{
+			if (_textField == null) return;
+			var _textFormat:TextFormat = new TextFormat();
+				  try 
+				  {
+					  for  (var _Obj:String in _object) 
+					  {
+						  _textFormat[_Obj] = _object[_Obj];
+					  }
+				  }
+				  catch (err:Error)
+				  {
+					  trace(DinText,"文本样式属性有误!");
+				  }
+				  _textField.defaultTextFormat = _textFormat;
+				  _textFormat = null;
 		}
 		
 		

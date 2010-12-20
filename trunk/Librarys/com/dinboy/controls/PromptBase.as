@@ -20,6 +20,25 @@ package com.dinboy.controls
 	
 	[Style(name = "closeButton", type = "Class")]
 	
+		/**
+	 * 关闭对话框时
+	 */
+	[Event(name = "prompt_close", type = "com.dinboy.events.PromptEvent")] 
+	
+	/**
+	 * 打开对话框时
+	 */
+	[Event(name = "prompt_open", type = "com.dinboy.events.PromptEvent")]
+	
+	/**
+	 * 同意
+	 */
+	[Event(name = "prompt_agree", type = "com.dinboy.events.PromptEvent")]
+
+	/**
+	 * 取消
+	 */
+	[Event(name = "prompt_cancel", type = "com.dinboy.events.PromptEvent")]
 	
 	/**
 	 * @author		钉崽[dinboy]
@@ -69,9 +88,21 @@ package com.dinboy.controls
 		protected var _dragEnabled:Boolean;
 		
 		/**
+		 * 关闭按钮后,详细的按钮索引
+		 */
+		protected var _detail:uint;		
+		
+		/**
+		 * 取消索引
+		 */
+		private static const CANCEL:uint = 0x0008;
+		
+		/**
 		 * 回调的参数
 		 */
 		private var _callBackFunction:Function;
+		
+
 		
 		/**
 		 * 默认皮肤样式
@@ -188,7 +219,11 @@ package com.dinboy.controls
 			_contantTextField.wordWrap = false;
 			super.setMessage(__message, rest);
 			_titleTextField.text = rest[0].toString();
-			if (rest[1] is Function) _callBackFunction=rest[1];
+			if (rest[1] is Function) {
+				_callBackFunction = rest[1];
+				addEventListener(PromptEvent.PROMPT_ClOSE, _callBackFunction);
+			}
+			
 			if (!hasEventListener(Event.ENTER_FRAME)) addEventListener(Event.ENTER_FRAME, enterFrameHandler, false, 0, true);
 			//addEventListener(Event.ENTER_FRAME, enterFrameHandler, false, 0, true);
 		//	if (!hasEventListener(Event.ADDED)) addEventListener(Event.ADDED, addedHandler, false, 0, true);
@@ -300,9 +335,9 @@ package com.dinboy.controls
 		{
 			super.dispo();
 			removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
-	//		removeEventListener(Event.ADDED,addedHandler);
-//			if (_callBackFunction!=null) _callBackApply(_callBackFunction,...rest);
-			dispatchEvent(new PromptEvent(PromptEvent.PROMPT_ClOSE));
+			var	_event:PromptEvent = new PromptEvent(PromptEvent.PROMPT_ClOSE);
+					_event.detail = _detail;
+			dispatchEvent(_event);
 		}
 		
 		//============================================
@@ -317,19 +352,6 @@ package com.dinboy.controls
 			else  _header.removeEventListener(MouseEvent.MOUSE_DOWN, headerMouseDownHandler);
 		}
 		
-		/**
-		 * 回调函数
-		 * @param	f
-		 * @param	...rest
-		 */
-		private function _callBackApply(f:Function,...rest):void 
-		{
-			
-			f.apply(null,rest);
-		}
-		
-		
-		
 		//============================================
 		//===== EventListener Function ======
 		//============================================	
@@ -339,6 +361,7 @@ package com.dinboy.controls
 		 */
 		protected function closeHandler(event:MouseEvent):void 
 		{
+			_detail = PromptBase.CANCEL;
 			event.stopPropagation();
 			dispo();
 		}
@@ -371,7 +394,6 @@ package com.dinboy.controls
 		 */
 		protected function renderHandler(event:Event):void 
 		{
-			trace(this,event.type);
 			setPosition();
 		}
 		
