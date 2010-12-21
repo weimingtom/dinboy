@@ -2,116 +2,122 @@
 <s:WindowedApplication
 				xmlns:fx="http://ns.adobe.com/mxml/2009" 
                xmlns:s="library://ns.adobe.com/flex/spark" 
-               xmlns:mx="library://ns.adobe.com/flex/mx"  width="320" height="240" minWidth="320" minHeight="240" maxWidth="640" maxHeight="480" showStatusBar="false">
+               xmlns:mx="library://ns.adobe.com/flex/mx"  width="320" height="240" minWidth="320" minHeight="240" maxWidth="640" maxHeight="480" showStatusBar="false"  creationComplete="creationCompleteHandler(event)">
 	
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
-			<fx:Array id="dataProvider">
-				<fx:Object>
-					<fx:name>Dinboy</fx:name>
-					<fx:qq>344829874</fx:qq>
-					<fx:phone>18750209178</fx:phone>
-				</fx:Object>
-				<fx:Object>
-					<fx:name>Qin</fx:name>
-					<fx:qq>461627644</fx:qq>
-					<fx:phone>13859249161</fx:phone>
-				</fx:Object>
-				<fx:Object>
-					<fx:name>Qin</fx:name>
-					<fx:qq>461627644</fx:qq>
-					<fx:phone>13859249161</fx:phone>
-				</fx:Object>
-				<fx:Object>
-					<fx:name>Qin</fx:name>
-					<fx:qq>461627644</fx:qq>
-					<fx:phone>13859249161</fx:phone>
-				</fx:Object>
-				<fx:Object>
-					<fx:name>Qin</fx:name>
-					<fx:qq>461627644</fx:qq>
-					<fx:phone>13859249161</fx:phone>
-				</fx:Object>
-				<fx:Object>
-					<fx:name>Qin</fx:name>
-					<fx:qq>461627644</fx:qq>
-					<fx:phone>13859249161</fx:phone>
-				</fx:Object>
-				<fx:Object>
-					<fx:name>Qin</fx:name>
-					<fx:qq>461627644</fx:qq>
-					<fx:phone>13859249161</fx:phone>
-				</fx:Object>
-				<fx:Object>
-					<fx:name>Qin</fx:name>
-					<fx:qq>461627644</fx:qq>
-					<fx:phone>13859249161</fx:phone>
-				</fx:Object>
-				<fx:Object>
-					<fx:name>Qin</fx:name>
-					<fx:qq>461627644</fx:qq>
-					<fx:phone>13859249161</fx:phone>
-				</fx:Object>
-				<fx:Object>
-					<fx:name>Qin</fx:name>
-					<fx:qq>461627644</fx:qq>
-					<fx:phone>13859249161</fx:phone>
-				</fx:Object>
-			</fx:Array>
+			<mx:ArrayCollection>
+				<fx:Object name="Dinboy" qq="344829874" phone="18750209178" />
+				<fx:Object name="Dinboy" qq="344829874" phone="18750209178" />
+				<fx:Object name="Dinboy" qq="344829874" phone="18750209178" />
+				<fx:Object name="Dinboy" qq="344829874" phone="18750209178" />
+				<fx:Object name="Dinboy" qq="344829874" phone="18750209178" />
+				<fx:Object name="Dinboy" qq="344829874" phone="18750209178" />
+				<fx:Object name="Dinboy" qq="344829874" phone="18750209178" />
+				<fx:Object name="Dinboy" qq="344829874" phone="18750209178" />
+				<fx:Object name="Dinboy" qq="344829874" phone="18750209178" />
+				<fx:Object name="Dinboy" qq="344829874" phone="18750209178" />
+				<fx:Object name="Dinboy" qq="344829874" phone="18750209178" />
+				<fx:Object name="Dinboy" qq="344829874" phone="18750209178" />
+			</mx:ArrayCollection>	
 			<mx:ArrayList id="buttonBarData">
 				<fx:String>Delete</fx:String>
 				<fx:String>Updata</fx:String>
 			</mx:ArrayList>
-			
 	</fx:Declarations>
 		<fx:Script>
 			<![CDATA[
 			import flash.events.Event;
 			import flash.events.MouseEvent;
-				
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			import mx.events.DragEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.managers.DragManager;
 			
-			private function drageEnterHandler(event:Event):void 
+			
+			
+			/**
+			 * Flex CreatComplete
+			 * @param	event
+			 */
+			private function creationCompleteHandler(event:FlexEvent):void 
 			{
-				
+				var i:int ;
+				for (i= 0; i < 20; i++) 
+				{
+					dataProvider.addItem({name:"Dinboy-"+i,qq:344829870+i,phone:18750209170+i});
+				}
+			}
+			
+			private function drageEnterHandler(event:DragEvent):void 
+			{
+				event.preventDefault();
+				DragManager.acceptDragDrop(UIComponent(event.target));
 			}
 			
 			private function deleteButtonClickHandler(event:MouseEvent):void 
 			{
-				dataProvider.splice(dataGrid.selectedIndex, 1);
-				dataGrid.dataProvider = dataProvider;
+				deleteBeforMethod();
 			}
 			
-			private function drageCompleteHandler(event:Event):void 
+			private function dragDropHandler(event:DragEvent):void 
 			{
-				
+				deleteBeforMethod();
 			}
 			
-			private function drageOverHandler(event:Event):void 
+			private function deleteBeforMethod():void 
 			{
-				
+				var _selectCounts:int = dataGrid.selectedItems.length;
+				Alert.okLabel = "确认";
+				Alert.cancelLabel = "取消";
+				if (_selectCounts > 0) Alert.show("是否删除选中项?", "提示", Alert.OK | Alert.CANCEL, null, alertCloseHandler);
+				else Alert.show("您未选择任何项!");
 			}
 			
-			private function dragDropHandler(event:Event):void 
+			private function alertCloseHandler(event:CloseEvent):void 
 			{
-				dataProvider.splice(dataGrid.selectedIndex, 1);
-				dataGrid.dataProvider = dataProvider;
+				if (event.detail == Alert.OK) {
+					var _selectIndex:int;
+					while (dataGrid.selectedItems.length>0) 
+					{
+						_selectIndex=dataProvider.getItemIndex(dataGrid.selectedItems[0]);
+						dataProvider.removeItemAt(_selectIndex);
+					}
+				}
 			}
-				
+			
+			private function itemRollOverHandler(event:ListEvent):void 
+			{
+				dataGrid.toolTip = event.itemRenderer.data.name;
+			}
+			
+			private function itemRollOutHandler(event:ListEvent):void 
+			{
+				dataGrid.toolTip = null;
+			}
+			
+			[Bindable]
+			private var dataProvider:ArrayCollection=new ArrayCollection();
+			
 			]]>
 		</fx:Script>
 	
-	<mx:VDividedBox width="100%">
-		<s:Group minHeight="30" width="100%" height="100%">
-		<mx:DataGrid id="dataGrid" dragEnabled="true" draggableColumns="false" dragMoveEnabled="true" dropEnabled="true" dataProvider="{dataProvider}"  width="100%" height="100%" minHeight="30" dragDrop="dragDropHandler(event)" >
+	<mx:VDividedBox width="100%" height="100%">
+		<s:Group minHeight="50" width="100%" height="100%">
+		<mx:DataGrid id="dataGrid" draggableColumns="false" dragEnabled="true" dataProvider="{dataProvider}"  width="100%" height="100%" minHeight="30" allowMultipleSelection="true" itemRollOver="itemRollOverHandler(event)" itemRollOut="itemRollOutHandler(event)">
 			<mx:columns>
-				<mx:DataGridColumn dataField="name" headerText="name" />
+				<mx:DataGridColumn dataField="name" headerText="name" dataTipField="sss" />
 				<mx:DataGridColumn dataField="qq" headerText="QQ" />
 				<mx:DataGridColumn dataField="phone" headerText="phone" />
 			</mx:columns>
 		</mx:DataGrid>
 		</s:Group>
-		<s:Group width="100%" height="100%">
-			<s:Button id="deleteButton" label="Delete" dragDrop="dragDropHandler(event)" dragOver="drageOverHandler(event)" dragEnter="drageEnterHandler(event)" click="deleteButtonClickHandler(event)" dragComplete="drageCompleteHandler(event)" />
+		<s:Group width="100%" height="100%" minHeight="30">
+			<s:Button id="deleteButton" label="Delete" dragDrop="dragDropHandler(event)"  dragEnter="drageEnterHandler(event)" click="deleteButtonClickHandler(event)" />
 		</s:Group>
 	</mx:VDividedBox>
 </s:WindowedApplication>
