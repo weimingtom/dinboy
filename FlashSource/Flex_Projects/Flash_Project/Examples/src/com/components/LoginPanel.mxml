@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+               xmlns:s="library://ns.adobe.com/flex/spark" 
+               xmlns:mx="library://ns.adobe.com/flex/mx" name="LoginPanel" width="240" height="180" close="cancelHandler()" defaultButton="{okButton}">
+	<s:layout >
+		 <s:HorizontalLayout horizontalAlign="center"  />
+	</s:layout>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+			<mx:Validator  id="userVd"  source="{user}"   property="text" required="true" requiredFieldError="Error Format!" triggerEvent="click" trigger="{okButton}"/>
+			<mx:Validator id="passwordVd" source="{password}" property="text" required="true" requiredFieldError="You Never Input Everything!" triggerEvent="click" trigger="{okButton}" />
+	</fx:Declarations>
+	
+	<!-- ================================== Script ================================== -->
+	<fx:Script>
+		<![CDATA[
+		import mx.events.CloseEvent;
+		import mx.managers.PopUpManager;
+		/**
+		 * 
+		 */
+		private function cancelHandler():void 
+		{
+			PopUpManager.removePopUp(this);
+		}
+		
+		/**
+		 * 
+		 */
+		private function loginValida():void{
+			
+		}
+		]]>
+	</fx:Script>
+	
+	<mx:Form width="100%" id="loginForm">
+				<mx:FormItem width="100%" label="UserID" required="true" paddingBottom="5" paddingTop="5" >
+						<s:TextInput id="user" text="Enter You UserID" width="100%" />
+				</mx:FormItem>
+				<mx:FormItem width="100%" label="PassWord" required="true" paddingBottom="5" paddingTop="5">
+						<s:TextInput id="password" width="100%" displayAsPassword="true" />
+				</mx:FormItem>
+				<s:HGroup horizontalAlign="center" width="100%" paddingBottom="5" paddingTop="5">
+					<s:Button id="okButton" label="Login on" click="loginValida()"  />
+					<s:Button id="cancelButton" label="Cancel" click="cancelHandler()" />
+				</s:HGroup>
+	</mx:Form>
+</s:TitleWindow>

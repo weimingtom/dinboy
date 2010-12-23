@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+               xmlns:s="library://ns.adobe.com/flex/spark" 
+               xmlns:mx="library://ns.adobe.com/flex/halo" name="LoginExample">
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+		import mx.core.IFlexDisplayObject;
+		import mx.managers.PopUpManager;
+		import com.components.LoginPanel;
+		private function showLoginPanel():void{
+				var _loginPanle:IFlexDisplayObject=PopUpManager.createPopUp(this, LoginPanel, true);
+				PopUpManager.centerPopUp(_loginPanle);
+		}
+		]]>
+	</fx:Script>
+	<s:Button id="loginButton" label="Login" click="showLoginPanel()" />
+</s:Application>
