@@ -4,7 +4,7 @@
   <output>
     <movie disabled="False" />
     <movie input="" />
-    <movie path="bin\HalloWorld.swf" />
+    <movie path="bin\Examples.swf" />
     <movie fps="30" />
     <movie width="320" />
     <movie height="240" />

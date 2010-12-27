@@ -7,15 +7,19 @@
 	</s:layout>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
-			<mx:Validator  id="userVd"  source="{user}"   property="text" required="true" requiredFieldError="Error Format!" triggerEvent="click" trigger="{okButton}"/>
-			<mx:Validator id="passwordVd" source="{password}" property="text" required="true" requiredFieldError="You Never Input Everything!" triggerEvent="click" trigger="{okButton}" />
+			<mx:RegExpValidator noExpressionError="noExpressionError!" noMatchError="noMatchError!" flags="i" id="userVd"  source="{user}" expression="{'^[a-zA-Z][a-z0-9A-Z_]{5,12}$'}"   property="text" required="true" requiredFieldError="Error Format!" triggerEvent="focusOut" trigger="{user}"/>
+			<mx:Validator id="passwordVd"  source="{password}" property="text" required="true" requiredFieldError="You Never Input Everything!" triggerEvent="focusOut" trigger="{password}" />
 	</fx:Declarations>
 	
 	<!-- ================================== Script ================================== -->
 	<fx:Script>
 		<![CDATA[
+		import flash.events.FocusEvent;
+		import mx.controls.Alert;
 		import mx.events.CloseEvent;
 		import mx.managers.PopUpManager;
+		import mx.validators.Validator;
+		
 		/**
 		 * 
 		 */
@@ -26,16 +30,43 @@
 		
 		/**
 		 * 
+		 * @param	event
 		 */
-		private function loginValida():void{
-			
+		private function userFocusInHandler(event:FocusEvent):void 
+		{
+			if (event.currentTarget.text=="Enter You UserID") 
+			{
+				event.currentTarget.text = "";
+			}
+		}
+		
+		/**
+		 * 
+		 * @param	event
+		 */
+		private function userFocusOutHandler(event:FocusEvent):void 
+		{
+			if (event.currentTarget.text=="") 
+			{
+				event.currentTarget.text = "Enter You UserID";
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private function loginValida():void {
+			if (Validator.validateAll([userVd,passwordVd]).length==0) 
+			{
+				Alert.show("You Can Pass It!");
+			}
 		}
 		]]>
 	</fx:Script>
 	
 	<mx:Form width="100%" id="loginForm">
 				<mx:FormItem width="100%" label="UserID" required="true" paddingBottom="5" paddingTop="5" >
-						<s:TextInput id="user" text="Enter You UserID" width="100%" />
+						<s:TextInput id="user" text="Enter You UserID" width="100%" focusIn="userFocusInHandler(event)" focusOut="userFocusOutHandler(event)" />
 				</mx:FormItem>
 				<mx:FormItem width="100%" label="PassWord" required="true" paddingBottom="5" paddingTop="5">
 						<s:TextInput id="password" width="100%" displayAsPassword="true" />
