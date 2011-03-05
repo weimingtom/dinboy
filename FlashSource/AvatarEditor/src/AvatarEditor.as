@@ -9,7 +9,7 @@ package
 	 */
 	public class AvatarEditor extends Sprite
 	{
-		
+		//private var 
 		public function AvatarEditor() 
 		{
 			
