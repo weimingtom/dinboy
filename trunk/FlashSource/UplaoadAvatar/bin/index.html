@@ -10,6 +10,7 @@
 	<script src="js/swfobject.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		var flashvars = {
+			postUrl:"uploadPhp.php"
 		};
 		var params = {
 			menu: "false",
@@ -21,10 +22,15 @@
 		var attributes = {
 			id:"UplaoadAvatar"
 		};
-		swfobject.embedSWF("UplaoadAvatar.swf", "altContent", "100%", "100%", "10.0.0", "expressInstall.swf", flashvars, params, attributes);
+		swfobject.embedSWF("UplaoadAvatar.swf", "altContent", "420", "480", "10.0.0", "expressInstall.swf", flashvars, params, attributes);
+		
+		function insertItem(path,message,photoid){
+			var li='<li id="'+photoid+'"><img src="'+path+'"/><br/>'+message+'</li>';
+			document.getElementById("fileList").innerHTML+=li;
+		}
 	</script>
 	<style type="text/css">
-		html, body { height:100%; overflow:hidden; }
+		html, body { height:100%; }
 		body { margin:0; }
 	</style>
 </head>
@@ -36,5 +42,8 @@
 			src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" 
 			alt="Get Adobe Flash player" /></a></p>
 	</div>
+	<ul id="fileList">
+			
+	</ul>
 </body>
 </html>
