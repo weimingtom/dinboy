@@ -22,6 +22,11 @@ package ui
 		 */
 		private var _textField:TextField;
 		
+		/**
+		 * 按钮是否可用
+		 */
+		private var _enabled:Boolean;
+		
 		public function ButtonBase()
 		{
 			
@@ -73,6 +78,30 @@ package ui
 		{
 			_label = value;
 		}
+		
+		
+		/**
+		 * 按钮是否禁用
+		 */
+		public function get enabled():Boolean 
+		{
+			return _enabled;
+		}
+		
+		public function set enabled(value:Boolean):void 
+		{
+			_enabled = value;
+			if (_enabled)
+			{
+				mouseEnabled = true;
+				mouseChildren = true;
+			}else 
+			{
+				mouseEnabled = false;
+				mouseChildren = false;
+			}
+		}
+		
 
 
 

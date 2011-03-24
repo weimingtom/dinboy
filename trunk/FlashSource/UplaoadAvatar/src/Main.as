@@ -222,18 +222,17 @@ package
 			var 	jpgEncoder:JPGEncoder = new JPGEncoder(100);
             var 	byteArr:ByteArray = jpgEncoder.encode(bit);
 			var  _senObject:Object = _editMessage.sendObject;
-					postUrl += "&dead=" + _senObject.dead;
-					postUrl += "&time=" + _senObject.time;
-					postUrl += "&address=" + _senObject.address;
-            var	urlRequest:URLRequest = new URLRequest(postUrl);
+			var  _posturl = postUrl;
+					_posturl += "&dead=" + _senObject.dead;
+					_posturl += "&time=" + _senObject.time;
+					_posturl += "&address=" + _senObject.address;
+            var	urlRequest:URLRequest = new URLRequest(_posturl);
 					urlRequest.data = byteArr;
 					urlRequest.method = URLRequestMethod.POST;
 					urlRequest.contentType = "application/octet-stream";
             var 	loader:URLLoader = new URLLoader();
 					loader.load(urlRequest);
 					loader.addEventListener(Event.COMPLETE, onUploadComplete);
-				//	loader.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
-				//	loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
 		}
 		
 		/**
