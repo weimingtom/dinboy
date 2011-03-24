@@ -77,6 +77,7 @@ package ui
 		public function set label(value:String):void 
 		{
 			_label = value;
+			_textField.text = _label;
 		}
 		
 		
