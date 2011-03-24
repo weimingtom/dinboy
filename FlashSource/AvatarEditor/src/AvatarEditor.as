@@ -1,6 +1,6 @@
 package  
 {
-	import fl.controls.Button;
+
 	import flash.display.Sprite;
 
 	/**
@@ -10,7 +10,7 @@ package
 	 */
 	public class AvatarEditor extends Sprite
 	{
-		private var button:Button
+		
 		public function AvatarEditor() 
 		{
 			

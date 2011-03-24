@@ -1,0 +1,1 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="save_avatar.aspx.cs" Inherits="dinboy.save_avatar" %>
