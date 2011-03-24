@@ -1,116 +1,102 @@
 package ui 
 {
-	import flash.display.Sprite;
-	import flash.events.MouseEvent;
+	import flash.display.MovieClip;
 	import flash.text.TextField;
-	
-
 	/**
 	 * @author		钉崽[Dinboy]
 	 * @copy		2010 © dinboy.com
-	 * @version		v1.0 [2011-3-5 10:21]
+	 * @version		v1.0 [2011-3-24 17:10]
 	 */
-	public class ButtonBase extends Sprite implements IFocusComponent
+	public class ButtonBase extends MovieClip
 	{
 		/**
-		 * 按钮的文本字符串
+		 * 是否禁用
 		 */
-		private var	 _label:String = "";
+		private var _enabled:Boolean;
 		
 		/**
-		 * 按钮的文本框
+		 * 文本
 		 */
 		private var _textField:TextField;
 		
 		/**
-		 * 按钮是否可用
+		 * 文本
 		 */
-		private var _enabled:Boolean;
+		private var _label:String;
 		
-		public function ButtonBase()
+		private var _width:Number;
+		
+		private var _height:Number;
+		
+		public function ButtonBase() 
 		{
-			
+			addFrameScript(0, frame_1, 1, frame_2);
+			super();
+			setupUI();
 		}
 		
-	//============================================
-	//===== protected function ======
-	//============================================
-		/**
-		 * 配置鼠标事件
-		 */
-		protected function setupMouseEvent():void 
+		private function frame_1():void 
 		{
-			addEventListener(MouseEvent.MOUSE_DOWN, mouseEventHandler, false, 0, true);
-			addEventListener(MouseEvent.MOUSE_UP, mouseEventHandler, false, 0, true);
-			addEventListener(MouseEvent.ROLL_OVER, mouseEventHandler, false, 0, true);
-			addEventListener(MouseEvent.ROLL_OUT, mouseEventHandler, false, 0, true);
+			stop();
 		}
 		
-		/**
-		 * 当鼠标出发事件时调度
-		 * @param	event
-		 */
-		protected function mouseEventHandler(event:MouseEvent):void
+		private function frame_2():void 
 		{
-			
+			stop();
 		}
 		
-		/**
-		 * 设置鼠标状态
-		 * @param	state
-		 */
-		protected function setMouseState(state:String):void 
+		private function setupUI():void 
 		{
-			
+			_textField = new TextField();
+			_textField.autoSize = "left";
+			_textField.selectable = false;
+			_textField.mouseEnabled = false;
+			_textField.wordWrap = false;
+			_textField.multiline = false;
+			addChild(_textField);
+			_width = width;
+			_height = height;
 		}
-	//============================================
-	//===== Getter && Setter ======
-	//============================================
-	
-		/**
-		 * 设置文本
-		 */
+		
+		private function setStyle():void 
+		{
+			_textField.x = _width - _textField.width >> 1;
+			_textField.y = _height - _textField.height >> 1;
+		}
+		
+		//public function get enabled():Boolean 
+		//{
+			//return _enabled;
+		//}
+		//
+		//public function set enabled(value:Boolean):void 
+		//{
+			//_enabled = value;
+		//}
+		
 		public function get label():String 
 		{
 			return _label;
 		}
+		
 		public function set label(value:String):void 
 		{
 			_label = value;
 			_textField.text = _label;
+			setStyle();
 		}
 		
 		
-		/**
-		 * 按钮是否禁用
-		 */
-		public function get enabled():Boolean 
-		{
-			return _enabled;
-		}
-		
-		public function set enabled(value:Boolean):void 
-		{
-			_enabled = value;
-			if (_enabled)
-			{
-				mouseEnabled = true;
-				mouseChildren = true;
-			}else 
-			{
-				mouseEnabled = false;
-				mouseChildren = false;
-			}
-		}
 		
 
 
 
-		
+
 
 
 	//============================================
 	//===== Class[ButtonBase] Has Finish ======
 	//============================================
 	}
+
 }
