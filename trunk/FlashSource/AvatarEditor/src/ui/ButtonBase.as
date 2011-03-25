@@ -2,31 +2,37 @@ package ui
 {
 	import flash.display.MovieClip;
 	import flash.text.TextField;
+	import flash.text.TextFormat;
 	/**
 	 * @author		钉崽[Dinboy]
 	 * @copy		2010 © dinboy.com
 	 * @version		v1.0 [2011-3-24 17:10]
 	 */
-	public class ButtonBase extends MovieClip
+	public class ButtonBase extends MovieClip implements IButton
 	{
 		/**
 		 * 是否禁用
 		 */
-		private var _enabled:Boolean;
+		protected var _enabled:Boolean;
 		
 		/**
 		 * 文本
 		 */
-		private var _textField:TextField;
+		protected var _textField:TextField;
 		
 		/**
 		 * 文本
 		 */
-		private var _label:String;
+		protected var _label:String;
 		
-		private var _width:Number;
+		protected var _width:Number;
 		
-		private var _height:Number;
+		protected var _height:Number;
+		
+		/**
+		 * 文本样式
+		 */
+		protected var _textFormat:TextFormat;
 		
 		public function ButtonBase() 
 		{
@@ -56,6 +62,10 @@ package ui
 			addChild(_textField);
 			_width = width;
 			_height = height;
+			
+			_textFormat = new TextFormat();
+			_textFormat.color = 0x333333;
+			_textField.setTextFormat(_textFormat);
 		}
 		
 		private function setStyle():void 
@@ -64,15 +74,25 @@ package ui
 			_textField.y = _height - _textField.height >> 1;
 		}
 		
-		//public function get enabled():Boolean 
-		//{
-			//return _enabled;
-		//}
-		//
-		//public function set enabled(value:Boolean):void 
-		//{
-			//_enabled = value;
-		//}
+		override	public function get enabled():Boolean 
+		{
+			return super._enabled;
+		}
+		
+		override	public function set enabled(value:Boolean):void 
+		{
+			_enabled = value;
+			if (_enabled) 
+			{
+				mouseEnabled = true;
+				mouseChildren = true;
+			}else 
+			{
+				mouseEnabled = false;
+				mouseChildren = false;
+			}
+			super.enabled = _enabled;
+		}
 		
 		public function get label():String 
 		{

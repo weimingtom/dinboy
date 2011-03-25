@@ -1,6 +1,5 @@
 package ui 
 {
-
 	/**
 	 * @author		钉崽[Dinboy]
 	 * @copy		2010 © dinboy.com
@@ -8,10 +7,10 @@ package ui
 	 */
 	public class BigButton extends ButtonBase
 	{
-		
+
 		public function BigButton() 
 		{
-			
+			label = "提交头像";
 		}
 
 

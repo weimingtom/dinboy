@@ -37,7 +37,7 @@ package com.dinboy.util
 		 */
 		public function DinTransfrom() 
 		{
-			trace("[DinTransfrom] 是一个静态类,不需要实例化~");
+			//trace("[DinTransfrom] 是一个静态类,不需要实例化~");
 		}
 		
 		/**
