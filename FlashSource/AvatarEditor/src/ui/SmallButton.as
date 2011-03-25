@@ -11,7 +11,7 @@ package ui
 		
 		public function SmallButton() 
 		{
-			
+			label = "浏览";
 		}
 
 
