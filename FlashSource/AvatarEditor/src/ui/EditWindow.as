@@ -47,7 +47,7 @@ package ui
 		/**
 		 * 图片数据
 		 */
-		private var _bitMapContainer:Sprite;
+		private var _photoContainer:Sprite;
 		
 		/**
 		 * 遮罩的容器
@@ -100,10 +100,6 @@ package ui
 		private var _scalePoint:Point;
 		
 		/**
-		 * 可以点击的区域
-		 */
-		private var _hitArea:Sprite;
-		/**
 		 * 创建可编辑图片的窗口
 		 * @param	_source			图像数据
 		 * @param	_width			窗口的宽度
@@ -133,8 +129,8 @@ package ui
 			
 			_bitMap = new Bitmap(_source);
 			
-			_bitMapContainer = new Sprite();
-			_bitMapContainer.addChild(_bitMap);
+			_photoContainer = new Sprite();
+			_photoContainer.addChild(_bitMap);
 			
 			_masker = new Sprite();
 			_masker = BasicGemo.drawRectSprite(_width, _height,0,0.3);
@@ -149,8 +145,7 @@ package ui
 			_previewWindow.mouseEnabled = false;
 			
 			_scalePoint = new Point((_previewWindow.x + _editWidth)/2,(_previewWindow.y + _editHeight)/2);
-			
-			addChild(_bitMapContainer);
+			addChild(_photoContainer);
 			addChild(_masker);
 			addChild(_previewWindow);
 		//_previewWindow.mask = _masker;
@@ -165,7 +160,7 @@ package ui
 		 */
 		private function setupEvent():void 
 		{
-			_bitMapContainer.addEventListener(MouseEvent.MOUSE_DOWN, bitMapContainerMouseDown, false, 0, true);
+			_photoContainer.addEventListener(MouseEvent.MOUSE_DOWN, bitMapContainerMouseDown, false, 0, true);
 		}
 		
 		/**
@@ -185,12 +180,12 @@ package ui
 		 */
 		private function mouseMoveHandler(event:MouseEvent):void 
 		{
-			var _dx:Number = _previewWindow.x + _editWidth - _bitMapContainer.width;
-			var _dy:Number = _previewWindow.y + _editHeight - _bitMapContainer.height;
-			var _dw:Number = _bitMapContainer.width-_editWidth;
-			var _dh:Number = _bitMapContainer.height-_editHeight;
+			var _dx:Number = _previewWindow.x + _editWidth - _photoContainer.width;
+			var _dy:Number = _previewWindow.y + _editHeight - _photoContainer.height;
+			var _dw:Number = _photoContainer.width-_editWidth;
+			var _dh:Number = _photoContainer.height-_editHeight;
 			var _bounds:Rectangle = new Rectangle(_dx,_dy,_dw,_dh);
-			_bitMapContainer.startDrag(false,_bounds);
+			_photoContainer.startDrag(false,_bounds);
 			scaleSnap();
 		}
 		
@@ -200,7 +195,7 @@ package ui
 		 */
 		private function windowMouseUp(event:MouseEvent):void 
 		{
-			_bitMapContainer.stopDrag();
+			_photoContainer.stopDrag();
 			removeEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
 			removeEventListener(MouseEvent.MOUSE_UP, windowMouseUp);
 			removeEventListener(MouseEvent.ROLL_OUT, windowRollOut);
@@ -213,7 +208,7 @@ package ui
 		 */
 		private function windowRollOut(event:MouseEvent):void 
 		{
-			_bitMapContainer.stopDrag();
+			_photoContainer.stopDrag();
 			removeEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
 			removeEventListener(MouseEvent.MOUSE_UP, windowMouseUp);
 			removeEventListener(MouseEvent.ROLL_OUT, windowRollOut);
@@ -227,19 +222,19 @@ package ui
 		private function scaleSnap():void 
 		{
 			//对齐到预览窗口
-			if (_bitMapContainer.x>_previewWindow.x) 
+			if (_photoContainer.x>_previewWindow.x) 
 			{
-				_bitMapContainer.x = _previewWindow.x;
-			}else if(_bitMapContainer.x+_bitMapContainer.width<_previewWindow.x+_editWidth)
+				_photoContainer.x = _previewWindow.x;
+			}else if(_photoContainer.x+_photoContainer.width<_previewWindow.x+_editWidth)
 			{
-				_bitMapContainer.x = _previewWindow.x + _editWidth - _bitMapContainer.width;
+				_photoContainer.x = _previewWindow.x + _editWidth - _photoContainer.width;
 			}
-			if (_bitMapContainer.y>_previewWindow.y) 
+			if (_photoContainer.y>_previewWindow.y) 
 			{
-				_bitMapContainer.y = _previewWindow.y;
-			}else if(_bitMapContainer.y+_bitMapContainer.height<_previewWindow.y+_editHeight)
+				_photoContainer.y = _previewWindow.y;
+			}else if(_photoContainer.y+_photoContainer.height<_previewWindow.y+_editHeight)
 			{
-				_bitMapContainer.y = _previewWindow.y + _editHeight - _bitMapContainer.height;
+				_photoContainer.y = _previewWindow.y + _editHeight - _photoContainer.height;
 			}
 			
 				//复制像素
@@ -251,10 +246,10 @@ package ui
 		 */
 		private function setSource():void 
 		{
-			_bitMapContainer.scaleX = _bitMapContainer.scaleY = 1;
+			_photoContainer.scaleX = _photoContainer.scaleY = 1;
 			_bitMap.bitmapData = _source;
 			//如果宽度大于高度,则以高度和编辑窗口作为的最小比率,否则使用宽度和剪辑窗口的比率作为最小比率
-			var _dScale:Number = Math.max(_editWidth / _bitMapContainer.width, _editHeight / _bitMapContainer.height);
+			var _dScale:Number = Math.max(_editWidth / _photoContainer.width, _editHeight / _photoContainer.height);
 			_size=_minimum = _dScale > 1?_dScale:_dScale < 1?_dScale:1;
 			_maximum = _minimum + 1;
 			setSize();
@@ -269,11 +264,11 @@ package ui
 			var   _drawMatrix:Matrix = new Matrix();
 					_drawMatrix.scale(_size, _size);
 					
-			var	_drawBitmapData:BitmapData = new BitmapData(_bitMapContainer.width, _bitMapContainer.height,true,0);
-					_drawBitmapData.draw(_bitMapContainer, _drawMatrix);
+			var	_drawBitmapData:BitmapData = new BitmapData(_photoContainer.width, _photoContainer.height,true,0);
+					_drawBitmapData.draw(_photoContainer, _drawMatrix);
 					
 			var	_copyBitmapData:BitmapData = new BitmapData(_editWidth, _editHeight);
-					_copyBitmapData.copyPixels(_drawBitmapData, new Rectangle(_previewWindow.x-_bitMapContainer.x ,  _previewWindow.y-_bitMapContainer.y, _editWidth, _editHeight),new Point(0,0));
+					_copyBitmapData.copyPixels(_drawBitmapData, new Rectangle(_previewWindow.x-_photoContainer.x ,  _previewWindow.y-_photoContainer.y, _editWidth, _editHeight),new Point(0,0));
 					
 					_previewWindow.graphics.clear();
 					_previewWindow.graphics.beginBitmapFill(_copyBitmapData,null,false,true);
@@ -288,7 +283,7 @@ package ui
 		 */
 		private function setSize():void 
 		{
-			DinTransfrom.transfromByPoint(_bitMapContainer, { scale:_size, point:_scalePoint } );
+			DinTransfrom.transfromByPoint(_photoContainer, { scale:_size, point:_scalePoint } );
 			scaleSnap();
 		}
 	
@@ -303,8 +298,8 @@ package ui
 		{
 			setSize();
 			
-			_bitMapContainer.x = (_width - _bitMapContainer.width)/2;
-			_bitMapContainer.y = (_height - _bitMapContainer.height) / 2;
+			_photoContainer.x = (_width - _photoContainer.width)/2;
+			_photoContainer.y = (_height - _photoContainer.height) / 2;
 			
 			copyPixsToPreview();
 		}
