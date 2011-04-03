@@ -20,7 +20,7 @@ package util
         public static function drawRectSprite(width:uint = 50, height:uint = 50, fillColor:uint = 16777215, fillAlpha:Number = 1,lineThickness:Number=NaN,lineColor:uint=0) : Sprite
         {
             var drawSprite:Sprite = new Sprite();
-            return drawRect(drawSprite, 0, 0, width, height, fillColor, fillAlpha, lineThickness, lineColor);
+            return Sprite(drawRect(drawSprite, 0, 0, width, height, fillColor, fillAlpha, lineThickness, lineColor));
         }
 		
 		/**
