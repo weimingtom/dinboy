@@ -10,6 +10,7 @@
 	<script src="js/swfobject.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		var flashvars = {
+			text:"abcdefg"
 		};
 		var params = {
 			menu: "false",
@@ -22,6 +23,23 @@
 			id:"DinTest"
 		};
 		swfobject.embedSWF("DinTest.swf", "altContent", "100%", "100%", "9.0.0", "expressInstall.swf", flashvars, params, attributes);
+		
+		function exm(){
+			var object=new Object();
+				object.a="1";
+				object.b="2";
+				object.c="3";
+				object.d="4";
+				object.e="5";
+				object.f="6";
+				object.g="7";
+			document.getElementById("DinTest").callBack(object);
+		}
+		
+		//剪切板剪切完毕
+		function clipComplete(text){
+			alert(text);
+		}
 	</script>
 	<style type="text/css">
 		html, body { height:100%; overflow:hidden; }
